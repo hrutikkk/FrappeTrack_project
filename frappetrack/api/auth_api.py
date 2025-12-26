@@ -12,9 +12,12 @@ def login_custom(username: str, password: str) -> dict:
         dict: JSON with user details and API credentials
     """
     try:
+        frappe.flags.disable_csrf = True
+
         login_manager = frappe.auth.LoginManager()
-        login_manager.authenticate(user=username, pwd=password)
+        login_manager.authenticate(usr=username, pwd=password)
         login_manager.post_login()
+        
     except frappe.exceptions.AuthenticationError:
         frappe.clear_messages()
         return {
@@ -29,7 +32,6 @@ def login_custom(username: str, password: str) -> dict:
     return {
         "success": True,
         "message": "Authentication successful",
-        "sid": frappe.session.sid,
         "api_key": user.api_key,
         "api_secret": user.get_password("api_secret"),
         "username": user.username,

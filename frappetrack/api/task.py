@@ -58,13 +58,14 @@ def get_task_by_project(project_id: str):
                 "message": _("{0} tasks found for project {1}.").format(len(tasks), project_id)
             }
         
-t
+
         else:
             return {
                 "status": "success",
                 "data": [],
                 "message": _("No tasks found for this project.")
             }
+
     except Exception:
         return {
             "status": "failed",
