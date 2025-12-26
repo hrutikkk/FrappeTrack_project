@@ -19,6 +19,7 @@ def get_employee_profile():
         if employee and employee.get("image"):
             employee["image"] = frappe.utils.get_url(employee["image"])
 
+
         return {
             "success": True,
             "user": {
