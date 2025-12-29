@@ -1,12 +1,19 @@
 import frappe
 from frappe import _
 
-@frappe.whitelist(allow_guest=False)
+@frappe.whitelist()
 def get_employee_profile():
     """
     Returns the employee details of the logged-in user.
     """
     try:
+        # 🔐 Guest check
+        if frappe.session.user == "Guest":
+            frappe.throw(
+                "Unauthorized: Please login first",
+                frappe.PermissionError
+            )
+
         user = frappe.session.user
 
         employee = frappe.db.get_value(
