@@ -1,61 +1,97 @@
-import { useState } from "react"
-import { useAuthStore } from "../store/authStore"
-import fav from '../assets/favicon.webp'
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
 import { MdArtTrack } from "react-icons/md";
-import { Link } from "react-router-dom";
-
-
+import fav from "../assets/favicon.webp";
+import { useAuthStore } from "../store/authStore";
 
 const SideBar = ({ children }) => {
-    const { user } = useAuthStore()
-    const [sideBar, setSideBar] = useState(false)
+  const { user } = useAuthStore();
+  const [open, setOpen] = useState(false);
 
-    return (
-        <>
-            <button data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar" aria-controls="default-sidebar" type="button" className="text-heading bg-transparent box-border border border-transparent hover:bg-neutral-secondary-medium focus:ring-4 focus:ring-neutral-tertiary font-medium leading-5 rounded-base ms-3 mt-3 text-sm p-2 focus:outline-none inline-flex sm:hidden">
-                <span className="sr-only">Open sidebar</span>
-                <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5 7h14M5 12h14M5 17h10" />
-                </svg>
-            </button>
+  // Helper: closes sidebar only on mobile
+  const handleLinkClick = () => {
+    if (window.innerWidth < 640) { // sm breakpoint
+      setOpen(false);
+    }
+  };
 
-            <aside id="default-sidebar" className="fixed top-0 left-0 z-40 w-64 h-full transition-transform -translate-x-full sm:translate-x-0" aria-label="Sidebar">
-                <div className="h-full px-3 py-4 overflow-y-auto bg-neutral-primary-soft border-e border-default">
-                    <ul className="space-y-2 font-medium">
-                        <li>
-                            <div className="relative flex flex-col justify-center mt-16 items-center">
-                               <div>
-                                 <img
-                                    src={user.employee.image || fav}
-                                    alt="Profile"
-                                    className="w-22 h-22 rounded-full border-4 border-white shadow-lg object-cover bg-gray-200"
-                                />
-                               </div>
-                                <span className="text-center font-semibold p-2">{user.name}</span>
-                            </div>
-                        </li>
-                        <li className="w-full h-1 bg-gray-500"></li>
-                        <li>
-                            <Link to="/user-profile" className="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group">
-                                <FaUser className="shrink-0 w-5 h-5 transition duration-75 group-hover:text-fg-brand" aria-hidden="true" width="24" height="24" />
-                                <span className="ms-3">Profile</span>
-                            </Link>
-                        </li>
-                        <li>
-                             <Link to="/time-tracker" className="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group">
-                                <MdArtTrack className="shrink-0 w-7 h-7 transition duration-75 group-hover:text-fg-brand" aria-hidden="true"   />
-                                <span className="ms-3">Tracker</span>
-                            </Link>
-                        </li>
-                      
-                    </ul>
-                </div>
-            </aside>
+  return (
+    <>
+      {/* Hamburger button (mobile only) */}
+      <button
+        onClick={() => setOpen(true)}
+        className="sm:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-gray-200 shadow"
+      >
+        <span className="sr-only">Open sidebar</span>
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
 
-            {children}
-        </>
-    )
-}
+      {/* Overlay (mobile) */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/30 z-40 sm:hidden"
+          onClick={() => setOpen(false)}
+        ></div>
+      )}
 
-export default SideBar
+      {/* Sidebar */}
+      <aside
+        className={`fixed top-0 left-0 z-50 w-64 h-full bg-gradient-to-br from-blue-300 via-indigo-200 to-purple-200 overflow-y-auto transition-transform duration-300
+          ${open ? "translate-x-0" : "-translate-x-full"} sm:translate-x-0`}
+      >
+        <div className="p-4">
+          {/* Profile */}
+          <div className="flex flex-col items-center mt-10 mb-6">
+            <img
+              src={user?.employee?.image || fav}
+              alt="Profile"
+              className="w-24 h-24 rounded-full border-4 border-gray-300 shadow-lg object-cover"
+            />
+            <span className="mt-2 font-semibold">{user?.name}</span>
+          </div>
+
+          {/* Links */}
+          <ul className="space-y-2">
+            <li>
+              <Link
+                to="/user-profile"
+                onClick={handleLinkClick} // close on click
+                className="flex items-center px-2 py-2 rounded hover:bg-gray-100"
+              >
+                <FaUser className="w-5 h-5" />
+                <span className="ml-3">Profile</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/time-tracker"
+                onClick={handleLinkClick} // close on click
+                className="flex items-center px-2 py-2 rounded hover:bg-gray-100"
+              >
+                <MdArtTrack className="w-5 h-5" />
+                <span className="ml-3">Tracker</span>
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </aside>
+
+      {/* Page Content */}
+      <div className="transition-all duration-300 ml-0 sm:ml-64">
+        {children}
+      </div>
+    </>
+  );
+};
+
+export default SideBar;

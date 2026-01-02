@@ -7,6 +7,8 @@ export const useAuthStore = create((set) => ({
     authLoading: false,
     isAuthenticated: false,
     error: null,
+    projects: [],
+    task:[],
 
     // login: async (apiKey, apiSecret) => {
     //     set({ authLoading: true, error: null });
@@ -53,7 +55,7 @@ export const useAuthStore = create((set) => ({
         try {
 
             const res = await axiosInstance.get(
-                "http://192.168.0.138/api/method/frappetrack.api.user.get_employee_profile",
+                "api/method/frappetrack.api.user.get_employee_profile",
                 {
                     headers: {
                         'Authorization': `token ${apiKey}:${apiSecret}`,
@@ -65,7 +67,13 @@ export const useAuthStore = create((set) => ({
             console.log("Profile response:", data);
 
             if (data?.message?.success) {
+                localStorage.removeItem("creds")
                 set({ user: data.message.user, isAuthenticated: true });
+                const creds = [
+                    { "apiKey": apiKey },
+                    { "apiSecret": apiSecret }
+                ]
+                localStorage.setItem("creds", JSON.stringify(creds))
                 toast.success("Profile fetched successfully")
                 return true;
             }
@@ -76,7 +84,67 @@ export const useAuthStore = create((set) => ({
         }
     },
 
+    getProjects: async () => {
+        try {
+            // apiSecret
+            const [{ apiKey }, {apiSecret}] = JSON.parse(localStorage.getItem("creds"));
+            
+            console.log(apiKey, apiSecret)
 
+            const res = await axiosInstance.get(
+                "/api/method/frappetrack.api.project.get_projects_list",
+                {
+                    headers: {
+                        'Authorization': `token ${apiKey}:${apiSecret}`,
+                    },
+                }
+            );
+
+            const data = res.data;
+            console.log("Project response:", data);
+
+            if (data?.message?.status) {
+                set({ projects: data.message.data });
+                toast.success("Projects fetched successfully")
+                return true;
+            }
+            toast.error("Unable to fetch projects")
+            return false
+        } catch (err) {
+            console.error("Projects fetch failed:", err);
+        }
+    },
+    getTask: async (project_id) => {
+        console.log("hitting get_task")
+        try {
+            // apiSecret
+            const [{ apiKey }, {apiSecret}] = JSON.parse(localStorage.getItem("creds"));
+            
+            console.log(apiKey, apiSecret)
+
+            const res = await axiosInstance.get(
+                `api/method/frappetrack.api.task.get_task_by_project?project_id=${project_id}`,
+                {
+                    headers: {
+                        'Authorization': `token ${apiKey}:${apiSecret}`,
+                    },
+                }
+            );
+
+            const data = res.data;
+            console.log("Task response:", data);
+
+            if (data?.message?.status) {
+                set({ task: data.message.data });
+                toast.success("Task fetched successfully")
+                return true;
+            }
+            toast.error("Unable to fetch tasks")
+            return false
+        } catch (err) {
+            console.error("Projects fetch failed:", err);
+        }
+    },
     // logout: async () => {
     //     set({ user: null, isAuthenticated: false });
     // },

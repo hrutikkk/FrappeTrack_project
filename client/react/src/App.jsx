@@ -9,11 +9,12 @@ import Tracker from "./pages/Tracker";
 
 function App() {
   const { user, isAuthenticated } = useAuthStore()
-  useEffect(()=>{
-    console.log("User got changed : app")
-    console.log("user", user);
-    console.log("isAuthenticated", isAuthenticated)
-  },[user])
+  // useEffect(()=>{
+  //   console.log("User got changed : app")
+  //   console.log("user", user);
+  //   console.log("isAuthenticated", isAuthenticated)
+  // },[user])
+
   return (
     <>
       <Routes>
