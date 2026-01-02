@@ -1,47 +1,66 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-const path = require('path');
+const { app, BrowserWindow, ipcMain, desktopCapturer } = require("electron");
+const path = require("path");
+const fs = require("fs");
 
 let mainWindow;
-let loggedInUser = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 1000,
+    center: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, "preload.js"), // preload script
       nodeIntegration: false,
-      contextIsolation: true
-    }
+      contextIsolation: true,
+    },
   });
-  mainWindow.setSize(1200,1000)
-  mainWindow.center()
-  mainWindow.loadFile(path.join(__dirname,'../client/react/dist/index.html'));
+
+  // Load the React build
+  mainWindow.loadFile(
+    path.join(__dirname, "../client/react/dist/index.html")
+  );
+
+  // Optional: open DevTools for debugging
+  // mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
 
-// store profile + redirect
-ipcMain.on('login-success', (event, data) => {
-  loggedInUser = data;
-//   mainWindow.loadFile('./pages/profile.html');
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
 });
 
-ipcMain.handle("capture-screen", async (event, { sessionId, imageIndex }) => {
-  const sources = await desktopCapturer.getSources({
-    types: ["screen"],
-    thumbnailSize: { width: 1280, height: 720 }
-  });
+// ---------------- IPC for Screenshots ------------------
+ipcMain.handle("capture-screen", async () => {
+  try {
+    const sources = await desktopCapturer.getSources({
+      types: ["screen"],
+      thumbnailSize: { width: 1280, height: 720 },
+    });
 
-  const image = sources[0].thumbnail.toPNG();
+    const thumbnail = sources[0].thumbnail;
+    const image = thumbnail.toPNG();
 
-  // img/session-X path
-  const imgDir = path.join(__dirname, "..", "img", `session-${sessionId}`);
-  fs.mkdirSync(imgDir, { recursive: true });
+    // Current date & time
+    const now = new Date();
+    const dateFolder = now.toISOString().split("T")[0]; // YYYY-MM-DD
+    const timeString = now
+      .toTimeString()
+      .split(" ")[0]
+      .replace(/:/g, "-"); // HH-MM-SS
 
-  const filePath = path.join(imgDir, `image-${imageIndex}.png`);
-  fs.writeFileSync(filePath, image);
+    // Folder: screenshots/YYYY-MM-DD/
+    const imgDir = path.join(__dirname, "screenshots", dateFolder);
+    fs.mkdirSync(imgDir, { recursive: true });
 
-  return sources[0].thumbnail.toDataURL(); // preview
+    // File path: screenshots/YYYY-MM-DD/HH-MM-SS.png
+    const filePath = path.join(imgDir, `${timeString}.png`);
+    fs.writeFileSync(filePath, image);
+
+    return thumbnail.toDataURL(); // Send preview to renderer
+  } catch (err) {
+    console.error("Error capturing screen:", err);
+    return null;
+  }
 });
-
-// allow home page to read data
-// ipcMain.handle('get-user-data', () => loggedInUser);
