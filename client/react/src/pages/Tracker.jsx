@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast'
 import { useCreateStore } from "../store/createStore";
 
 const Tracker = () => {
+
     const {
         remainingDelay,
         nextShotAt,
@@ -27,6 +28,8 @@ const Tracker = () => {
 
     const allSelected = selectedProject && taskByProject && timeSheetValue;
 
+
+
     useEffect(() => {
         getProjects()
         console.log("user: ", user);
@@ -39,8 +42,18 @@ const Tracker = () => {
     console.log(task)
     async function handleProjectChange(e) {
         const value = e.target.value;
+
         setSelectedProject(value);
         console.log(value);
+
+
+
+  console.log(projects)
+  console.log(task)
+  async function handleProjectChange(e) {
+    const value = e.target.value;
+    console.log(value);
+
 
 
     }
@@ -66,6 +79,19 @@ const Tracker = () => {
     }
 
 
+        await getTimeSheetList(value)
+
+    }
+    async function handleTimeSheet(e) {
+        const value = e.target.value;
+        console.log(value);
+
+        // await getTimeSheetList(value)
+
+    }
+
+    const timerIntervalRef = useRef(null);
+
     const screenshotTimeoutRef = useRef(null);
 
     const sessionIdRef = useRef(1);
@@ -78,6 +104,9 @@ const Tracker = () => {
         const s = String(secs % 60).padStart(2, "0");
         return `${h}:${m}:${s}`;
     };
+
+
+
 
     // ------------- RANDOM INTERVAL ----------
     const getRandomDelay = () => {
@@ -98,45 +127,23 @@ const Tracker = () => {
             imageIndex: imageIndexRef.current,
         });
 
-        console.log("imgdata", imgData)
-        if (imgData.thumbnail) {
-            const validStr = imgData.thumbnail.split(",")[1];
-            console.log(validStr);
-            let data = {
-                "file_name": imgData.screenshotTime,
-                "file_data": validStr,
-                "timesheet_id": timeSheetValue
-            }
-            const res = await send_screenshot(data);
-            if (!res) {
-                return toast.error("error while sending screeenshot");
-            }
-            console.log(res);
-            addScreenshot(imgData.thumbnail, imgData.screenshotTime);
+        if (imgData) {
+            setScreenshots((prev) => [...prev, imgData]);
             imageIndexRef.current += 1;
         }
     };
 
     // ----------- SCREENSHOT LOOP ------------
-    const scheduleScreenshot = (delayOverride = null) => {
-        if (screenshotTimeoutRef.current) return;
-
-        const delay = delayOverride ?? getRandomDelay();
-
-        setSchedule(delay);
-
-        console.log("Next screenshot in", delay / 1000, "seconds");
+    const scheduleScreenshot = () => {
+        const delay = getRandomDelay();
 
         screenshotTimeoutRef.current = setTimeout(async () => {
-            screenshotTimeoutRef.current = null;
-            clearSchedule();
-
-            console.log("Taking screenshot now");
             await captureScreenshot();
-
-            scheduleScreenshot(); // new random delay AFTER capture
+            scheduleScreenshot(); // schedule next
         }, delay);
     };
+
+   
 
     //missing dropdown
     const getMissingSelections = () => {
@@ -426,8 +433,10 @@ const Tracker = () => {
             </div>
         </div>
 
+  
 
-    );
+  );
+
 };
 
-export default Tracker
+export default Tracker;
