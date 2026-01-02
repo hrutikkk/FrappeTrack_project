@@ -1,15 +1,18 @@
 import React, { useState } from "react";
+import { useAuthStore } from "../store/authStore";
+import fav from '../assets/favicon.webp'
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const [apiKey, setApiKey] = useState("");
-  const [apiSecret, setApiSecret] = useState("");
+  const { fetchProfile } = useAuthStore();
+  const navigate = useNavigate();
+  const [apiKey, setApiKey] = useState("a09fb25fcd26fcf");
+  const [apiSecret, setApiSecret] = useState("46fb10be8d1e198");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // 🔐 Handle login logic here
-    console.log("API Key:", apiKey);
-    console.log("API Secret:", apiSecret);
+    const res = await fetchProfile(apiKey, apiSecret)
+    if (res) navigate("/user-profile")
   };
 
   return (
@@ -18,7 +21,7 @@ const Login = () => {
         {/* Header */}
         <div className="text-center mb-6">
           <img
-            src="/assests/favicon.webp"
+            src={fav}
             alt="Time Tracker Logo"
             className="mx-auto w-24 h-24 mb-4"
           />

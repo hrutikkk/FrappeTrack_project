@@ -1,24 +1,26 @@
 import React, { useEffect, useState } from "react";
+import { useAuthStore } from "../store/authStore";
 
 const Profile = () => {
-  const [profile, setProfile] = useState({
-    name: "",
-    empId: "",
-    designation: "",
-    email: "",
-    image: "",
-  });
+  const { user } = useAuthStore()
+  // const [profile, setProfile] = useState({
+  //   name: "",
+  //   empId: "",
+  //   designation: "",
+  //   email: "",
+  //   image: "",
+  // });
 
-  useEffect(() => {
-    // 🔹 Replace this with your API call
-    setProfile({
-      name: "Suraj Rajbhar",
-      empId: "EMP-1023",
-      designation: "Software Engineer",
-      email: "suraj@example.com",
-      image: "/assests/profile.webp", // or default avatar
-    });
-  }, []);
+  // useEffect(() => {
+  //   // 🔹 Replace this with your API call
+  //   setProfile({
+  //     name: "Suraj Rajbhar",
+  //     empId: "EMP-1023",
+  //     designation: "Software Engineer",
+  //     email: "suraj@example.com",
+  //     image: "/assests/profile.webp", // or default avatar
+  //   });
+  // }, []);
 
   const handleLogout = () => {
     console.log("Logout clicked");
@@ -36,7 +38,7 @@ const Profile = () => {
         {/* Profile Image */}
         <div className="relative flex justify-center mt-16">
           <img
-            src={profile.image || "/assests/default-avatar.webp"}
+            src={user.employee.image || "/assests/default-avatar.webp"}
             alt="Profile"
             className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover bg-gray-200"
           />
@@ -45,16 +47,16 @@ const Profile = () => {
         {/* Profile Info */}
         <div className="text-center mt-4">
           <h2 className="text-2xl font-bold text-gray-800">
-            {profile.name}
+            {user.name}
           </h2>
 
           {/* Employee ID */}
           <span className="inline-block mt-2 px-4 py-1 text-xs font-semibold text-indigo-600 bg-indigo-100 rounded-full">
-            {profile.empId}
+            {user.empId}
           </span>
 
           <p className="text-indigo-600 font-medium mt-3">
-            {profile.designation}
+            {user.designation}
           </p>
 
           {/* Email */}
@@ -73,7 +75,7 @@ const Profile = () => {
                 d="M16 12H8m0 0l4-4m-4 4l4 4"
               />
             </svg>
-            <p>{profile.email}</p>
+            <p>{user.email}</p>
           </div>
         </div>
 
