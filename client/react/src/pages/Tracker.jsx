@@ -42,7 +42,6 @@ const Tracker = () => {
         setSelectedProject(value);
         console.log(value);
 
-        await getTask(value)
 
     }
     async function handleTaskByProject(e) {
