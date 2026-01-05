@@ -7,7 +7,7 @@ const Login = () => {
   const { fetchProfile } = useAuthStore();
   const navigate = useNavigate();
   const [apiKey, setApiKey] = useState("a09fb25fcd26fcf");
-  const [apiSecret, setApiSecret] = useState("46fb10be8d1e198");
+  const [apiSecret, setApiSecret] = useState("097992c1cbd0ce7");
 
   const handleSubmit = async (e) => {
     e.preventDefault();

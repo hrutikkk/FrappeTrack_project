@@ -5,7 +5,7 @@ const Tracker = () => {
     const [seconds, setSeconds] = useState(0);
     const [screenshots, setScreenshots] = useState([]);
 
-    const { getProjects, getTask, getTimeSheetList, projects, task, timeSheet } = useAuthStore()
+    const { getProjects, getTask, getTimeSheetList, projects, task, timeSheet, user } = useAuthStore()
     const [selectedProject, setSelectedProject] = useState(null);
     const [taskByProject, setTaskByProject] = useState(null)
     const [timeSheetValue, setTimeSheetValue] = useState(null)
@@ -108,6 +108,20 @@ const Tracker = () => {
         timerIntervalRef.current = null;
         screenshotTimeoutRef.current = null;
     };
+    /*
+    {
+        "timesheet": "TS-2025-00012",
+        "employee_id": "HR-001"
+        "time_log": {
+            "activity_type": "Development",
+            "from_time": "2025-12-31 10:00:00",
+            "to_time": "2025-12-31 12:30:00",
+            "hours": 2.5,
+            "project": "PROJ-0001",
+            "description": "test"
+        }
+    }
+    */
 
     const handleStop = () => {
         handlePause();
@@ -115,6 +129,19 @@ const Tracker = () => {
         setScreenshots([]);
         sessionIdRef.current += 1;
         imageIndexRef.current = 1;
+
+        const data = {
+            "timesheet": timeSheet,
+            "employee_id": user.employee.name,
+            "time_log": {
+                "activity_type": taskByProject,
+                "from_time": starttime,
+                "to_time": "2025-12-31 12:30:00",
+                "hours": 2.5,
+                "project": "PROJ-0001",
+                "description": "test"
+            }
+        }
     };
 
     // ------------- CLEANUP -----------------
@@ -181,6 +208,16 @@ const Tracker = () => {
                         </select>
                     </div>
 
+                    <div className="mb-6 w-full">
+                        <label className="block text-gray-700 font-medium mb-2" htmlFor="taskDescription">
+                            Task Description
+                        </label>
+                        <textarea
+                            id="taskDescription"
+                            placeholder="Write details about the task..."
+                            className="w-full min-h-[100px] p-4 rounded-2xl border border-gray-300 shadow-sm bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 resize-none"
+                        />
+                    </div>
                     {/* Buttons */}
                     <div className="flex justify-center gap-6 mb-6">
                         <button

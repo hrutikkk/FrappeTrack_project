@@ -1,8 +1,12 @@
 const { app, BrowserWindow, ipcMain, desktopCapturer } = require("electron");
 const path = require("path");
 const fs = require("fs");
+const pkg = require('electron-store');
+const { takeCoverage } = require("v8");
 
 let mainWindow;
+const Store = pkg.default
+const store = new Store()
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -64,3 +68,24 @@ ipcMain.handle("capture-screen", async () => {
     return null;
   }
 });
+
+ipcMain.handle("save-creds", async (event, apiKey, apiSecret) => {
+  try {
+    console.log("saving creds", apiKey, apiSecret)
+    store.set("creds", { apiKey, apiSecret })
+    return true
+  } catch (error) {
+    console.error("Error saving credentials:", error);
+    return null;
+  }
+})
+
+ipcMain.handle("get-creds", async (event, data) => {
+  try {
+    const creds = store.get("creds");
+    return creds
+  } catch (error) {
+    console.error("Error fetching credentials ipc:", error);
+    return null;
+  }
+})

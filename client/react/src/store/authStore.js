@@ -70,11 +70,15 @@ export const useAuthStore = create((set) => ({
             if (data?.message?.success) {
                 localStorage.removeItem("creds")
                 set({ user: data.message.user, isAuthenticated: true });
+
                 const creds = [
                     { "apiKey": apiKey },
                     { "apiSecret": apiSecret }
                 ]
-               
+                await window.electronAPI.saveCredentials(apiKey, apiSecret)
+                const response = await window.electronAPI.getCredentials()
+                console.log("getting response from main.js: ", response)
+
                 localStorage.setItem("creds", JSON.stringify(creds))
                 toast.success("Profile fetched successfully")
                 return true;
@@ -178,6 +182,19 @@ export const useAuthStore = create((set) => ({
             console.error("Projects fetch failed:", err);
         }
     },
+
+    stopHandler: async (data) => {
+        try {   
+            
+            const res = await axiosInstance.post("/",data)
+            console.log(res)
+        } catch (error) {
+            console.log(
+                "Error while stopping",
+                error
+            )
+        }
+    }
     // logout: async () => {
     //     set({ user: null, isAuthenticated: false });
     // },
