@@ -1,9 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { useAuthStore } from "../store/authStore"
+import { useAuthStore } from "../store/authStore";
+import { useTimerStore } from "../store/timerStore";
+import { useScreenshotStore } from "../store/screenshotStore"
 
 const Tracker = () => {
-    const [seconds, setSeconds] = useState(0);
-    const [screenshots, setScreenshots] = useState([]);
+    const {
+      remainingDelay,
+      nextShotAt,
+      setSchedule,
+      clearSchedule,
+      screenshots,
+      addScreenshot,
+      clearScreenshots,
+    } = useScreenshotStore();
 
     const { getProjects, getTask, getTimeSheetList, projects, task, timeSheet } = useAuthStore()
     const [selectedProject, setSelectedProject] = useState(null);
@@ -39,7 +48,6 @@ const Tracker = () => {
 
     }
 
-    const timerIntervalRef = useRef(null);
     const screenshotTimeoutRef = useRef(null);
 
     const sessionIdRef = useRef(1);
@@ -73,56 +81,81 @@ const Tracker = () => {
         });
 
         if (imgData) {
-            setScreenshots((prev) => [...prev, imgData]);
+            addScreenshot(imgData);
             imageIndexRef.current += 1;
         }
     };
 
     // ----------- SCREENSHOT LOOP ------------
-    const scheduleScreenshot = () => {
-        const delay = getRandomDelay();
+    const scheduleScreenshot = (delayOverride = null) => {
+      if (screenshotTimeoutRef.current) return;
 
-        screenshotTimeoutRef.current = setTimeout(async () => {
-            await captureScreenshot();
-            scheduleScreenshot(); // schedule next
-        }, delay);
+      const delay = delayOverride ?? getRandomDelay();
+
+      setSchedule(delay);
+
+      console.log("Next screenshot in", delay / 1000, "seconds");
+
+      screenshotTimeoutRef.current = setTimeout(async () => {
+        screenshotTimeoutRef.current = null;
+        clearSchedule();
+
+        console.log("Taking screenshot now");
+        await captureScreenshot();
+
+        scheduleScreenshot(); // new random delay AFTER capture
+      }, delay);
     };
+
 
     // ------------ BUTTONS ------------------
-    const handleStart = () => {
-        console.log("Start clicked");
+    const { seconds, start, pause, reset } = useTimerStore();
 
-        if (!timerIntervalRef.current) {
-            timerIntervalRef.current = setInterval(() => {
-                setSeconds((prev) => prev + 1);
-            }, 1000);
+const handleStart = () => {
+  console.log("Start clicked");
+  start();
 
-            scheduleScreenshot();
-        }
-    };
+  if (!screenshotTimeoutRef.current) {
+    if (remainingDelay != null) {
+      scheduleScreenshot(remainingDelay);
+    } else {
+      scheduleScreenshot();
+    }
+  }
+};
 
     const handlePause = () => {
-        clearInterval(timerIntervalRef.current);
-        clearTimeout(screenshotTimeoutRef.current);
+      pause();
 
-        timerIntervalRef.current = null;
-        screenshotTimeoutRef.current = null;
+      if (nextShotAt) {
+        const remaining = Math.max(nextShotAt - Date.now(), 0);
+        setSchedule(remaining);
+      }
+
+      clearTimeout(screenshotTimeoutRef.current);
+      screenshotTimeoutRef.current = null;
     };
 
-    const handleStop = () => {
-        handlePause();
-        setSeconds(0);
-        setScreenshots([]);
-        sessionIdRef.current += 1;
-        imageIndexRef.current = 1;
-    };
+const handleStop = () => {
+  pause();
+  reset(); // ✅ logs end time + duration inside store
+
+  clearTimeout(screenshotTimeoutRef.current);
+  screenshotTimeoutRef.current = null;
+
+  clearSchedule();
+  clearScreenshots();
+
+  sessionIdRef.current += 1;
+  imageIndexRef.current = 1;
+};
+
 
     // ------------- CLEANUP -----------------
     useEffect(() => {
-        return () => {
-            clearInterval(timerIntervalRef.current);
-            clearTimeout(screenshotTimeoutRef.current);
-        };
+      return () => {
+        clearTimeout(screenshotTimeoutRef.current);
+      };
     }, []);
 
     return (
