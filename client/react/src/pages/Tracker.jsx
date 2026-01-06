@@ -71,8 +71,8 @@ const Tracker = () => {
 
     // ------------- RANDOM INTERVAL ----------
     const getRandomDelay = () => {
-        const min = 1 * 60 * 1000;   // 3 min
-        const max = 2 * 60 * 1000;  // 10 min
+        const min = 0.5 * 60 * 1000;   // 3 min
+        const max = 1 * 60 * 1000;  // 10 min
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
 
@@ -88,8 +88,9 @@ const Tracker = () => {
             imageIndex: imageIndexRef.current,
         });
 
-        if (imgData) {
-            addScreenshot(imgData);
+        console.log(imgData)
+        if (imgData.thumbnail) {
+            addScreenshot(imgData.thumbnail, imgData.screenshotTime);
             imageIndexRef.current += 1;
         }
     };
@@ -163,6 +164,34 @@ const Tracker = () => {
     };
 
     const handleStop = async () => {
+
+        // activity type
+        const taskObj = task.filter(t => t.name == taskByProject)
+        console.log("taskobject", taskObj, taskObj[0].subject, task[0]["subject"])
+
+        // screenshots into a string format - 
+        const reader = new FileReader();
+        reader.onload = function () {
+            screenshots.map()
+        }
+        const data = {
+            "timesheet": timeSheet,
+            "employee": user.employee.name,
+            "time_log": {
+                // "activity_type": taskObj[0].subject,
+                "activity_type": "Coding",
+                "from_time": startTime,
+                "to_time": endTime,
+                "hours": "54",
+                "project": selectedProject,
+                "task": taskByProject,
+                "description": description,
+                "screenshots": screenshots
+            }
+        };
+        const res = await stopHandler(data)
+        if (!res) toast.error("Unable to send the screenshots")
+        console.log("screenshots",screenshots)
         const missing = getMissingSelections();
 
         if (missing.length > 0) {
@@ -180,25 +209,6 @@ const Tracker = () => {
 
         sessionIdRef.current += 1;
         imageIndexRef.current = 1;
-        // activity type
-        const taskObj = task.filter(t => t.name == taskByProject)
-        console.log("taskobject", taskObj, taskObj[0].subject, task[0]["subject"])
-        const data = {
-            "timesheet": timeSheet,
-            "employee": user.employee.name,
-            "time_log": {
-                // "activity_type": taskObj[0].subject,
-                "activity_type": "Coding",
-                "from_time": startTime,
-                "to_time": endTime,
-                "hours": "54",
-                "project": selectedProject,
-                "task": taskByProject,
-                "description": description,
-                "screenshots": [{}]
-            }
-        };
-        const res = await stopHandler(data)
     }
     // ------------- CLEANUP -----------------
     useEffect(() => {

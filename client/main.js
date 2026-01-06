@@ -62,7 +62,10 @@ ipcMain.handle("capture-screen", async () => {
     const filePath = path.join(imgDir, `${timeString}.png`);
     fs.writeFileSync(filePath, image);
 
-    return thumbnail.toDataURL(); // Send preview to renderer
+    return { 
+      "thumbnail": thumbnail.toDataURL(),
+      "screenshotTime":timeString
+    }; // Send preview to renderer
   } catch (err) {
     console.error("Error capturing screen:", err);
     return null;

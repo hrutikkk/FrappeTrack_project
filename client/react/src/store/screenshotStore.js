@@ -18,7 +18,10 @@ export const useScreenshotStore = create((set) => ({
     }),
 
   // screenshots
-  addScreenshot: (imgData) =>
-    set((state) => ({ screenshots: [...state.screenshots, imgData] })),
+  addScreenshot: (screenshot, screenshotTime) => {
+
+    set((state) => ({ screenshots: [...state.screenshots, { screenshot, screenshotTime }] }))
+  },
+
   clearScreenshots: () => set({ screenshots: [] }),
 }));

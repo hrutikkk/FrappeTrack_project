@@ -218,11 +218,14 @@ export const useAuthStore = create((set) => ({
                 }
             )
             console.log("response from timesheet", res)
+
+            return true;
         } catch (error) {
             console.log(
                 "Error while stopping",
                 error
             )
+            return null
         }
     }
     // logout: async () => {
