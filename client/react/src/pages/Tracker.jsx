@@ -5,13 +5,13 @@ import { useScreenshotStore } from "../store/screenshotStore"
 
 const Tracker = () => {
     const {
-      remainingDelay,
-      nextShotAt,
-      setSchedule,
-      clearSchedule,
-      screenshots,
-      addScreenshot,
-      clearScreenshots,
+        remainingDelay,
+        nextShotAt,
+        setSchedule,
+        clearSchedule,
+        screenshots,
+        addScreenshot,
+        clearScreenshots,
     } = useScreenshotStore();
 
     const { getProjects, getTask, getTimeSheetList, projects, task, timeSheet } = useAuthStore()
@@ -88,74 +88,74 @@ const Tracker = () => {
 
     // ----------- SCREENSHOT LOOP ------------
     const scheduleScreenshot = (delayOverride = null) => {
-      if (screenshotTimeoutRef.current) return;
+        if (screenshotTimeoutRef.current) return;
 
-      const delay = delayOverride ?? getRandomDelay();
+        const delay = delayOverride ?? getRandomDelay();
 
-      setSchedule(delay);
+        setSchedule(delay);
 
-      console.log("Next screenshot in", delay / 1000, "seconds");
+        console.log("Next screenshot in", delay / 1000, "seconds");
 
-      screenshotTimeoutRef.current = setTimeout(async () => {
-        screenshotTimeoutRef.current = null;
-        clearSchedule();
+        screenshotTimeoutRef.current = setTimeout(async () => {
+            screenshotTimeoutRef.current = null;
+            clearSchedule();
 
-        console.log("Taking screenshot now");
-        await captureScreenshot();
+            console.log("Taking screenshot now");
+            await captureScreenshot();
 
-        scheduleScreenshot(); // new random delay AFTER capture
-      }, delay);
+            scheduleScreenshot(); // new random delay AFTER capture
+        }, delay);
     };
 
 
     // ------------ BUTTONS ------------------
     const { seconds, start, pause, reset } = useTimerStore();
 
-const handleStart = () => {
-  console.log("Start clicked");
-  start();
+    const handleStart = () => {
+        console.log("Start clicked");
+        start();
 
-  if (!screenshotTimeoutRef.current) {
-    if (remainingDelay != null) {
-      scheduleScreenshot(remainingDelay);
-    } else {
-      scheduleScreenshot();
-    }
-  }
-};
-
-    const handlePause = () => {
-      pause();
-
-      if (nextShotAt) {
-        const remaining = Math.max(nextShotAt - Date.now(), 0);
-        setSchedule(remaining);
-      }
-
-      clearTimeout(screenshotTimeoutRef.current);
-      screenshotTimeoutRef.current = null;
+        if (!screenshotTimeoutRef.current) {
+            if (remainingDelay != null) {
+                scheduleScreenshot(remainingDelay);
+            } else {
+                scheduleScreenshot();
+            }
+        }
     };
 
-const handleStop = () => {
-  pause();
-  reset(); // ✅ logs end time + duration inside store
+    const handlePause = () => {
+        pause();
 
-  clearTimeout(screenshotTimeoutRef.current);
-  screenshotTimeoutRef.current = null;
+        if (nextShotAt) {
+            const remaining = Math.max(nextShotAt - Date.now(), 0);
+            setSchedule(remaining);
+        }
 
-  clearSchedule();
-  clearScreenshots();
+        clearTimeout(screenshotTimeoutRef.current);
+        screenshotTimeoutRef.current = null;
+    };
 
-  sessionIdRef.current += 1;
-  imageIndexRef.current = 1;
-};
+    const handleStop = () => {
+        pause();
+        reset(); // ✅ logs end time + duration inside store
+
+        clearTimeout(screenshotTimeoutRef.current);
+        screenshotTimeoutRef.current = null;
+
+        clearSchedule();
+        clearScreenshots();
+
+        sessionIdRef.current += 1;
+        imageIndexRef.current = 1;
+    };
 
 
     // ------------- CLEANUP -----------------
     useEffect(() => {
-      return () => {
-        clearTimeout(screenshotTimeoutRef.current);
-      };
+        return () => {
+            clearTimeout(screenshotTimeoutRef.current);
+        };
     }, []);
 
     return (
