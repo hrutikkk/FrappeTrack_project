@@ -6,7 +6,6 @@ import { toast } from 'react-hot-toast'
 import { useCreateStore } from "../store/createStore";
 
 const Tracker = () => {
-
     const {
         remainingDelay,
         nextShotAt,
@@ -28,8 +27,6 @@ const Tracker = () => {
 
     const allSelected = selectedProject && taskByProject && timeSheetValue;
 
-
-
     useEffect(() => {
         getProjects()
         console.log("user: ", user);
@@ -42,19 +39,10 @@ const Tracker = () => {
     console.log(task)
     async function handleProjectChange(e) {
         const value = e.target.value;
-
         setSelectedProject(value);
         console.log(value);
 
-
-
-  console.log(projects)
-  console.log(task)
-  async function handleProjectChange(e) {
-    const value = e.target.value;
-    console.log(value);
-
-
+        await getTask(value)
 
     }
     async function handleTaskByProject(e) {
@@ -78,20 +66,6 @@ const Tracker = () => {
 
     }
 
-
-        await getTimeSheetList(value)
-
-    }
-    async function handleTimeSheet(e) {
-        const value = e.target.value;
-        console.log(value);
-
-        // await getTimeSheetList(value)
-
-    }
-
-    const timerIntervalRef = useRef(null);
-
     const screenshotTimeoutRef = useRef(null);
 
     const sessionIdRef = useRef(1);
@@ -104,9 +78,6 @@ const Tracker = () => {
         const s = String(secs % 60).padStart(2, "0");
         return `${h}:${m}:${s}`;
     };
-
-
-
 
     // ------------- RANDOM INTERVAL ----------
     const getRandomDelay = () => {
@@ -127,23 +98,33 @@ const Tracker = () => {
             imageIndex: imageIndexRef.current,
         });
 
-        if (imgData) {
-            setScreenshots((prev) => [...prev, imgData]);
+        console.log(imgData)
+        if (imgData.thumbnail) {
+            addScreenshot(imgData.thumbnail, imgData.screenshotTime);
             imageIndexRef.current += 1;
         }
     };
 
     // ----------- SCREENSHOT LOOP ------------
-    const scheduleScreenshot = () => {
-        const delay = getRandomDelay();
+    const scheduleScreenshot = (delayOverride = null) => {
+        if (screenshotTimeoutRef.current) return;
+
+        const delay = delayOverride ?? getRandomDelay();
+
+        setSchedule(delay);
+
+        console.log("Next screenshot in", delay / 1000, "seconds");
 
         screenshotTimeoutRef.current = setTimeout(async () => {
+            screenshotTimeoutRef.current = null;
+            clearSchedule();
+
+            console.log("Taking screenshot now");
             await captureScreenshot();
-            scheduleScreenshot(); // schedule next
+
+            scheduleScreenshot(); // new random delay AFTER capture
         }, delay);
     };
-
-   
 
     //missing dropdown
     const getMissingSelections = () => {
@@ -247,9 +228,7 @@ const Tracker = () => {
     }, []);
 
     return (
-
         <div className="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 flex items-center justify-center px-4">
-
 
             <div className="bg-white w-full max-w-5xl rounded-3xl shadow-xl p-6 md:p-8">
 
@@ -433,10 +412,7 @@ const Tracker = () => {
             </div>
         </div>
 
-  
-
-  );
-
+    );
 };
 
-export default Tracker;
+export default Tracker
