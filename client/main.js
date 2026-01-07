@@ -10,10 +10,18 @@ const store = new Store()
 
 function createWindow() {
   mainWindow = new BrowserWindow({
+<<<<<<< HEAD
     width: 1200,             // mobile width
     height: 1100,            // mobile height
     minWidth: 320,           // optional min/max to prevent too small
    
+=======
+    width: 430,             // mobile width
+    height: 932,            // mobile height
+    minWidth: 320,           // optional min/max to prevent too small
+    minHeight: 568,
+    maxWidth: 480,
+>>>>>>> f542336 (Updated to latest Tracker)
     maxHeight: 1024,
     center: true,
     resizable: true,        // can be false if you want fixed size

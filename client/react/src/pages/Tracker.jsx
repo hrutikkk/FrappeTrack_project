@@ -20,35 +20,61 @@ const Tracker = () => {
     const { startTime, endTime, isRunning, seconds, start, pause, reset } = useTimerStore()
     const { user } = useAuthStore()
 
+<<<<<<< HEAD
     const [description, setDescription] = useState(null)
     const [isTimeSheet, setIsTimeSheet] = useState(false)
+=======
+const { startTime, endTime } = useTimerStore()
+const { getProjects, getTask, getTimeSheetList, projects, task, timeSheet, user, stopHandler } = useAuthStore()
+const [selectedProject, setSelectedProject] = useState(null);
+const [taskByProject, setTaskByProject] = useState(null)
+const [timeSheetValue, setTimeSheetValue] = useState(null)
+const [description, setDescription] = useState(null)
+>>>>>>> f542336 (Updated to latest Tracker)
 
-    const allSelected = selectedProject && taskByProject && timeSheetValue;
+const allSelected = selectedProject && taskByProject && timeSheetValue;
 
+<<<<<<< HEAD
     useEffect(() => {
         getProjects()
         console.log("user: ", user);
         console.log("project", selectedProject);
     }, [])
+=======
+useEffect(() => {
+    getProjects()
+}, [])
+>>>>>>> f542336 (Updated to latest Tracker)
 
-    console.log("screenshots: ", screenshots)
+console.log("screenshots: ", screenshots)
 
-    console.log(projects)
-    console.log(task)
-    async function handleProjectChange(e) {
-        const value = e.target.value;
-        setSelectedProject(value);
-        console.log(value);
+console.log(projects)
+console.log(task)
+async function handleProjectChange(e) {
+    const value = e.target.value;
+    setSelectedProject(value);
+    console.log(value);
 
+<<<<<<< HEAD
         await getTask(value)
     }
     async function handleTaskByProject(e) {
         const value = e.target.value;
         setTaskByProject(value)
         console.log(value);
+=======
+    await getTask(value)
 
-        await getTimeSheetList(value)
+}
+async function handleTaskByProject(e) {
+    const value = e.target.value;
+    setTaskByProject(value)
+    console.log(value);
+>>>>>>> f542336 (Updated to latest Tracker)
 
+    await getTimeSheetList(value)
+
+<<<<<<< HEAD
     }
     async function handleTimeSheet(e) {
         const value = e.target.value;
@@ -61,9 +87,46 @@ const Tracker = () => {
         }
         console.log("timesheet value: ", value);
         // await getTimeSheetList(value)
+=======
+}
+async function handleTimeSheet(e) {
+    const value = e.target.value;
+    setTimeSheetValue(value)
+    console.log(value);
 
+    // await getTimeSheetList(value)
+>>>>>>> f542336 (Updated to latest Tracker)
+
+}
+
+const screenshotTimeoutRef = useRef(null);
+
+const sessionIdRef = useRef(1);
+const imageIndexRef = useRef(1);
+
+// ---------------- TIMER ----------------
+const formatTime = (secs) => {
+    const h = String(Math.floor(secs / 3600)).padStart(2, "0");
+    const m = String(Math.floor((secs % 3600) / 60)).padStart(2, "0");
+    const s = String(secs % 60).padStart(2, "0");
+    return `${h}:${m}:${s}`;
+};
+
+// ------------- RANDOM INTERVAL ----------
+const getRandomDelay = () => {
+    const min = 0.5 * 60 * 1000;   // 3 min
+    const max = 1 * 60 * 1000;  // 10 min
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+// ------------ CAPTURE -------------------
+const captureScreenshot = async () => {
+    if (!window.electronAPI?.captureScreen) {
+        console.error("Electron API not available!");
+        return;
     }
 
+<<<<<<< HEAD
 
     const screenshotTimeoutRef = useRef(null);
 
@@ -97,42 +160,43 @@ const Tracker = () => {
         if (!window.electronAPI?.captureScreen) {
             console.error("Electron API not available!");
             return;
+=======
+    const imgData = await window.electronAPI.captureScreen({
+        sessionId: sessionIdRef.current,
+        imageIndex: imageIndexRef.current,
+    });
+
+    console.log("imgdata", imgData)
+    if (imgData.thumbnail) {
+        const validStr = imgData.thumbnail.split(",")[1];
+        console.log(validStr);
+        let data = {
+            "file_name": imgData.screenshotTime,
+            "file_data": validStr,
+            "timesheet_id": timeSheetValue
+>>>>>>> f542336 (Updated to latest Tracker)
         }
-
-        const imgData = await window.electronAPI.captureScreen({
-            sessionId: sessionIdRef.current,
-            imageIndex: imageIndexRef.current,
-        });
-
-        console.log("imgdata", imgData)
-        if (imgData.thumbnail) {
-            const validStr = imgData.thumbnail.split(",")[1];
-            console.log(validStr);
-            let data = {
-                "file_name": imgData.screenshotTime,
-                "file_data": validStr,
-                "timesheet_id": timeSheetValue
-            }
-            const res = await send_screenshot(data);
-            if (!res) {
-                return toast.error("error while sending screeenshot");
-            }
-            console.log(res);
-            addScreenshot(imgData.thumbnail, imgData.screenshotTime);
-            imageIndexRef.current += 1;
+        const res = await send_screenshot(data);
+        if(!res){
+            return toast.error("error while sending screeenshot");
         }
-    };
+        console.log(res);
+        addScreenshot(imgData.thumbnail, imgData.screenshotTime);
+        imageIndexRef.current += 1;
+    }
+};
 
-    // ----------- SCREENSHOT LOOP ------------
-    const scheduleScreenshot = (delayOverride = null) => {
-        if (screenshotTimeoutRef.current) return;
+// ----------- SCREENSHOT LOOP ------------
+const scheduleScreenshot = (delayOverride = null) => {
+    if (screenshotTimeoutRef.current) return;
 
-        const delay = delayOverride ?? getRandomDelay();
+    const delay = delayOverride ?? getRandomDelay();
 
-        setSchedule(delay);
+    setSchedule(delay);
 
-        console.log("Next screenshot in", delay / 1000, "seconds");
+    console.log("Next screenshot in", delay / 1000, "seconds");
 
+<<<<<<< HEAD
         screenshotTimeoutRef.current = setTimeout(async () => {
             screenshotTimeoutRef.current = null;
             clearSchedule();
@@ -236,9 +300,13 @@ const Tracker = () => {
         clearTimeout(screenshotTimeoutRef.current);
         screenshotTimeoutRef.current = null;
 
+=======
+    screenshotTimeoutRef.current = setTimeout(async () => {
+        screenshotTimeoutRef.current = null;
+>>>>>>> f542336 (Updated to latest Tracker)
         clearSchedule();
-        clearScreenshots();
 
+<<<<<<< HEAD
         sessionIdRef.current += 1;
         imageIndexRef.current = 1;
         delScreenshotFolder();
@@ -253,60 +321,169 @@ const Tracker = () => {
             clearTimeout(screenshotTimeoutRef.current);
         };
     }, []);
+=======
+        console.log("Taking screenshot now");
+        await captureScreenshot();
 
-    return (
+        scheduleScreenshot(); // new random delay AFTER capture
+    }, delay);
+};
 
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100 flex items-center justify-center px-4 py-10">
+//missing dropdown
+const getMissingSelections = () => {
+    const missing = [];
 
-            <div className="bg-white w-full max-w-5xl rounded-2xl shadow-[0_10px_40px_rgba(59,130,246,0.15)] p-6 md:p-10">
+    if (!selectedProject) missing.push("project");
+    if (!taskByProject) missing.push("task");
+    if (!timeSheetValue) missing.push("timesheet");
 
-                {/* Header */}
-                <div className="text-center mb-10">
-                    <h2 className="text-3xl font-semibold text-slate-800 tracking-tight">Welcome</h2>
-                    <h2 id="username" className="text-base text-slate-500 mt-1"></h2>
-                </div>
+    return missing;
+};
 
-                {/* Controls */}
-                <div className="mb-8">
+// ------------ BUTTONS ------------------
+const { seconds, start, pause, reset } = useTimerStore();
 
-                    {/* Selects */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                        <select
-                            value={selectedProject}
-                            onChange={handleProjectChange}
-                            className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
+const handleStart = () => {
+    console.log("Start clicked");
+
+    const missing = getMissingSelections();
+
+    if (missing.length > 0) {
+        toast.error(`Please select ${missing.join(" and ")}`);
+        return;
+    }
+    start();
+>>>>>>> f542336 (Updated to latest Tracker)
+
+
+    if (!screenshotTimeoutRef.current) {
+        if (remainingDelay != null) {
+            scheduleScreenshot(remainingDelay);
+        } else {
+            scheduleScreenshot();
+        }
+    }
+};
+
+const handlePause = () => {
+    pause();
+
+    if (nextShotAt) {
+        const remaining = Math.max(nextShotAt - Date.now(), 0);
+        setSchedule(remaining);
+    }
+
+    clearTimeout(screenshotTimeoutRef.current);
+    screenshotTimeoutRef.current = null;
+};
+
+const handleStop = async () => {
+
+    // activity type
+    const taskObj = task.filter(t => t.name == taskByProject)
+    console.log("taskobject", taskObj, taskObj[0].subject, task[0]["subject"])
+
+    // screenshots into a string format - 
+    // const reader = new FileReader();
+    // reader.onload = function () {
+    //     screenshots.map()
+    // }
+    const data = {
+        "timesheet": timeSheet,
+        "employee": user.employee.name,
+        "time_log": {
+            // "activity_type": taskObj[0].subject,
+            "activity_type": "Coding",
+            "from_time": startTime,
+            "to_time": endTime,
+            "hours": "54",
+            "project": selectedProject,
+            "task": taskByProject,
+            "description": description,
+            "screenshots": screenshots
+        }
+    };
+    const res = await stopHandler(data)
+    if (!res) toast.error("Unable to send the screenshots")
+    console.log("screenshots", screenshots)
+    const missing = getMissingSelections();
+
+    if (missing.length > 0) {
+        toast.error(`Please select ${missing.join(" and ")}`);
+        return;
+    }
+    pause();
+    reset(); // ✅ logs end time + duration inside store
+
+    clearTimeout(screenshotTimeoutRef.current);
+    screenshotTimeoutRef.current = null;
+
+    clearSchedule();
+    clearScreenshots();
+
+    sessionIdRef.current += 1;
+    imageIndexRef.current = 1;
+}
+// ------------- CLEANUP -----------------
+useEffect(() => {
+    return () => {
+        clearTimeout(screenshotTimeoutRef.current);
+    };
+}, []);
+
+return (
+<div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100 flex items-center justify-center px-4 py-10">
+
+  <div className="bg-white w-full max-w-5xl rounded-2xl shadow-[0_10px_40px_rgba(59,130,246,0.15)] p-6 md:p-10">
+
+    {/* Header */}
+    <div className="text-center mb-10">
+      <h2 className="text-3xl font-semibold text-slate-800 tracking-tight">Welcome</h2>
+      <h2 id="username" className="text-base text-slate-500 mt-1"></h2>
+    </div>
+
+    {/* Controls */}
+    <div className="mb-8">
+
+      {/* Selects */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <select
+          value={selectedProject}
+          onChange={handleProjectChange}
+          className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           hover:border-blue-400 transition"
-                        >
-                            <option value="">Select project</option>
-                            {projects.map(project => (
-                                <option key={project.name} value={project.name}>
-                                    {project.project_name}
-                                </option>
-                            ))}
-                        </select>
+        >
+          <option value="">Select project</option>
+          {projects.map(project => (
+            <option key={project.name} value={project.name}>
+              {project.project_name}
+            </option>
+          ))}
+        </select>
 
-                        <select
-                            value={taskByProject}
-                            onChange={handleTaskByProject}
-                            className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
+        <select
+          value={taskByProject}
+          onChange={handleTaskByProject}
+          className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           hover:border-blue-400 transition"
-                        >
-                            <option value="">Select task</option>
-                            {task.map(t => (
-                                <option key={t.name} value={t.name}>
-                                    {t.subject}
-                                </option>
-                            ))}
-                        </select>
+        >
+          <option value="">Select task</option>
+          {task.map(t => (
+            <option key={t.name} value={t.name}>
+              {t.subject}
+            </option>
+          ))}
+        </select>
 
-                        <select
-                            value={timeSheetValue}
-                            onChange={handleTimeSheet}
-                            className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
+        <select
+          value={timeSheetValue}
+          onChange={handleTimeSheet}
+          className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           hover:border-blue-400 transition"
+<<<<<<< HEAD
                         >
                             <option value="">Select timesheet</option>
                             {selectedProject && taskByProject && <option value="create-timesheet">Create timesheet</option>}
@@ -329,15 +506,38 @@ const Tracker = () => {
                             value={descriptionStore}
                             placeholder="Briefly describe what you worked on..."
                             className="w-full min-h-[110px] p-4 rounded-xl border border-slate-300
+=======
+        >
+          <option value="">Select timesheet</option>
+          {timeSheet.map(tsheet => (
+            <option key={tsheet.name} value={tsheet.name}>
+              {tsheet.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Task Description */}
+      <div className="mb-6">
+        <label className="block text-slate-700 font-medium mb-2" htmlFor="taskDescription">
+          Task Description
+        </label>
+        <textarea
+          id="taskDescription"
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Briefly describe what you worked on..."
+          className="w-full min-h-[110px] p-4 rounded-xl border border-slate-300
+>>>>>>> f542336 (Updated to latest Tracker)
           bg-slate-50 text-sm text-slate-700
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           resize-none transition"
-                        />
-                    </div>
+        />
+      </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex justify-center gap-6 mb-8">
+    {/* Action Buttons */}
+    <div className="flex justify-center gap-6 mb-8">
 
+<<<<<<< HEAD
                         {!isTimeSheet ? (
 
                             <>
@@ -406,43 +606,86 @@ const Tracker = () => {
 
                         }
                     </div>
+=======
+    {/* Start */}
+    <button
+        onClick={handleStart}
+        title="Start"
+        className="w-14 h-14 rounded-lg bg-blue-600
+        flex items-center justify-center
+        shadow hover:bg-blue-700 active:scale-95 transition"
+    >
+        <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+        <polygon points="5,3 19,12 5,21" />
+        </svg>
+    </button>
+
+    {/* Pause */}
+    <button
+        onClick={handlePause}
+        title="Pause"
+        className="w-14 h-14 rounded-lg bg-sky-500
+        flex items-center justify-center
+        shadow hover:bg-sky-600 active:scale-95 transition"
+    >
+        <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+        <rect x="6" y="4" width="4" height="16" />
+        <rect x="14" y="4" width="4" height="16" />
+        </svg>
+    </button>
+
+    {/* Stop */}
+    <button
+        onClick={handleStop}
+        title="Stop"
+        className="w-14 h-14 rounded-lg bg-slate-600
+        flex items-center justify-center
+        shadow hover:bg-slate-700 active:scale-95 transition"
+    >
+        <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+        <rect x="5" y="5" width="14" height="14" />
+        </svg>
+    </button>
+
+    </div>
+>>>>>>> f542336 (Updated to latest Tracker)
 
 
-                    {/* Timer */}
-                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600
+      {/* Timer */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600
       rounded-xl p-6 text-4xl text-center font-mono text-white
       tracking-widest shadow-inner">
-                        {formatTime(seconds)}
-                    </div>
-                </div>
+        {formatTime(seconds)}
+      </div>
+    </div>
 
-                {/* Screenshot Preview */}
-                <div>
-                    <h4 className="text-slate-700 font-semibold mb-4 mt-10">Screenshot Preview</h4>
+    {/* Screenshot Preview */}
+    <div>
+      <h4 className="text-slate-700 font-semibold mb-4 mt-10">Screenshot Preview</h4>
 
-                    {screenshots.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 text-slate-400 text-center py-10">
-                            Screenshots will appear here
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                            {screenshots.map((src, index) => (
-                                <img
-                                    key={index}
-                                    src={src.screenshot}
-                                    alt="screenshot"
-                                    className="rounded-lg shadow hover:shadow-lg hover:scale-105 transition"
-                                />
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-            </div>
+      {screenshots.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 text-slate-400 text-center py-10">
+          Screenshots will appear here
         </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {screenshots.map((src, index) => (
+            <img
+              key={index}
+              src={src.screenshot}
+              alt="screenshot"
+              className="rounded-lg shadow hover:shadow-lg hover:scale-105 transition"
+            />
+          ))}
+        </div>
+      )}
+    </div>
+
+  </div>
+</div>
 
 
-    );
+);
 };
 
 export default Tracker
