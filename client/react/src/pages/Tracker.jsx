@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+
 import { useAuthStore } from "../store/authStore";
 import { useTimerStore } from "../store/timerStore";
 import { useScreenshotStore } from "../store/screenshotStore"
@@ -35,34 +36,57 @@ const Tracker = () => {
 
     console.log("screenshots: ", screenshots)
 
-    console.log(projects)
-    console.log(task)
-    async function handleProjectChange(e) {
-        const value = e.target.value;
-        setSelectedProject(value);
-        console.log(value);
+  async function handleProjectChange(e) {
+    const value = e.target.value;
+    setSelectedProject(value);
+    console.log(value);
 
-        await getTask(value)
+    await getTask(value)
 
-    }
-    async function handleTaskByProject(e) {
-        const value = e.target.value;
-        setTaskByProject(value)
-        console.log(value);
+  }
+  async function handleTaskByProject(e) {
+    const value = e.target.value;
+    setTaskByProject(value);
+    console.log(value);
 
-        await getTimeSheetList(value)
+    await getTimeSheetList(value)
 
-    }
-    async function handleTimeSheet(e) {
-        const value = e.target.value;
-        setTimeSheetValue(value)
-        setIsTimeSheet(true)
-        if (value !== "create-timesheet") {
-            console.log("changing isTimesheet")
-            setIsTimeSheet(false)
-        }
-        console.log("timesheet value: ", value);
-        // await getTimeSheetList(value)
+  }
+  async function handleTimeSheet(e) {
+    const value = e.target.value;
+    setTimeSheetValue(value);
+    console.log(value);
+
+    // await getTimeSheetList(value)
+
+  }
+
+  const timerIntervalRef = useRef(null);
+  const screenshotTimeoutRef = useRef(null);
+
+  const sessionIdRef = useRef(1);
+  const imageIndexRef = useRef(1);
+
+  // ---------------- TIMER ----------------
+  const formatTime = (secs) => {
+    const h = String(Math.floor(secs / 3600)).padStart(2, "0");
+    const m = String(Math.floor((secs % 3600) / 60)).padStart(2, "0");
+    const s = String(secs % 60).padStart(2, "0");
+    return `${h}:${m}:${s}`;
+  };
+
+  // ------------- RANDOM INTERVAL ----------
+  const getRandomDelay = () => {
+    const min = 1 * 60 * 1000;   // 3 min
+    const max = 2 * 60 * 1000;  // 10 min
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+
+  // ------------ CAPTURE -------------------
+  const captureScreenshot = async () => {
+    if (!window.electronAPI?.captureScreen) {
+      console.error("Electron API not available!");
+      return;
 
     }
 
@@ -77,6 +101,7 @@ const Tracker = () => {
         const m = String(Math.floor((secs % 3600) / 60)).padStart(2, "0");
         const s = String(secs % 60).padStart(2, "0");
         return `${h}:${m}:${s}`;
+
     };
 
     // ------------- RANDOM INTERVAL ----------
@@ -413,6 +438,6 @@ const Tracker = () => {
         </div>
 
     );
+  }
 };
-
-export default Tracker
+export default Tracker;
