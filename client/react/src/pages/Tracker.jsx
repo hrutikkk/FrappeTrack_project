@@ -100,7 +100,7 @@ const Tracker = () => {
                 "timesheet_id": timeSheetValue
             }
             const res = await send_screenshot(data);
-            if(!res){
+            if (!res) {
                 return toast.error("error while sending screeenshot");
             }
             console.log(res);
@@ -232,14 +232,15 @@ const Tracker = () => {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 flex items-center justify-center px-4">
 
-            <div className="bg-white w-full max-w-5xl rounded-3xl shadow-xl p-6 md:p-8">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100 flex items-center justify-center px-4 py-10">
+
+            <div className="bg-white w-full max-w-5xl rounded-2xl shadow-[0_10px_40px_rgba(59,130,246,0.15)] p-6 md:p-10">
 
                 {/* Header */}
-                <div className="text-center mb-8">
-                    <h2 className="text-3xl font-bold text-gray-800">Welcome</h2>
-                    <h2 id="username" className="text-xl text-gray-500 mt-1"></h2>
+                <div className="text-center mb-10">
+                    <h2 className="text-3xl font-semibold text-slate-800 tracking-tight">Welcome</h2>
+                    <h2 id="username" className="text-base text-slate-500 mt-1"></h2>
                 </div>
 
                 {/* Controls */}
@@ -250,7 +251,9 @@ const Tracker = () => {
                         <select
                             value={selectedProject}
                             onChange={handleProjectChange}
-                            className="h-11 rounded-xl border border-gray-300 px-4 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                            className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+          hover:border-blue-400 transition"
                         >
                             <option value="">Select project</option>
                             {projects.map(project => (
@@ -263,7 +266,9 @@ const Tracker = () => {
                         <select
                             value={taskByProject}
                             onChange={handleTaskByProject}
-                            className="h-11 rounded-xl border border-gray-300 px-4 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                            className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+          hover:border-blue-400 transition"
                         >
                             <option value="">Select task</option>
                             {task.map(t => (
@@ -276,7 +281,9 @@ const Tracker = () => {
                         <select
                             value={timeSheetValue}
                             onChange={handleTimeSheet}
-                            className="h-11 rounded-xl border border-gray-300 px-4 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                            className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+          hover:border-blue-400 transition"
                         >
                             <option value="">Select timesheet</option>
                             {timeSheet.map(tsheet => (
@@ -287,52 +294,82 @@ const Tracker = () => {
                         </select>
                     </div>
 
-                    <div className="mb-6 w-full">
-                        <label className="block text-gray-700 font-medium mb-2" htmlFor="taskDescription">
+                    {/* Task Description */}
+                    <div className="mb-6">
+                        <label className="block text-slate-700 font-medium mb-2" htmlFor="taskDescription">
                             Task Description
                         </label>
                         <textarea
                             id="taskDescription"
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Write details about the task..."
-                            className="w-full min-h-[100px] p-4 rounded-2xl border border-gray-300 shadow-sm bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 resize-none"
+                            placeholder="Briefly describe what you worked on..."
+                            className="w-full min-h-[110px] p-4 rounded-xl border border-slate-300
+          bg-slate-50 text-sm text-slate-700
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+          resize-none transition"
                         />
                     </div>
-                    {/* Buttons */}
-                    <div className="flex justify-center gap-6 mb-6">
+
+                    {/* Action Buttons */}
+                    <div className="flex justify-center gap-6 mb-8">
+
+                        {/* Start */}
                         <button
                             onClick={handleStart}
-                            className="w-20 h-20 rounded-full bg-green-200 border font-bold shadow-md hover:-translate-y-0.5 hover:shadow-lg transition">
-                            Start
+                            title="Start"
+                            className="w-14 h-14 rounded-lg bg-blue-600
+        flex items-center justify-center
+        shadow hover:bg-blue-700 active:scale-95 transition"
+                        >
+                            <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+                                <polygon points="5,3 19,12 5,21" />
+                            </svg>
                         </button>
 
+                        {/* Pause */}
                         <button
                             onClick={handlePause}
-                            className="w-20 h-20 rounded-full bg-yellow-200 border font-bold shadow-md hover:-translate-y-0.5 hover:shadow-lg transition">
-                            Pause
+                            title="Pause"
+                            className="w-14 h-14 rounded-lg bg-sky-500
+        flex items-center justify-center
+        shadow hover:bg-sky-600 active:scale-95 transition"
+                        >
+                            <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+                                <rect x="6" y="4" width="4" height="16" />
+                                <rect x="14" y="4" width="4" height="16" />
+                            </svg>
                         </button>
 
+                        {/* Stop */}
                         <button
                             onClick={handleStop}
-                            className="w-20 h-20 rounded-full bg-red-200 border font-bold shadow-md hover:-translate-y-0.5 hover:shadow-lg transition">
-                            Stop
+                            title="Stop"
+                            className="w-14 h-14 rounded-lg bg-slate-600
+        flex items-center justify-center
+        shadow hover:bg-slate-700 active:scale-95 transition"
+                        >
+                            <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+                                <rect x="5" y="5" width="14" height="14" />
+                            </svg>
                         </button>
+
                     </div>
 
+
                     {/* Timer */}
-                    <div className="bg-gray-100 rounded-2xl p-6 text-4xl text-center font-mono shadow-inner">
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600
+      rounded-xl p-6 text-4xl text-center font-mono text-white
+      tracking-widest shadow-inner">
                         {formatTime(seconds)}
                     </div>
                 </div>
 
                 {/* Screenshot Preview */}
                 <div>
-                    <h4 className="text-gray-700 font-semibold mb-4">
-                        Screenshot Preview
-                    </h4>
+                    <h4 className="text-slate-700 font-semibold mb-4 mt-10">Screenshot Preview</h4>
 
                     {screenshots.length === 0 ? (
-                        <div className="text-gray-400 text-center py-10 border-2  rounded-xl">
+                        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 text-slate-400 text-center py-10">
                             Screenshots will appear here
                         </div>
                     ) : (
@@ -342,7 +379,7 @@ const Tracker = () => {
                                     key={index}
                                     src={src.screenshot}
                                     alt="screenshot"
-                                    className="rounded-xl shadow-md hover:scale-105 transition"
+                                    className="rounded-lg shadow hover:shadow-lg hover:scale-105 transition"
                                 />
                             ))}
                         </div>
@@ -351,6 +388,7 @@ const Tracker = () => {
 
             </div>
         </div>
+
 
     );
 };
