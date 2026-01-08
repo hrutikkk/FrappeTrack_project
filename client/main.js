@@ -98,3 +98,25 @@ ipcMain.handle("get-creds", async (event, data) => {
     return null;
   }
 })
+//delete screenshot
+ipcMain.handle("delete-screenshot", async () => {
+  try {
+    // console.log("📥 IPC received: delete-screenshot");
+    const screenshotDir = path.join(
+      __dirname,
+      "screenshots"
+    );
+
+    if (fs.existsSync(screenshotDir)) {
+      fs.rmSync(screenshotDir, { recursive: true, force: true });
+      console.log("Screenshot folder deleted");
+    } else {
+      console.log("Screenshot folder not found");
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting screenshot folder:", error);
+    return { success: false, error: error.message };
+  }
+});

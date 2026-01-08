@@ -84,7 +84,14 @@ const Tracker = () => {
         const max = 1 * 60 * 1000;  // 10 min
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
-
+    const delScreenshotFolder = async () => {
+        try {
+            const res = await window.electronAPI.deleteScreenshots();
+            console.log("Delete response:", res);
+        } catch (error) {
+            console.log("Unable to delete screenshot folder", error);
+        }
+    };
     // ------------ CAPTURE -------------------
     const captureScreenshot = async () => {
         if (!window.electronAPI?.captureScreen) {
@@ -234,6 +241,7 @@ const Tracker = () => {
 
         sessionIdRef.current += 1;
         imageIndexRef.current = 1;
+        delScreenshotFolder();
     }
     // ------------- CLEANUP -----------------
     useEffect(() => {
