@@ -1,6 +1,8 @@
 import { create } from "zustand";
+import axiosInstance from '../api/axiosInstance'
+import { useTimerStore } from "./timerStore";
 
-export const useTimerStore = create((set, get) => ({
+export const useCreateStore = create((set, get) => ({
 
     projects: [],
     task: [],
@@ -25,11 +27,11 @@ export const useTimerStore = create((set, get) => ({
             const data = res.data;
             console.log("Project response:", data);
 
-            if (data?.message?.status) {
-                set({ projects: data.message.data });
-                // toast.success("Projects fetched successfully")
-                return true;
-            }
+            // if (data?.message?.status) {
+            //     set({ projects: data.message.data });
+            //     // toast.success("Projects fetched successfully")
+            //     return true;
+            // }
             toast.error("Unable to fetch projects")
             return false
         } catch (err) {
