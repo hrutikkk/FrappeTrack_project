@@ -1,12 +1,26 @@
 import { create } from "zustand";
 import axiosInstance from '../api/axiosInstance'
 import { useTimerStore } from "./timerStore";
-
+/*
+   const [selectedProject, setSelectedProject] = useState(null);
+    const [taskByProject, setTaskByProject] = useState(null)
+    const [timeSheetValue, setTimeSheetValue] = useState(null)
+*/
 export const useCreateStore = create((set, get) => ({
 
     projects: [],
     task: [],
     timeSheet: [],
+    descriptionStore: null,
+    selectedProject: null,
+    taskByProject: null,
+    timeSheetValue: null,
+
+    setSelectedProject: (selectedProject) => set((state) => ({ selectedProject })),
+    setTaskByProject: (taskByProject) => set((state) => ({ taskByProject })),
+    setTimeSheetValue: (timeSheetValue) => set((state) => ({ timeSheetValue })),
+
+    setDescriptionStore: (descriptionStore) => set((state) => ({ descriptionStore })),
 
     createTimesheet: async (timesheetData) => {
         try {
@@ -31,7 +45,9 @@ export const useCreateStore = create((set, get) => ({
             //     set({ projects: data.message.data });
             //     // toast.success("Projects fetched successfully")
             //     return true;
+            set({ setDescriptionStore: null, setSelectedProject: null, setTaskByProject: null, setTimeSheetValue: null })
             // }
+
             toast.error("Unable to fetch projects")
             return false
         } catch (err) {
@@ -169,7 +185,7 @@ export const useCreateStore = create((set, get) => ({
                 }
             )
             console.log("response from timesheet", res)
-
+            set({ descriptionStore: null, selectedProject: null, taskByProject: null, timeSheetValue: null })
             return true;
         } catch (error) {
             console.log(

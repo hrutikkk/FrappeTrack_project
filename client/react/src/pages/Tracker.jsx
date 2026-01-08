@@ -16,12 +16,10 @@ const Tracker = () => {
         clearScreenshots,
         send_screenshot
     } = useScreenshotStore();
-    const { createTimeSheet, timeSheet, stopHandler, getProjects, getTask, getTimeSheetList, projects, task, } = useCreateStore()
-    const { startTime, endTime, isRunning } = useTimerStore()
+    const { selectedProject, setSelectedProject, timeSheetValue, setTimeSheetValue, taskByProject, setTaskByProject, descriptionStore, setDescriptionStore, createTimeSheet, timeSheet, stopHandler, getProjects, getTask, getTimeSheetList, projects, task, } = useCreateStore()
+    const { startTime, endTime, isRunning, seconds, start, pause, reset } = useTimerStore()
     const { user } = useAuthStore()
-    const [selectedProject, setSelectedProject] = useState(null);
-    const [taskByProject, setTaskByProject] = useState(null)
-    const [timeSheetValue, setTimeSheetValue] = useState(null)
+
     const [description, setDescription] = useState(null)
     const [isTimeSheet, setIsTimeSheet] = useState(false)
 
@@ -43,7 +41,6 @@ const Tracker = () => {
         console.log(value);
 
         await getTask(value)
-
     }
     async function handleTaskByProject(e) {
         const value = e.target.value;
@@ -57,6 +54,7 @@ const Tracker = () => {
         const value = e.target.value;
         setTimeSheetValue(value)
         setIsTimeSheet(true)
+
         if (value !== "create-timesheet") {
             console.log("changing isTimesheet")
             setIsTimeSheet(false)
@@ -151,7 +149,6 @@ const Tracker = () => {
     };
 
     // ------------ BUTTONS ------------------
-    const { seconds, start, pause, reset } = useTimerStore();
 
     const handleStart = () => {
         console.log("Start clicked");
@@ -208,7 +205,7 @@ const Tracker = () => {
                 "hours": "54",
                 "project": selectedProject,
                 "task": taskByProject,
-                "description": description,
+                "description": descriptionStore,
                 "screenshots": screenshots
             }
         };
@@ -234,6 +231,14 @@ const Tracker = () => {
         imageIndexRef.current = 1;
     }
     // ------------- CLEANUP -----------------
+    useEffect(()=>{
+        console.log("running useeffect")
+        setTaskByProject(null);
+        setDescriptionStore(null);
+        setIsTimeSheet(null)
+        setSelectedProject(null)
+    },[isTimeSheet])
+
     useEffect(() => {
         return () => {
             clearTimeout(screenshotTimeoutRef.current);
@@ -295,7 +300,7 @@ const Tracker = () => {
           hover:border-blue-400 transition"
                         >
                             <option value="">Select timesheet</option>
-                            <option value="create-timesheet">Create timesheet</option>
+                            {selectedProject && taskByProject && <option value="create-timesheet">Create timesheet</option>}
                             {timeSheet.map(tsheet => (
                                 <option key={tsheet.name} value={tsheet.name}>
                                     {tsheet.name}
@@ -311,7 +316,8 @@ const Tracker = () => {
                         </label>
                         <textarea
                             id="taskDescription"
-                            onChange={(e) => setDescription(e.target.value)}
+                            onChange={(e) => setDescriptionStore(e.target.value)}
+                            value={descriptionStore}
                             placeholder="Briefly describe what you worked on..."
                             className="w-full min-h-[110px] p-4 rounded-xl border border-slate-300
           bg-slate-50 text-sm text-slate-700
@@ -334,7 +340,7 @@ const Tracker = () => {
                                             title="Start"
                                             className="w-full p-2 rounded-lg bg-blue-600
         flex items-center justify-center
-        shadow hover:bg-blue-700 active:scale-95 transition text-white"
+        shadow hover:bg-blue-700 active:scale-95 transition text-white cursor-pointer"
                                         >
                                             <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
                                                 <polygon points="5,3 19,12 5,21" />
@@ -347,7 +353,7 @@ const Tracker = () => {
                                             title="Stop"
                                             className="w-full p-2 rounded-lg bg-slate-600
         flex items-center justify-center
-        shadow hover:bg-slate-700 active:scale-95 transition text-white"
+        shadow hover:bg-slate-700 active:scale-95 transition text-white cursor-pointer"
                                         >
                                             <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
                                                 <rect x="5" y="5" width="14" height="14" />
@@ -381,7 +387,7 @@ const Tracker = () => {
                                 <button
                                     className="bg-black
       rounded-xl p-2 text-xl text-center font-mono text-white
-      tracking-widest shadow-inner w-full"
+      tracking-widest shadow-inner w-full cursor-pointer"
                                     onClick={() => createTimeSheet({ "employee": user.employee.name, "parent_project": selectedProject, "time_logs": [] })}
                                 >
                                     Create
