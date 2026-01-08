@@ -10,11 +10,15 @@ const store = new Store()
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 1000,
+    width: 1200,             // mobile width
+    height: 1100,            // mobile height
+    minWidth: 320,           // optional min/max to prevent too small
+   
+    maxHeight: 1024,
     center: true,
+    resizable: true,        // can be false if you want fixed size
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"), // preload script
+      preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
     },
@@ -62,7 +66,10 @@ ipcMain.handle("capture-screen", async () => {
     const filePath = path.join(imgDir, `${timeString}.png`);
     fs.writeFileSync(filePath, image);
 
-    return thumbnail.toDataURL(); // Send preview to renderer
+    return { 
+      "thumbnail": thumbnail.toDataURL(),
+      "screenshotTime":timeString
+    }; // Send preview to renderer
   } catch (err) {
     console.error("Error capturing screen:", err);
     return null;
@@ -83,6 +90,8 @@ ipcMain.handle("save-creds", async (event, apiKey, apiSecret) => {
 ipcMain.handle("get-creds", async (event, data) => {
   try {
     const creds = store.get("creds");
+    console.log(creds);
+    
     return creds
   } catch (error) {
     console.error("Error fetching credentials ipc:", error);
