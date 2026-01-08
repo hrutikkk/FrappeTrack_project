@@ -9,5 +9,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   saveCredentials: (apiKey, apiSecret) => ipcRenderer.invoke("save-creds", {apiKey, apiSecret}),
 
-  getCredentials: (data) => ipcRenderer.invoke("get-creds", data)
+  getCredentials: (data) => ipcRenderer.invoke("get-creds", data),
+
+   deleteScreenshots : ()=> {
+    console.log("IPC sent: delete-screenshot");
+    return ipcRenderer.invoke("delete-screenshot");
+  }
 });
