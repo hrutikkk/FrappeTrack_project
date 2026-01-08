@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-
 import { useAuthStore } from "../store/authStore";
 import { useTimerStore } from "../store/timerStore";
 import { useScreenshotStore } from "../store/screenshotStore"
@@ -36,59 +35,37 @@ const Tracker = () => {
 
     console.log("screenshots: ", screenshots)
 
-  async function handleProjectChange(e) {
-    const value = e.target.value;
-    setSelectedProject(value);
-    console.log(value);
+    console.log(projects)
+    console.log(task)
+    async function handleProjectChange(e) {
+        const value = e.target.value;
+        setSelectedProject(value);
+        console.log(value);
 
-    await getTask(value)
-
-  }
-  async function handleTaskByProject(e) {
-    const value = e.target.value;
-    setTaskByProject(value);
-    console.log(value);
-
-    await getTimeSheetList(value)
-
-  }
-  async function handleTimeSheet(e) {
-    const value = e.target.value;
-    setTimeSheetValue(value);
-    console.log(value);
-
-    // await getTimeSheetList(value)
-
-  }
-
-  const timerIntervalRef = useRef(null);
-  const screenshotTimeoutRef = useRef(null);
-
-  const sessionIdRef = useRef(1);
-  const imageIndexRef = useRef(1);
-
-  // ---------------- TIMER ----------------
-  const formatTime = (secs) => {
-    const h = String(Math.floor(secs / 3600)).padStart(2, "0");
-    const m = String(Math.floor((secs % 3600) / 60)).padStart(2, "0");
-    const s = String(secs % 60).padStart(2, "0");
-    return `${h}:${m}:${s}`;
-  };
-
-  // ------------- RANDOM INTERVAL ----------
-  const getRandomDelay = () => {
-    const min = 1 * 60 * 1000;   // 3 min
-    const max = 2 * 60 * 1000;  // 10 min
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
-
-  // ------------ CAPTURE -------------------
-  const captureScreenshot = async () => {
-    if (!window.electronAPI?.captureScreen) {
-      console.error("Electron API not available!");
-      return;
+        await getTask(value)
 
     }
+    async function handleTaskByProject(e) {
+        const value = e.target.value;
+        setTaskByProject(value)
+        console.log(value);
+
+        await getTimeSheetList(value)
+
+    }
+    async function handleTimeSheet(e) {
+        const value = e.target.value;
+        setTimeSheetValue(value)
+        setIsTimeSheet(true)
+        if (value !== "create-timesheet") {
+            console.log("changing isTimesheet")
+            setIsTimeSheet(false)
+        }
+        console.log("timesheet value: ", value);
+        // await getTimeSheetList(value)
+
+    }
+
 
     const screenshotTimeoutRef = useRef(null);
 
@@ -101,13 +78,12 @@ const Tracker = () => {
         const m = String(Math.floor((secs % 3600) / 60)).padStart(2, "0");
         const s = String(secs % 60).padStart(2, "0");
         return `${h}:${m}:${s}`;
-
     };
 
     // ------------- RANDOM INTERVAL ----------
     const getRandomDelay = () => {
-        const min = 0.1 * 60 * 1000;   // 3 min
-        const max = 0.2 * 60 * 1000;  // 10 min
+        const min = 0.5 * 60 * 1000;   // 3 min
+        const max = 1 * 60 * 1000;  // 10 min
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
 
@@ -123,8 +99,20 @@ const Tracker = () => {
             imageIndex: imageIndexRef.current,
         });
 
-        console.log(imgData)
+        console.log("imgdata", imgData)
         if (imgData.thumbnail) {
+            const validStr = imgData.thumbnail.split(",")[1];
+            console.log(validStr);
+            let data = {
+                "file_name": imgData.screenshotTime,
+                "file_data": validStr,
+                "timesheet_id": timeSheetValue
+            }
+            const res = await send_screenshot(data);
+            if (!res) {
+                return toast.error("error while sending screeenshot");
+            }
+            console.log(res);
             addScreenshot(imgData.thumbnail, imgData.screenshotTime);
             imageIndexRef.current += 1;
         }
@@ -253,9 +241,10 @@ const Tracker = () => {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 flex items-center justify-center px-4">
 
-            <div className="bg-white w-full max-w-5xl rounded-3xl shadow-xl p-6 md:p-8">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100 flex items-center justify-center px-4 py-10">
+
+            <div className="bg-white w-full max-w-5xl rounded-2xl shadow-[0_10px_40px_rgba(59,130,246,0.15)] p-6 md:p-10">
 
                 {/* Header */}
                 <div className="text-center mb-10">
@@ -437,7 +426,8 @@ const Tracker = () => {
             </div>
         </div>
 
+
     );
-  }
 };
-export default Tracker;
+
+export default Tracker
