@@ -82,8 +82,8 @@ const Tracker = () => {
 
     // ------------- RANDOM INTERVAL ----------
     const getRandomDelay = () => {
-        const min = 0.5 * 60 * 1000;   // 3 min
-        const max = 1 * 60 * 1000;  // 10 min
+        const min = 0.1 * 60 * 1000;   // 3 min
+        const max = 0.2 * 60 * 1000;  // 10 min
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
 
@@ -242,9 +242,10 @@ const Tracker = () => {
 
     return (
 
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100 flex items-center justify-center px-4 py-10">
+        <div className="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 flex items-center justify-center px-4">
 
-            <div className="bg-white w-full max-w-5xl rounded-2xl shadow-[0_10px_40px_rgba(59,130,246,0.15)] p-6 md:p-10">
+
+            <div className="bg-white w-full max-w-5xl rounded-3xl shadow-xl p-6 md:p-8">
 
                 {/* Header */}
                 <div className="text-center mb-10">
