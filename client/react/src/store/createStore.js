@@ -135,7 +135,11 @@ export const useCreateStore = create((set, get) => ({
         try {
             const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
 
-            const jsonData = JSON.parse(JSON.stringify(data));
+            const jsonData = JSON.parse(JSON.stringify(data));  // if (data?.message?.status) {
+            //     set({ projects: data.message.data });
+            //     // toast.success("Projects fetched successfully")
+            //     return true;
+            // }
             const now = new Date();
 
             const formattedTime = now
