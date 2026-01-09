@@ -7,9 +7,21 @@ export const useAuthStore = create((set) => ({
     user: null,
     authLoading: false,
     isAuthenticated: false,
+    isCheckingAuth: true,
     error: null,
 
+    checkAuth: async () => {
+        set({ isCheckingAuth: true })
+        try {
+            const res = await axiosInstance("some endpoint");
+            set({ user: res.data.user });
 
+        } catch (error) {
+            console.error("Unauthorized user:", error);
+            set({user: null, isCheckingAuth: false})
+        }
+    },
+    setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
     // login: async (apiKey, apiSecret) => {
     //     set({ authLoading: true, error: null });
 
@@ -80,6 +92,7 @@ export const useAuthStore = create((set) => ({
 
                 localStorage.setItem("creds", JSON.stringify(creds))
                 toast.success("Profile fetched successfully")
+                set({ isAuthenticated: true })
                 return true;
             }
             toast.error("Unable to fetch profile")

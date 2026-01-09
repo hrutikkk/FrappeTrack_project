@@ -218,12 +218,9 @@ const Tracker = () => {
         };
         const res = await stopHandler(data)
         if (!res) toast.error("Unable to send the screenshots")
-        // console.log("running useeffect")
-        setTaskByProject(null);
-        setDescriptionStore(null);
-        setIsTimeSheet(null)
-        setSelectedProject(null)
+
         console.log("screenshots", screenshots)
+        console.log("fields logs: ", selectedProject, taskByProject, timeSheetValue, descriptionStore)
         const missing = getMissingSelections();
 
         if (missing.length > 0) {
@@ -243,11 +240,14 @@ const Tracker = () => {
         imageIndexRef.current = 1;
         delScreenshotFolder();
     }
-    // ------------- CLEANUP -----------------
+
     useEffect(() => {
+        console.log("fkdjakfjakdsjfkl")
+        setDescription(null)
+        console.log("setting des to null")
+    }, [handleStop])
 
-    }, [isTimeSheet])
-
+    // CLEAN UP
     useEffect(() => {
         return () => {
             clearTimeout(screenshotTimeoutRef.current);
