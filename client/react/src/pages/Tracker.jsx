@@ -99,6 +99,12 @@ const Tracker = () => {
     return `${h}:${m}:${s}`;
   };
 
+  // ------------- RANDOM INTERVAL ----------
+  const getRandomDelay = () => {
+    const min = 0.1 * 60 * 1000; // 3 min
+    const max = 0.2 * 60 * 1000; // 10 min
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
   const delScreenshotFolder = async () => {
     try {
       const res = await window.electronAPI.deleteScreenshots();
@@ -149,178 +155,9 @@ const Tracker = () => {
   const handlePause = () => {
     pause();
 
-    const sessionIdRef = useRef(1);
-    const imageIndexRef = useRef(1);
-
-    // ---------------- TIMER ----------------
-    const formatTime = (secs) => {
-        const h = String(Math.floor(secs / 3600)).padStart(2, "0");
-        const m = String(Math.floor((secs % 3600) / 60)).padStart(2, "0");
-        const s = String(secs % 60).padStart(2, "0");
-        return `${h}:${m}:${s}`;
-    };
-
-    // ------------- RANDOM INTERVAL ----------
-    const getRandomDelay = () => {
-        const min = 0.5 * 60 * 1000;   // 3 min
-        const max = 1 * 60 * 1000;  // 10 min
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-    const delScreenshotFolder = async () => {
-        try {
-            const res = await window.electronAPI.deleteScreenshots();
-            console.log("Delete response:", res);
-        } catch (error) {
-            console.log("Unable to delete screenshot folder", error);
-        }
-    };
-    // ------------ CAPTURE -------------------
-    const captureScreenshot = async () => {
-        if (!window.electronAPI?.captureScreen) {
-            console.error("Electron API not available!");
-            return;
-        }
-
-        const imgData = await window.electronAPI.captureScreen({
-            sessionId: sessionIdRef.current,
-            imageIndex: imageIndexRef.current,
-        });
-
-        console.log("imgdata", imgData)
-        if (imgData.thumbnail) {
-            const validStr = imgData.thumbnail.split(",")[1];
-            console.log(validStr);
-            let data = {
-                "file_name": imgData.screenshotTime,
-                "file_data": validStr,
-                "timesheet_id": timeSheetValue
-            }
-            const res = await send_screenshot(data);
-            if (!res) {
-                return toast.error("error while sending screeenshot");
-            }
-            console.log(res);
-            addScreenshot(imgData.thumbnail, imgData.screenshotTime);
-            imageIndexRef.current += 1;
-        }
-    };
-
-    // ----------- SCREENSHOT LOOP ------------
-    const scheduleScreenshot = (delayOverride = null) => {
-        if (screenshotTimeoutRef.current) return;
-
-        const delay = delayOverride ?? getRandomDelay();
-
-        setSchedule(delay);
-
-        console.log("Next screenshot in", delay / 1000, "seconds");
-
-        screenshotTimeoutRef.current = setTimeout(async () => {
-            screenshotTimeoutRef.current = null;
-            clearSchedule();
-
-            console.log("Taking screenshot now");
-            await captureScreenshot();
-
-            scheduleScreenshot(); // new random delay AFTER capture
-        }, delay);
-    };
-
-    //missing dropdown
-    const getMissingSelections = () => {
-        const missing = [];
-
-        if (!selectedProject) missing.push("project");
-        if (!taskByProject) missing.push("task");
-        if (!timeSheetValue) missing.push("timesheet");
-
-        return missing;
-    };
-
-    // ------------ BUTTONS ------------------
-
-    const handleStart = () => {
-        console.log("Start clicked");
-
-        const missing = getMissingSelections();
-
-        if (missing.length > 0) {
-            toast.error(`Please select ${missing.join(" and ")}`);
-            return;
-        }
-        start();
-
-
-        if (!screenshotTimeoutRef.current) {
-            if (remainingDelay != null) {
-                scheduleScreenshot(remainingDelay);
-            } else {
-                scheduleScreenshot();
-            }
-        }
-    };
-
-    const handlePause = () => {
-        pause();
-
-        if (nextShotAt) {
-            const remaining = Math.max(nextShotAt - Date.now(), 0);
-            setSchedule(remaining);
-        }
-
-        clearTimeout(screenshotTimeoutRef.current);
-        screenshotTimeoutRef.current = null;
-    };
-
-    const handleStop = async () => {
-
-        // activity type
-        const taskObj = task.filter(t => t.name == taskByProject)
-        console.log("taskobject", taskObj, taskObj[0].subject, task[0]["subject"])
-
-        // screenshots into a string format - 
-        // const reader = new FileReader();
-        // reader.onload = function () {
-        //     screenshots.map()
-        // }
-        const data = {
-            "timesheet": timeSheet,
-            "employee": user.employee.name,
-            "time_log": {
-                "activity_type": taskObj[0].subject,
-                // "activity_type": "Coding",
-                "from_time": startTime,
-                "to_time": endTime,
-                "hours": "54",
-                "project": selectedProject,
-                "task": taskByProject,
-                "description": descriptionStore,
-                "screenshots": screenshots
-            }
-        };
-        const res = await stopHandler(data)
-        if (!res) toast.error("Unable to send the screenshots")
-        // console.log("running useeffect")
-
-        console.log("screenshots", screenshots)
-
-        // pause();
-        reset(); // ✅ logs end time + duration inside store
-
-        clearTimeout(screenshotTimeoutRef.current);
-        screenshotTimeoutRef.current = null;
-
-        clearSchedule();
-        clearScreenshots();
-
-        sessionIdRef.current += 1;
-        imageIndexRef.current = 1;
-        delScreenshotFolder();
-        setSelectedProject("");
-        setTaskByProject("");
-        setTimeSheetValue("");
-        setDescriptionStore("");
-        setIsTimeSheet(false);
+    if (nextShotAt) {
+      const remaining = Math.max(nextShotAt - Date.now(), 0);
+      setSchedule(remaining);
     }
 
     clearTimeout(screenshotTimeoutRef.current);
