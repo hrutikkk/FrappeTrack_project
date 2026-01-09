@@ -91,12 +91,6 @@ const Tracker = () => {
     return `${h}:${m}:${s}`;
   };
 
-  // ------------- RANDOM INTERVAL ----------
-  const getRandomDelay = () => {
-    const min = 0.1 * 60 * 1000; // 3 min
-    const max = 0.2 * 60 * 1000; // 10 min
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
   const delScreenshotFolder = async () => {
     try {
       const res = await window.electronAPI.deleteScreenshots();
