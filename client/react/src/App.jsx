@@ -8,13 +8,16 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Tracker from "./pages/Tracker";
 
 function App() {
-  const { user, isAuthenticated } = useAuthStore()
+  const { user, isAuthenticated, setIsAuthenticated, checkAuth } = useAuthStore()
   // useEffect(()=>{
   //   console.log("User got changed : app")
   //   console.log("user", user);
   //   console.log("isAuthenticated", isAuthenticated)
   // },[user])
 
+  useEffect(()=>{
+    checkAuth()
+  },[checkAuth])
   return (
     <>
       <Routes>

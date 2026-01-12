@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axiosInstance from '../api/axiosInstance'
 import { useTimerStore } from "./timerStore";
+import toast from "react-hot-toast";
 /*
    const [selectedProject, setSelectedProject] = useState(null);
     const [taskByProject, setTaskByProject] = useState(null)
@@ -16,14 +17,19 @@ export const useCreateStore = create((set, get) => ({
     taskByProject: null,
     timeSheetValue: null,
 
-    setSelectedProject: (selectedProject) => set((state) => ({ selectedProject })),
-    setTaskByProject: (taskByProject) => set((state) => ({ taskByProject })),
-    setTimeSheetValue: (timeSheetValue) => set((state) => ({ timeSheetValue })),
+    setSelectedProject: (selectedProject) => set({ selectedProject }),
+    setTaskByProject: (taskByProject) => set({ taskByProject }),
+    setTimeSheetValue: (timeSheetValue) => set({ timeSheetValue }),
 
-    setDescriptionStore: (descriptionStore) => set((state) => ({ descriptionStore })),
+    setDescriptionStore: (descriptionStore) => {
+        console.log(descriptionStore)
+        console.log(get().descriptionStore)
+        set({ descriptionStore })
+    },
 
     createTimesheet: async (timesheetData) => {
         try {
+            console.log("printing create timesheet data: ",timesheetData)
             // apiSecret
             const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
 
@@ -152,10 +158,7 @@ export const useCreateStore = create((set, get) => ({
             const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
 
             const jsonData = JSON.parse(JSON.stringify(data));  // if (data?.message?.status) {
-            //     set({ projects: data.message.data });
-            //     // toast.success("Projects fetched successfully")
-            //     return true;
-            // }
+
             const now = new Date();
 
             const formattedTime = now
