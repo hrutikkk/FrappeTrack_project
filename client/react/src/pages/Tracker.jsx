@@ -52,7 +52,6 @@ const Tracker = () => {
 
   useEffect(() => {
     getProjects();
-
   }, []);
 
   async function handleProjectChange(e) {
