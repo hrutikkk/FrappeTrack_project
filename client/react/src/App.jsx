@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useAuthStore } from "./store/authStore";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Tracker from "./pages/Tracker";
+import LoginTesting from "./pages/LoginTesting";
 
 function App() {
   const { user, isAuthenticated } = useAuthStore()
@@ -18,7 +19,7 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<LoginTesting />} />
         
         <Route
           path="/user-profile"
