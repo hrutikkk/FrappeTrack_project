@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axiosInstance from '../api/axiosInstance'
 import { useTimerStore } from "./timerStore";
+import toast from "react-hot-toast";
 /*
    const [selectedProject, setSelectedProject] = useState(null);
     const [taskByProject, setTaskByProject] = useState(null)
@@ -28,6 +29,7 @@ export const useCreateStore = create((set, get) => ({
 
     createTimesheet: async (timesheetData) => {
         try {
+            console.log("printing create timesheet data: ",timesheetData)
             // apiSecret
             const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
 

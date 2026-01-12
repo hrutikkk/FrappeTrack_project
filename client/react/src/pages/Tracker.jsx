@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import { useTimerStore } from "../store/timerStore";
 import { useScreenshotStore } from "../store/screenshotStore"
+import { useCreateStore } from "../store/createStore"
 import { toast } from 'react-hot-toast'
-import { useCreateStore } from "../store/createStore";
 
 const Tracker = () => {
     const {
@@ -16,7 +16,15 @@ const Tracker = () => {
         clearScreenshots,
         send_screenshot
     } = useScreenshotStore();
-    const { selectedProject, setSelectedProject, timeSheetValue, setTimeSheetValue, taskByProject, setTaskByProject, descriptionStore, setDescriptionStore, createTimeSheet, timeSheet, stopHandler, getProjects, getTask, getTimeSheetList, projects, task, } = useCreateStore()
+
+    const { selectedProject, setSelectedProject,
+          timeSheetValue, setTimeSheetValue,
+           taskByProject, setTaskByProject,
+            descriptionStore, setDescriptionStore,
+             createTimesheet, timeSheet, stopHandler,
+              getProjects, getTask, getTimeSheetList,
+               projects, task} = useCreateStore()
+               
     const { startTime, endTime, isRunning, seconds, start, pause, reset } = useTimerStore()
     const { user } = useAuthStore()
 
@@ -63,7 +71,6 @@ const Tracker = () => {
         // await getTimeSheetList(value)
 
     }
-
 
     const screenshotTimeoutRef = useRef(null);
 
@@ -178,6 +185,20 @@ const Tracker = () => {
         }
     };
 
+    async function createTimeSheetHandler() {
+        console.log("creating timesheet ...")
+          const timeSheetData = {
+            title:"hard coded",
+            employee: user?.employee?.name,
+            parent_project: selectedProject,
+            time_logs: []
+        };  
+        console.log(timeSheetData)
+        const res = await createTimesheet(timeSheetData);
+        console.log("Timesheet created:", res);
+        console.log(res)
+    }
+
     const handlePause = () => {
         pause();
 
@@ -241,11 +262,11 @@ const Tracker = () => {
         delScreenshotFolder();
     }
 
-    useEffect(() => {
-        console.log("fkdjakfjakdsjfkl")
-        setDescription(null)
-        console.log("setting des to null")
-    }, [handleStop])
+    // useEffect(() => {
+    //     console.log("fkdjakfjakdsjfkl")
+    //     setDescriptionStore(null)
+    //     console.log("setting des to null")
+    // }, [handleStop])
 
     // CLEAN UP
     useEffect(() => {
@@ -397,7 +418,7 @@ const Tracker = () => {
                                     className="bg-black
       rounded-xl p-2 text-xl text-center font-mono text-white
       tracking-widest shadow-inner w-full cursor-pointer"
-                                    onClick={() => createTimeSheet({ "employee": user.employee.name, "parent_project": selectedProject, "time_logs": [] })}
+                                    onClick={createTimeSheetHandler}
                                 >
                                     Create
                                 </button>

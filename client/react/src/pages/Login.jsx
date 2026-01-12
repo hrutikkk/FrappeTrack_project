@@ -6,8 +6,12 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
   const { fetchProfile } = useAuthStore();
   const navigate = useNavigate();
-  const [apiKey, setApiKey] = useState("a09fb25fcd26fcf");
-  const [apiSecret, setApiSecret] = useState("097992c1cbd0ce7");
+  // suraj endpoint
+  const [apiKey, setApiKey] = useState("204f3cff0c90b6d");
+  const [apiSecret, setApiSecret] = useState("9685cc60727bc6a");
+  // main server endpoint
+  // const [apiKey, setApiKey] = useState("a09fb25fcd26fcf");
+  // const [apiSecret, setApiSecret] = useState("097992c1cbd0ce7");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
