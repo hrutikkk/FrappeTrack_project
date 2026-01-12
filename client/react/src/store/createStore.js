@@ -173,5 +173,27 @@ export const useCreateStore = create((set, get) => ({
             )
             return null
         }
+    },
+    getAcitvityData: async () => {
+        try {
+            const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
+
+            const resposne = await axiosInstance.get("/api/method/frappetrack.api.activity_type_api.get_activity_type",
+                {
+                    headers:{
+                        "Authorization":`token ${apiKey}:${apiSecret}`
+                    }
+                }
+            )
+            const data = resposne.data;
+            console.log("activity data",data?.message?.data)
+            set({activityType:data?.message?.data})
+            return true
+
+        } catch (error) {
+            console.log("activity type error", error)
+
+        }
+
     }
 }))

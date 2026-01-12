@@ -88,6 +88,9 @@ const Tracker = () => {
     }
     // await getTimeSheetList(value)
   }
+  const handleAcitvityType = (e)=>{
+    setSelectedActivityType(e.target.value)
+  }
 
 
 
@@ -198,6 +201,7 @@ const Tracker = () => {
     setTaskByProject("");
     setTimeSheetValue("");
     setDescriptionStore("");
+    setSelectedActivityType("");
     setIsTimeSheet(false);
   };
 
