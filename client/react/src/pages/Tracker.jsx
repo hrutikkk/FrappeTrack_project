@@ -39,10 +39,7 @@ const Tracker = () => {
         console.log("project", selectedProject);
     }, [])
 
-    console.log("screenshots: ", screenshots)
 
-    console.log(projects)
-    console.log(task)
     async function handleProjectChange(e) {
         const value = e.target.value;
         setSelectedProject(value);
@@ -196,7 +193,7 @@ const Tracker = () => {
         console.log(timeSheetData)
         const res = await createTimesheet(timeSheetData);
         console.log("Timesheet created:", res);
-        console.log(res)
+        
     }
 
     const handlePause = () => {
@@ -217,16 +214,11 @@ const Tracker = () => {
         const taskObj = task.filter(t => t.name == taskByProject)
         console.log("taskobject", taskObj, taskObj[0].subject, task[0]["subject"])
 
-        // screenshots into a string format - 
-        // const reader = new FileReader();
-        // reader.onload = function () {
-        //     screenshots.map()
-        // }
         const data = {
             "timesheet": timeSheet,
             "employee": user.employee.name,
             "time_log": {
-                "activity_type": taskObj[0].subject,
+                "activity_type": taskObj[0]["subject"],
                 // "activity_type": "Coding",
                 "from_time": startTime,
                 "to_time": endTime,
@@ -237,6 +229,7 @@ const Tracker = () => {
                 "screenshots": screenshots
             }
         };
+        console.log("stophandlerdata", data)
         const res = await stopHandler(data)
         if (!res) toast.error("Unable to send the screenshots")
 
