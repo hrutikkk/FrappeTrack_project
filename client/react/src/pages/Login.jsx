@@ -1,22 +1,20 @@
 import React, { useState } from "react";
 import { useAuthStore } from "../store/authStore";
-import fav from '../assets/favicon.webp'
+import fav from "../assets/favicon.webp";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { fetchProfile } = useAuthStore();
   const navigate = useNavigate();
-  // suraj endpoint
-  const [apiKey, setApiKey] = useState("204f3cff0c90b6d");
-  const [apiSecret, setApiSecret] = useState("9685cc60727bc6a");
-  // main server endpoint
   // const [apiKey, setApiKey] = useState("a09fb25fcd26fcf");
   // const [apiSecret, setApiSecret] = useState("097992c1cbd0ce7");
+  const [apiKey, setApiKey] = useState("204f3cff0c90b6d");
+  const [apiSecret, setApiSecret] = useState("9685cc60727bc6a");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetchProfile(apiKey, apiSecret)
-    if (res) navigate("/user-profile")
+    const res = await fetchProfile(apiKey, apiSecret);
+    if (res) navigate("/user-profile");
   };
 
   return (
@@ -29,12 +27,8 @@ const Login = () => {
             alt="Time Tracker Logo"
             className="mx-auto w-24 h-24 mb-4"
           />
-          <h1 className="text-3xl font-bold text-gray-800">
-            Time Tracker
-          </h1>
-          <p className="text-gray-500 mt-2">
-            Login to your tracker account
-          </p>
+          <h1 className="text-3xl font-bold text-gray-800">Time Tracker</h1>
+          <p className="text-gray-500 mt-2">Login to your tracker account</p>
         </div>
 
         {/* Form */}
