@@ -35,8 +35,7 @@ export const useCreateStore = create((set, get) => ({
                 "/api/method/frappetrack.api.timesheet.create_timesheet", { employee, parent_project, activity_type }
             );
 
-            const data = res.data;
-            console.log("Project response:", data);
+            const data = res.data?.message;
 
             if (data?.message?.status) {
                 // set({ projects: data.message.data });
@@ -48,9 +47,12 @@ export const useCreateStore = create((set, get) => ({
             toast.error("Unable create Timesheet")
             return false
         } catch (err) {
-            console.error("Projects fetch failed:", err);
+            console.error("Timesheet creation failed:", err);
+            toast.error("Server error while creating timesheet");
+            return false;
         }
     },
+
     getProjects: async () => {
         try {
 
@@ -174,26 +176,19 @@ export const useCreateStore = create((set, get) => ({
             return null
         }
     },
-    getAcitvityData: async () => {
+    getActivityData: async () => {
         try {
-            const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
-
-            const resposne = await axiosInstance.get("/api/method/frappetrack.api.activity_type_api.get_activity_type",
-                {
-                    headers:{
-                        "Authorization":`token ${apiKey}:${apiSecret}`
-                    }
-                }
-            )
-            const data = resposne.data;
-            console.log("activity data",data?.message?.data)
-            set({activityType:data?.message?.data})
-            return true
+            const resposne = await axiosInstance.get("/api/method/frappetrack.api.activity_type_api.get_activity_type");
+            const data = resposne.data
+            console.log("activity data", data)
+            if (data?.message?.data) {
+                set({ activityList: data?.message?.data })
+                return true;
+            }
 
         } catch (error) {
-            console.log("activity type error", error)
+            console.log("activity api error", error)
 
         }
-
     }
 }))
