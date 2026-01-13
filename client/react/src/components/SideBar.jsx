@@ -53,7 +53,7 @@ const SideBar = ({ children }) => {
           {/* Profile */}
           <div className="flex flex-col items-center mt-10 mb-6">
             <img
-              src={user?.employee?.image || fav}
+              src={fav}
               alt="Profile"
               className="w-24 h-24 rounded-full border-4 border-gray-300 shadow-lg object-cover"
             />

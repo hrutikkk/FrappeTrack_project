@@ -1,23 +1,61 @@
 {
-  "name": "client",
+  "name": "time-tracker",
+  "productName": "Time Tracker",
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "build": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "Unifyxperts",
+    "email": "manan@unifyxperts.com"
+  },
+  "homepage": ".",
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "electron": "^25.1.0"
+    "electron": "^25.1.0",
+    "electron-builder": "^26.4.0"
   },
   "dependencies": {
     "electron-store": "^11.0.2",
-    "express": "^5.2.1",
+    "express": "^4.22.1",
     "http-proxy-middleware": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "router": "^2.2.0"
+  },
+  "build": {
+    "appId": "com.unifyxperts.frappeapp",
+    "productName": "Time Tracker",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "react/dist/**/*",
+      "!react/dist/package.json",
+      "package.json",
+      "assets/**/*",
+      "resources/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "icon": "assets/icons",
+      "desktop": null
+    },
+    "mac": {
+      "target": "dmg"
+    }
   }
 }

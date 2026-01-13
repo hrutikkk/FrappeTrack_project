@@ -28,7 +28,7 @@ const Tracker = () => {
     setTaskByProject,
     descriptionStore,
     setDescriptionStore,
-    createTimeSheet,
+    createTimesheet,
     timeSheet,
     stopHandler,
     getProjects,
@@ -37,6 +37,7 @@ const Tracker = () => {
     projects,
     task,
   } = useCreateStore();
+
   const { startTime, endTime, isRunning, seconds, start, pause, reset } =
     useTimerStore();
   const { user } = useAuthStore();
@@ -112,20 +113,20 @@ const Tracker = () => {
   };
 
   // ------------ BUTTONS ------------------
-    async function createTimeSheetHandler() {
-        console.log("creating timesheet ...")
-          const timeSheetData = {
-            title:"hard coded",
-            employee: user?.employee?.name,
-            parent_project: selectedProject,
-            time_logs: []
-        };  
-        console.log(timeSheetData)
-        const res = await createTimesheet(timeSheetData);
-        console.log("Timesheet created:", res);
-        
-    }
-  
+  async function createTimeSheetHandler() {
+    console.log("creating timesheet ...")
+    const timeSheetData = {
+      title: "hard coded",
+      employee: user?.employee?.name,
+      parent_project: selectedProject,
+      time_logs: []
+    };
+    console.log(timeSheetData)
+    const res = await createTimesheet(timeSheetData);
+    console.log("Timesheet created:", res);
+
+  }
+
   const handleStart = () => {
     console.log("Start clicked");
 
@@ -333,19 +334,19 @@ const Tracker = () => {
                   className="bg-black
       rounded-xl p-2 text-xl text-center font-mono text-white
       tracking-widest shadow-inner w-full cursor-pointer"
-                                    onClick={createTimeSheetHandler}
-                                >
-                                    Create
-                                </button>
-                            </>
-                        )
+                  onClick={createTimeSheetHandler}
+                >
+                  Create
+                </button>
+              </>
+            )
 
-                        }
-                    </div>
+            }
+          </div>
 
 
-                    {/* Timer */}
-                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600
+          {/* Timer */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600
       rounded-xl p-6 text-4xl text-center font-mono text-white
       tracking-widest shadow-inner"
           >
