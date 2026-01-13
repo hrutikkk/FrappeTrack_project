@@ -4,7 +4,7 @@ import fav from '../assets/favicon.webp'
 import { Link } from 'react-router-dom'
 
 const Profile = () => {
-  const { user } = useAuthStore()
+  const { user, fetchProfile } = useAuthStore()
   // const [profile, setProfile] = useState({
   //   name: "",
   //   empId: "",
@@ -24,11 +24,17 @@ const Profile = () => {
   //   });
   // }, []);
 
+
+  useEffect(() => {
+    console.log("running useffect and fetching profile")
+    console.log(user)
+    console.log("user image", user.employee.image)
+    // fetchProfile()
+  }, [])
   const handleLogout = () => {
     console.log("Logout clicked");
     // clear cookies / localStorage / redirect
   };
-
   return (
     <div className="bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 min-h-screen flex items-center justify-center">
       {/* Profile Card */}
@@ -40,7 +46,7 @@ const Profile = () => {
         {/* Profile Image */}
         <div className="relative flex justify-center mt-16">
           <img
-            src={user.employee.image || fav}
+            src={fav}
             alt="Profile"
             className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover bg-gray-200"
           />
@@ -75,7 +81,7 @@ const Profile = () => {
             to="/time-tracker"
           >
             <button className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2.5 rounded-xl font-medium shadow hover:scale-[1.02] hover:shadow-lg transition mb-3">
-               Tracker
+              Tracker
             </button>
           </Link>
 

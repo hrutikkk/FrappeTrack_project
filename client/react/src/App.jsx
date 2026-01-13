@@ -9,13 +9,12 @@ import Tracker from "./pages/Tracker";
 import LoginTesting from "./pages/LoginTesting";
 
 function App() {
-  const { user, isAuthenticated } = useAuthStore()
-  // useEffect(()=>{
-  //   console.log("User got changed : app")
-  //   console.log("user", user);
-  //   console.log("isAuthenticated", isAuthenticated)
-  // },[user])
 
+  const initAuth = useAuthStore((s) => s.initAuth);
+
+  useEffect(() => {
+    initAuth(); // 🔥 THIS WAS MISSING
+  }, []);
   return (
     <>
       <Routes>

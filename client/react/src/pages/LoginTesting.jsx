@@ -2,32 +2,28 @@ import React, { useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import fav from '../assets/favicon.webp'
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const LoginTesting = () => {
-    const { fetchProfile } = useAuthStore();
+    const { fetchProfile, login } = useAuthStore();
     const navigate = useNavigate();
-    const [apiKey, setApiKey] = useState("Administrator");
-    const [apiSecret, setApiSecret] = useState("admin");
+    const [email, setEmail] = useState("suraj@unifyxperts.com");
+    const [password, setPassword] = useState("suraj@123");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const res = fetch("http://192.168.0.32/api/method/frappetrack.api.login_with_email", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include", // 🔥 REQUIRED
-            body: JSON.stringify({
-                email: "Administrator",
-                password: "admin"
-            })
-        })
-            .then(res => res.json())
-            .then(data => {
-                console.log(data);
-            });
 
-        if (res) navigate("/user-profile")
+        try {
+            const res = await login(email,password)
+            console.log("response:", res.data);
+
+            // Frappe wraps response inside `message`
+            if (res.data.message?.success) {
+                navigate("/user-profile");
+            }
+        } catch (err) {
+            console.error("login error:", err);
+        }
     };
 
     return (
@@ -57,8 +53,8 @@ const LoginTesting = () => {
                         <input
                             type="text"
                             placeholder="API key"
-                            value={apiKey}
-                            onChange={(e) => setApiKey(e.target.value)}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg
                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                         />
@@ -71,8 +67,8 @@ const LoginTesting = () => {
                         <input
                             type="password"
                             placeholder="********"
-                            value={apiSecret}
-                            onChange={(e) => setApiSecret(e.target.value)}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg
                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                         />

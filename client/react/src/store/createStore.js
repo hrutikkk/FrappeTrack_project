@@ -10,18 +10,13 @@ export const useCreateStore = create((set, get) => ({
 
     createTimesheet: async (timesheetData) => {
         try {
-            // apiSecret
-            const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
+            // // apiSecret
+            // const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
 
-            console.log(apiKey, apiSecret)
+            // console.log(apiKey, apiSecret)
 
             const res = await axiosInstance.post(
-                "/api/method/frappetrack.api.timesheet.create_timesheet", timesheetData,
-                {
-                    headers: {
-                        'Authorization': `token ${apiKey}:${apiSecret}`,
-                    },
-                }
+                "/api/method/frappetrack.api.timesheet.create_timesheet", timesheetData
             );
 
             const data = res.data;
@@ -41,17 +36,12 @@ export const useCreateStore = create((set, get) => ({
     getProjects: async () => {
         try {
             // apiSecret
-            const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
+            // const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
 
-            console.log(apiKey, apiSecret)
+            // console.log(apiKey, apiSecret)
 
             const res = await axiosInstance.get(
-                "/api/method/frappetrack.api.project.get_projects_list",
-                {
-                    headers: {
-                        'Authorization': `token ${apiKey}:${apiSecret}`,
-                    },
-                }
+                "/api/method/frappetrack.api.project.get_projects_list"
             );
 
             const data = res.data;
@@ -71,18 +61,13 @@ export const useCreateStore = create((set, get) => ({
     getTask: async (project_id) => {
         console.log("hitting get_task")
         try {
-            // apiSecret
-            const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
+            // // apiSecret
+            // const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
 
-            console.log(apiKey, apiSecret)
+            // console.log(apiKey, apiSecret)
 
             const res = await axiosInstance.get(
                 `api/method/frappetrack.api.task.get_task_by_project?project_id=${project_id}`,
-                {
-                    headers: {
-                        'Authorization': `token ${apiKey}:${apiSecret}`,
-                    },
-                }
             );
 
             const data = res.data;
@@ -103,17 +88,12 @@ export const useCreateStore = create((set, get) => ({
         console.log("hitting timesheet")
         try {
             // apiSecret
-            const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
+            // const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
 
-            console.log(apiKey, apiSecret)
+            // console.log(apiKey, apiSecret)
 
             const res = await axiosInstance.get(
-                `api/method/frappetrack.api.timesheet.get_timesheet_by_task?task_id=${task_id}`,
-                {
-                    headers: {
-                        'Authorization': `token ${apiKey}:${apiSecret}`,
-                    },
-                }
+                `api/method/frappetrack.api.timesheet.get_timesheet_by_task?task_id=${task_id}`
             );
 
             const data = res.data;
@@ -133,7 +113,7 @@ export const useCreateStore = create((set, get) => ({
 
     stopHandler: async (data) => {
         try {
-            const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
+            // const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
 
             const jsonData = JSON.parse(JSON.stringify(data));
             const now = new Date();
@@ -157,12 +137,7 @@ export const useCreateStore = create((set, get) => ({
             console.log("timesheet data", jsonData)
 
 
-            const res = await axiosInstance.post("/api/method/frappetrack.api.timesheet.add_time_log", jsonData,
-                {
-                    headers: {
-                        'Authorization': `token ${apiKey}:${apiSecret}`,
-                    },
-                }
+            const res = await axiosInstance.post("/api/method/frappetrack.api.timesheet.add_time_log", jsonData
             )
             console.log("response from timesheet", res)
 

@@ -3,6 +3,8 @@ const path = require("path");
 const fs = require("fs");
 const pkg = require('electron-store');
 const { takeCoverage } = require("v8");
+const express = require('express')
+const { createProxyMiddleware } = require("http-proxy-middleware");
 
 let mainWindow;
 const Store = pkg.default
@@ -13,7 +15,7 @@ function createWindow() {
     width: 1200,             // mobile width
     height: 1100,            // mobile height
     minWidth: 320,           // optional min/max to prevent too small
-   
+
     maxHeight: 1024,
     center: true,
     resizable: true,        // can be false if you want fixed size
@@ -33,8 +35,54 @@ function createWindow() {
   // mainWindow.webContents.openDevTools();
 }
 
-app.whenReady().then(createWindow);
+// app.whenReady().then(createWindow);
+let win;
 
+app.whenReady().then(() => {
+  const server = express();
+
+  const distPath = path.join(__dirname, "react/dist");
+  const indexHtml = path.join(distPath, "index.html");
+
+  server.use(
+    "/api",
+    createProxyMiddleware({
+      target: "http://192.168.0.32:8000",
+      changeOrigin: true,
+      ws: true,
+     
+    })
+  );
+  // 1️⃣ Serve static files FIRST
+  server.use(express.static(distPath));
+
+  // 2️⃣ SPA fallback LAST (ONLY for routes)
+
+  server.use((req, res, next) => {
+    if (req.path.startsWith("/api")) {
+      return next();
+    }
+    res.sendFile(indexHtml);
+  });
+  server.listen(5173, () => {
+    win = new BrowserWindow({
+      width: 1200,             // mobile width
+      height: 1100,            // mobile height
+      minWidth: 320,           // optional min/max to prevent too small
+
+      maxHeight: 1024,
+      center: true,
+      resizable: true,        // can be false if you want fixed size
+      webPreferences: {
+        preload: path.join(__dirname, "preload.js"),
+        nodeIntegration: false,
+        contextIsolation: true,
+      },
+    });
+
+    win.loadURL("http://localhost:5173");
+  });
+});
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
@@ -66,9 +114,9 @@ ipcMain.handle("capture-screen", async () => {
     const filePath = path.join(imgDir, `${timeString}.png`);
     fs.writeFileSync(filePath, image);
 
-    return { 
+    return {
       "thumbnail": thumbnail.toDataURL(),
-      "screenshotTime":timeString
+      "screenshotTime": timeString
     }; // Send preview to renderer
   } catch (err) {
     console.error("Error capturing screen:", err);
@@ -91,7 +139,7 @@ ipcMain.handle("get-creds", async (event, data) => {
   try {
     const creds = store.get("creds");
     console.log(creds);
-    
+
     return creds
   } catch (error) {
     console.error("Error fetching credentials ipc:", error);

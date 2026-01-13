@@ -29,11 +29,9 @@ export const useScreenshotStore = create((set) => ({
   send_screenshot: async (data) => {
     try {
       console.log("send screenshot", data)
-      const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
+      // const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
       const res = axiosInstance.post("/api/method/frappetrack.api.timesheet.upload_screenshot",data, {
-        headers: {
-          'Authorization': `token ${apiKey}:${apiSecret}`,
-        },
+  
       })
       if(res){
         console.log("send screenshot via post")
