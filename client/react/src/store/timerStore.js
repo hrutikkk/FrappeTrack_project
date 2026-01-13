@@ -84,10 +84,6 @@ export const useTimerStore = create((set, get) => ({
 
     set({ endTime: endTime })
 
-
-
-
-
     console.log(startTime, " ", get().endTime)
     console.log("end: ", get().endTime.getTime())
     console.log("start: ", get().startTimeSec)
