@@ -3,22 +3,58 @@ import axiosInstance from "../api/axiosInstance";
 import toast from "react-hot-toast";
 import { useTimerStore } from "./timerStore";
 
-export const useAuthStore = create((set) => ({
+export const useAuthStore = create((set, get) => ({
     user: null,
     authLoading: false,
     isAuthenticated: false,
     isCheckingAuth: true,
     error: null,
+    authInitialized: false,
+    bootstrapped: false, // true once initAuth() runs once
 
-    checkAuth: async () => {
-        set({ isCheckingAuth: true })
+    login: async (email, password) => {
+        set({ authLoading: true })
         try {
-            const res = await axiosInstance("some endpoint");
-            set({ user: res.data.user });
+            const res = await axiosInstance.post(
+                "/api/method/frappetrack.api.user.login_with_email",
+                {
+                    email,
+                    password
+                },
+            );
+            set({
+                isAuthenticated: true, authLoading: false
+            })
+            await get().fetchProfile();
+            console.log("login res", res.data)
+            // 🔥 Wait a tick, THEN fetch profile
 
+            return res;
         } catch (error) {
-            console.error("Unauthorized user:", error);
-            set({user: null, isCheckingAuth: false})
+            console.log("error in login: ", error)
+            set({ isAuthenticated: false, authLoading: false, authInitialized: false })
+        }
+    },
+
+    initAuth: async () => {
+        const { user: currentUser } = get();
+
+        if (currentUser) {
+            // User already logged in, just mark initialized
+            set({ authInitialized: true });
+            return;
+        }
+
+        try {
+            const res = await axiosInstance.get("/api/method/frappetrack.api.user.get_employee_profile");
+
+            if (res.data?.message?.user) {
+                set({ user: res.data.message.user, isAuthenticated: true, authInitialized: true });
+            } else {
+                set({ user: null, isAuthenticated: false, authInitialized: true });
+            }
+        } catch (err) {
+            set({ user: null, isAuthenticated: false, authInitialized: true });
         }
     },
     setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
@@ -62,46 +98,29 @@ export const useAuthStore = create((set) => ({
     //     }
     // },
 
-    fetchProfile: async (apiKey, apiSecret) => {
-        set({ authLoading: true })
+    fetchProfile: async () => {
         try {
-
             const res = await axiosInstance.get(
-                "api/method/frappetrack.api.user.get_employee_profile",
-                {
-                    headers: {
-                        'Authorization': `token ${apiKey}:${apiSecret}`,
-                    },
-                }
+                "/api/method/frappetrack.api.user.get_employee_profile",
+                { withCredentials: true }
             );
 
-            const data = res.data;
-            console.log("Profile response:", data);
-
-            if (data?.message?.success) {
-                localStorage.removeItem("creds")
-                set({ user: data.message.user, isAuthenticated: true });
-
-                const creds = [
-                    { "apiKey": apiKey },
-                    { "apiSecret": apiSecret }
-                ]
-                await window.electronAPI.saveCredentials(apiKey, apiSecret)
-                const response = await window.electronAPI.getCredentials()
-                console.log("getting response from main.js: ", response)
-
-                localStorage.setItem("creds", JSON.stringify(creds))
-                toast.success("Profile fetched successfully")
-                set({ isAuthenticated: true })
+            console.log("response ", res)
+            const profile = res.data?.message?.user;
+            console.log("profile", profile)
+            // Only set user if profile exists
+            if (profile) {
+                set({ user: profile, authInitialized: true });
                 return true;
             }
-            toast.error("Unable to fetch profile")
+
+            // ❌ DO NOTHING if profile not ready yet
             return false;
         } catch (err) {
             console.error("Profile fetch failed:", err);
+            return false;
         }
     },
-
 
     // logout: async () => {
     //     set({ user: null, isAuthenticated: false });
