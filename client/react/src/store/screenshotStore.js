@@ -43,26 +43,12 @@ export const useScreenshotStore = create((set, get) => ({
   send_screenshot: async (data) => {
     try {
       console.log("send screenshot", data)
-      // const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
-      const res = axiosInstance.post("/api/method/frappetrack.api.timesheet.upload_screenshot",data, {
-  
-      })
+      const res = axiosInstance.post("/api/method/frappetrack.api.timesheet.upload_screenshot",data)
       if(res){
         console.log("send screenshot via post")
         return true;
       }
 
-      await axiosInstance.post(
-        "/api/method/frappetrack.api.timesheet.upload_screenshot",
-        data,
-        {
-          headers: {
-            Authorization: `token ${apiKey}:${apiSecret}`,
-          },
-        }
-      );
-
-      return true;
     } catch (err) {
       console.error("Screenshot upload failed", err);
       return false;

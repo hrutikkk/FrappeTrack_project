@@ -20,9 +20,9 @@ app.whenReady().then(() => {
     : path.join(app.getAppPath(), "react/dist"); // prod uses this
   const indexHtml = path.join(distPath, "index.html");
 
-  const iconPath = isDev
-    ? path.join(__dirname, "assets", "unify.png")
-    : path.join(process.resourcesPath, "assets", "unify.png"); // inside AppImage
+  // const iconPath = isDev
+  //   ? path.join(__dirname, "assets", "unify.png")
+  //   : path.join(process.resourcesPath, "assets", "unify.png"); // inside AppImage
 
   server.use(
     "/api",
@@ -35,17 +35,19 @@ app.whenReady().then(() => {
 
   server.use(express.static(distPath));
 
-  server.get("*", (req, res) => {
-    if (req.path.startsWith("/api")) return;
+  server.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api")) return
     res.sendFile(indexHtml);
   });
+  // 0️⃣ Debug (optional)
+
 
   server.listen(5173, () => {
     win = new BrowserWindow({
       width: 1200,
       height: 1100,
       title: "Time Tracker",  // <- set your app name here
-      icon: iconPath,
+      // icon: iconPath,
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),
         contextIsolation: true
@@ -167,10 +169,12 @@ ipcMain.handle("capture-screen", async () => {
     const dateFolder = now.toISOString().split("T")[0];
     const timeString = now.toTimeString().split(" ")[0].replace(/:/g, "-");
 
+    console.log("Date folder: ", dateFolder, "Time string: ", timeString)
+
     // ✅ WRITE TO USER DATA (NOT app.asar)
     const baseDir = app.getPath("userData");
     const imgDir = path.join(baseDir, "screenshots", dateFolder);
-
+    console.log("Basedir: ", baseDir, "imgDir: ", imgDir)
     fs.mkdirSync(imgDir, { recursive: true });
 
     const filePath = path.join(imgDir, `${timeString}.png`);
@@ -217,9 +221,11 @@ ipcMain.handle("delete-screenshot", async () => {
       __dirname,
       "screenshots"
     );
-
-    if (fs.existsSync(screenshotDir)) {
-      fs.rmSync(screenshotDir, { recursive: true, force: true });
+    const baseDir = app.getPath("userData");
+    const imgDir = path.join(baseDir, "screenshots");
+    console.log("deleting this folder: ", imgDir)
+    if (fs.existsSync(imgDir)) {
+      fs.rmSync(imgDir, { recursive: true, force: true });
       console.log("Screenshot folder deleted");
     } else {
       console.log("Screenshot folder not found");

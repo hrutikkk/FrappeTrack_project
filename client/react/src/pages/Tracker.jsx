@@ -45,29 +45,21 @@ const Tracker = () => {
   const [description, setDescription] = useState(null);
   const [isTimeSheet, setIsTimeSheet] = useState(false);
 
-  const allSelected = selectedProject && taskByProject && timeSheetValue;
 
   useEffect(() => {
     getProjects();
-    console.log("user: ", user);
-    console.log("project", selectedProject);
+
   }, []);
 
-  console.log("screenshots: ", screenshots);
-
-  console.log(projects);
-  console.log(task);
   async function handleProjectChange(e) {
     const value = e.target.value;
     setSelectedProject(value);
-    console.log(value);
 
     await getTask(value);
   }
   async function handleTaskByProject(e) {
     const value = e.target.value;
     setTaskByProject(value);
-    console.log(value);
 
     await getTimeSheetList(value);
   }
@@ -77,10 +69,8 @@ const Tracker = () => {
     setIsTimeSheet(true);
 
     if (value !== "create-timesheet") {
-      console.log("changing isTimesheet");
       setIsTimeSheet(false);
     }
-    console.log("timesheet value: ", value);
     // await getTimeSheetList(value)
   }
 
@@ -95,7 +85,6 @@ const Tracker = () => {
   const delScreenshotFolder = async () => {
     try {
       const res = await window.electronAPI.deleteScreenshots();
-      console.log("Delete response:", res);
     } catch (error) {
       console.log("Unable to delete screenshot folder", error);
     }
@@ -128,7 +117,6 @@ const Tracker = () => {
   }
 
   const handleStart = () => {
-    console.log("Start clicked");
 
     const missing = getMissingSelections();
     if (missing.length > 0) {
@@ -157,11 +145,6 @@ const Tracker = () => {
     const taskObj = task.filter((t) => t.name == taskByProject);
     console.log("taskobject", taskObj, taskObj[0].subject, task[0]["subject"]);
 
-    // screenshots into a string format -
-    // const reader = new FileReader();
-    // reader.onload = function () {
-    //     screenshots.map()
-    // }
     const data = {
       timesheet: timeSheet,
       employee: user.employee.name,
@@ -179,9 +162,7 @@ const Tracker = () => {
     };
     const res = await stopHandler(data);
     if (!res) toast.error("Unable to send the screenshots");
-    // console.log("running useeffect")
 
-    console.log("screenshots", screenshots);
 
     // pause();
     reset(); // ✅ logs end time + duration inside store

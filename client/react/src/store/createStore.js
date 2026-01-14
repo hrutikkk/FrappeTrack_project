@@ -22,18 +22,12 @@ export const useCreateStore = create((set, get) => ({
     setTimeSheetValue: (timeSheetValue) => set({ timeSheetValue }),
 
     setDescriptionStore: (descriptionStore) => {
-        console.log(descriptionStore)
-        console.log(get().descriptionStore)
         set({ descriptionStore })
     },
 
     createTimesheet: async (timesheetData) => {
         try {
-            // // apiSecret
-            // const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
-
-            // console.log(apiKey, apiSecret)
-
+         
             const res = await axiosInstance.post(
                 "/api/method/frappetrack.api.timesheet.create_timesheet", timesheetData
             );
@@ -56,10 +50,6 @@ export const useCreateStore = create((set, get) => ({
     },
     getProjects: async () => {
         try {
-            // apiSecret
-            // const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
-
-            // console.log(apiKey, apiSecret)
 
             const res = await axiosInstance.get(
                 "/api/method/frappetrack.api.project.get_projects_list"
@@ -70,7 +60,6 @@ export const useCreateStore = create((set, get) => ({
 
             if (data?.message?.status) {
                 set({ projects: data.message.data });
-                // toast.success("Projects fetched successfully")
                 return true;
             }
             toast.error("Unable to fetch projects")
@@ -82,11 +71,7 @@ export const useCreateStore = create((set, get) => ({
     getTask: async (project_id) => {
         console.log("hitting get_task")
         try {
-            // // apiSecret
-            // const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
-
-            // console.log(apiKey, apiSecret)
-
+          
             const res = await axiosInstance.get(
                 `api/method/frappetrack.api.task.get_task_by_project?project_id=${project_id}`,
             );
@@ -96,7 +81,6 @@ export const useCreateStore = create((set, get) => ({
 
             if (data?.message?.status) {
                 set({ task: data.message.data });
-                // toast.success("Task fetched successfully")
                 return true;
             }
             toast.error("Unable to fetch tasks")
@@ -108,10 +92,6 @@ export const useCreateStore = create((set, get) => ({
     getTimeSheetList: async (task_id) => {
         console.log("hitting timesheet")
         try {
-            // apiSecret
-            // const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
-
-            // console.log(apiKey, apiSecret)
 
             const res = await axiosInstance.get(
                 `api/method/frappetrack.api.timesheet.get_timesheet_by_task?task_id=${task_id}`
@@ -122,7 +102,6 @@ export const useCreateStore = create((set, get) => ({
 
             if (data?.message?.status) {
                 set({ timeSheet: data.message.data });
-                // toast.success("Time fetched successfully")
                 return true;
             }
             toast.error("Unable to fetch tasks")
@@ -134,10 +113,8 @@ export const useCreateStore = create((set, get) => ({
 
     stopHandler: async (data) => {
         try {
-            // const [{ apiKey }, { apiSecret }] = JSON.parse(localStorage.getItem("creds"));
 
-            const jsonData = JSON.parse(JSON.stringify(data));  // if (data?.message?.status) {
-
+            const jsonData = JSON.parse(JSON.stringify(data)); 
             const now = new Date();
 
             const formattedTime = now
@@ -163,6 +140,7 @@ export const useCreateStore = create((set, get) => ({
             )
             console.log("response from timesheet", res)
             set({ descriptionStore: null, selectedProject: null, taskByProject: null, timeSheetValue: null })
+            toast.success("Log added sucessfully")
             return true;
         } catch (error) {
             console.log(

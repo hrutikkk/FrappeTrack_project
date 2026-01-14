@@ -6,19 +6,19 @@ import { useEffect } from "react";
 import { useAuthStore } from "./store/authStore";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Tracker from "./pages/Tracker";
-import LoginTesting from "./pages/LoginTesting";
 
 function App() {
 
   const initAuth = useAuthStore((s) => s.initAuth);
 
   useEffect(() => {
+    console.log("running init auth")
     initAuth(); // 🔥 THIS WAS MISSING
   }, []);
   return (
     <>
       <Routes>
-        <Route path="/" element={<LoginTesting />} />
+        <Route path="/" element={<Login />} />
         
         <Route
           path="/user-profile"

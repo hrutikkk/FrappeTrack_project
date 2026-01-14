@@ -5,36 +5,7 @@ import { Link } from 'react-router-dom'
 
 const Profile = () => {
   const { user, fetchProfile } = useAuthStore()
-  // const [profile, setProfile] = useState({
-  //   name: "",
-  //   empId: "",
-  //   designation: "",
-  //   email: "",
-  //   image: "",
-  // });
 
-  // useEffect(() => {
-  //   // 🔹 Replace this with your API call
-  //   setProfile({
-  //     name: "Suraj Rajbhar",
-  //     empId: "EMP-1023",
-  //     designation: "Software Engineer",
-  //     email: "suraj@example.com",
-  //     image: "/assests/profile.webp", // or default avatar
-  //   });
-  // }, []);
-
-
-  useEffect(() => {
-    console.log("running useffect and fetching profile")
-    console.log(user)
-    console.log("user image", user.employee.image)
-    // fetchProfile()
-  }, [])
-  const handleLogout = () => {
-    console.log("Logout clicked");
-    // clear cookies / localStorage / redirect
-  };
   return (
     <div className="bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 min-h-screen flex items-center justify-center">
       {/* Profile Card */}
@@ -71,11 +42,6 @@ const Profile = () => {
 
         {/* Action Buttons */}
         <div className="space-y-3">
-          <button
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2.5 rounded-xl font-medium shadow hover:scale-[1.02] hover:shadow-lg transition"
-          >
-            Edit Profile
-          </button>
 
           <Link
             to="/time-tracker"
@@ -85,12 +51,7 @@ const Profile = () => {
             </button>
           </Link>
 
-          <button
-            onClick={handleLogout}
-            className="w-full bg-white border border-gray-300 text-gray-700 py-2.5 rounded-xl font-medium hover:bg-gray-100 transition"
-          >
-            Logout
-          </button>
+
         </div>
       </div>
     </div>
