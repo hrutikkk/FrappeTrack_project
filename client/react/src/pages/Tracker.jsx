@@ -37,6 +37,7 @@ const Tracker = () => {
     projects,
     task,
     setActivityType,
+    
     activity,
     activityType,
     getActivityType
@@ -88,7 +89,7 @@ const Tracker = () => {
     // await getTimeSheetList(value)
   }
   const handleActivity = (e)=>{
-    setSelectedActivity(e.target.value);
+    setActivityType(e.target.value);
   }
 
 
@@ -179,7 +180,7 @@ const Tracker = () => {
     console.log("taskobject", taskObj, taskObj[0].subject, task[0]["subject"]);
 
     const data = {
-      timesheet: timeSheet,
+      timesheet: timeSheetValue,
       employee: user.employee.name,
       time_log: {
         // activity_type: taskObj[0].subject,
@@ -207,7 +208,7 @@ const Tracker = () => {
     setTaskByProject("");
     setTimeSheetValue("");
     setDescriptionStore("");
-    setSelectedActivity("");
+    setActivityType("");
     setIsTimeSheet(false);
   };
 
