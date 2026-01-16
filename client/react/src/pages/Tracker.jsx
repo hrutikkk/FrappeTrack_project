@@ -124,6 +124,15 @@ const Tracker = () => {
   // ------------ BUTTONS ------------------
   async function createTimeSheetHandler() {
     console.log("creating timesheet ...")
+    const missing = getMissingSelections();
+    if (missing.length > 0) {
+      toast.error(`Please select ${missing.join(" and ")}`);
+      return;
+    }
+    if(descriptionStore == null || descriptionStore == ""){
+      toast.error("Please write description")
+      return;
+    }
     // const timeSheetData = {
     //   activity_type:activityType,
     //   employee: user?.employee?.name,
@@ -136,7 +145,7 @@ const Tracker = () => {
     setSelectedProject("")
     setTaskByProject("")
     setActivityType("")
-    setDescription("")
+    setDescriptionStore("")
     setTimeSheetValue(null)
   }
 
