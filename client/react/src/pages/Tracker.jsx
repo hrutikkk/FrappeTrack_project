@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { act, useEffect, useRef, useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import { useTimerStore } from "../store/timerStore";
 import { useScreenshotStore } from "../store/screenshotStore";
@@ -36,6 +36,10 @@ const Tracker = () => {
     getTimeSheetList,
     projects,
     task,
+    setActivityType,
+    activity,
+    activityType,
+    getActivityType
   } = useCreateStore();
 
   const { startTime, endTime, isRunning, seconds, start, pause, reset } =
@@ -61,8 +65,19 @@ const Tracker = () => {
     const value = e.target.value;
     setTaskByProject(value);
 
+    await getActivityType()
+    // after activity type
     await getTimeSheetList(value);
+
   }
+
+  async function handleSetActivityType(e) {
+    const value = e.target.value;
+    setActivityType(value);
+
+  }
+
+
   async function handleTimeSheet(e) {
     const value = e.target.value;
     setTimeSheetValue(value);
@@ -73,6 +88,8 @@ const Tracker = () => {
     }
     // await getTimeSheetList(value)
   }
+
+
 
   // ---------------- TIMER ----------------
   const formatTime = (secs) => {
@@ -96,6 +113,7 @@ const Tracker = () => {
 
     if (!selectedProject) missing.push("project");
     if (!taskByProject) missing.push("task");
+    if (!activityType) missing.push("activity");
     if (!timeSheetValue) missing.push("timesheet");
 
     return missing;
@@ -104,14 +122,14 @@ const Tracker = () => {
   // ------------ BUTTONS ------------------
   async function createTimeSheetHandler() {
     console.log("creating timesheet ...")
-    const timeSheetData = {
-      title: "hard coded",
-      employee: user?.employee?.name,
-      parent_project: selectedProject,
-      time_logs: []
-    };
-    console.log(timeSheetData)
-    const res = await createTimesheet(timeSheetData);
+    // const timeSheetData = {
+    //   activity_type:activityType,
+    //   employee: user?.employee?.name,
+    //   project: selectedProject,
+    //   time_logs: []
+    // };
+    // console.log(timeSheetData)
+    const res = await createTimesheet(user?.employee?.name, selectedProject, activityType);
     console.log("Timesheet created:", res);
 
   }
@@ -149,8 +167,9 @@ const Tracker = () => {
       timesheet: timeSheet,
       employee: user.employee.name,
       time_log: {
-        activity_type: taskObj[0].subject,
+        // activity_type: taskObj[0].subject,
         // "activity_type": "Coding",
+        activity_type: activityType,
         from_time: startTime,
         to_time: endTime,
         hours: "54",
@@ -217,6 +236,22 @@ const Tracker = () => {
               {task.map((t) => (
                 <option key={t.name} value={t.name}>
                   {t.subject}
+                </option>
+              ))}
+            </select>
+
+
+            <select
+              value={activityType}
+              onChange={handleSetActivityType}
+              className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+          hover:border-blue-400 transition"
+            >
+              <option value="">Select Activity</option>
+              {activity.map((t) => (
+                <option key={t.name} value={t.name}>
+                  {t.name}
                 </option>
               ))}
             </select>
