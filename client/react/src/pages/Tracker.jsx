@@ -131,9 +131,13 @@ const Tracker = () => {
     //   time_logs: []
     // };
     // console.log(timeSheetData)
-    const res = await createTimesheet(user?.employee?.name, selectedProject, activityType);
+    const res = await createTimesheet(user?.employee?.name, selectedProject, activityType,taskByProject,descriptionStore);
     console.log("Timesheet created:", res);
-
+    setSelectedProject("")
+    setTaskByProject("")
+    setActivityType("")
+    setDescription("")
+    setTimeSheetValue(null)
   }
 
   const handleStart = () => {
