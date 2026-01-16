@@ -55,6 +55,7 @@ app.whenReady().then(() => {
     });
 
     win.loadURL("http://localhost:5173");
+    // Menu.setApplicationMenu(null); // ✅ removes menu completely
   });
 });
 

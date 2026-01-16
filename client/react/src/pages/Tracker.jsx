@@ -52,7 +52,6 @@ const Tracker = () => {
 
   useEffect(() => {
     getProjects();
-
   }, []);
 
   async function handleProjectChange(e) {
@@ -88,6 +87,9 @@ const Tracker = () => {
     }
     // await getTimeSheetList(value)
   }
+  const handleActivity = (e)=>{
+    setSelectedActivity(e.target.value);
+  }
 
 
 
@@ -122,6 +124,15 @@ const Tracker = () => {
   // ------------ BUTTONS ------------------
   async function createTimeSheetHandler() {
     console.log("creating timesheet ...")
+    const missing = getMissingSelections();
+    if (missing.length > 0) {
+      toast.error(`Please select ${missing.join(" and ")}`);
+      return;
+    }
+    if(descriptionStore == null || descriptionStore == ""){
+      toast.error("Please write description")
+      return;
+    }
     // const timeSheetData = {
     //   activity_type:activityType,
     //   employee: user?.employee?.name,
@@ -129,9 +140,13 @@ const Tracker = () => {
     //   time_logs: []
     // };
     // console.log(timeSheetData)
-    const res = await createTimesheet(user?.employee?.name, selectedProject, activityType);
+    const res = await createTimesheet(user?.employee?.name, selectedProject, activityType,taskByProject,descriptionStore);
     console.log("Timesheet created:", res);
-
+    setSelectedProject("")
+    setTaskByProject("")
+    setActivityType("")
+    setDescriptionStore("")
+    setTimeSheetValue(null)
   }
 
   const handleStart = () => {
@@ -192,6 +207,7 @@ const Tracker = () => {
     setTaskByProject("");
     setTimeSheetValue("");
     setDescriptionStore("");
+    setSelectedActivity("");
     setIsTimeSheet(false);
   };
 

@@ -28,17 +28,17 @@ export const useCreateStore = create((set, get) => ({
         set({ descriptionStore })
     },
 
-    createTimesheet: async (employee, parent_project, activity_type) => {
+    createTimesheet: async (employee, parent_project, activity_type,taskByProject,descriptionStore) => {
         try {
 
             const res = await axiosInstance.post(
-                "/api/method/frappetrack.api.timesheet.create_timesheet", { employee, parent_project, activity_type }
+                "/api/method/frappetrack.api.timesheet.create_timesheet", { employee, parent_project, activity_type ,taskByProject,descriptionStore}
             );
 
-            const data = res.data;
-            console.log("Project response:", data);
+            const data = res.data?.message;
+            console.log(data)
 
-            if (data?.message?.status) {
+            if (data?.status) {
                 // set({ projects: data.message.data });
                 toast.success("TimeSheet created successfully")
                 set({ setDescriptionStore: null, setSelectedProject: null, setTaskByProject: null, setTimeSheetValue: null })
@@ -48,9 +48,12 @@ export const useCreateStore = create((set, get) => ({
             toast.error("Unable create Timesheet")
             return false
         } catch (err) {
-            console.error("Projects fetch failed:", err);
+            console.error("Timesheet creation failed:", err);
+            toast.error("Server error while creating timesheet");
+            return false;
         }
     },
+
     getProjects: async () => {
         try {
 
@@ -172,6 +175,21 @@ export const useCreateStore = create((set, get) => ({
                 error
             )
             return null
+        }
+    },
+    getActivityData: async () => {
+        try {
+            const resposne = await axiosInstance.get("/api/method/frappetrack.api.activity_type_api.get_activity_type");
+            const data = resposne.data
+            console.log("activity data", data)
+            if (data?.message?.data) {
+                set({ activityList: data?.message?.data })
+                return true;
+            }
+
+        } catch (error) {
+            console.log("activity api error", error)
+
         }
     }
 }))

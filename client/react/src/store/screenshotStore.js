@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import axiosInstance from "../api/axiosInstance";
 
-let screenshotTimeout = null; 
+let screenshotTimeout = null; // 🔥 GLOBAL (not tied to component)
 
 export const useScreenshotStore = create((set, get) => ({
   timeSheetId: null,
@@ -13,8 +13,8 @@ export const useScreenshotStore = create((set, get) => ({
 
   // ---------------- RANDOM DELAY ----------------
   getRandomDelay: () => {
-    const min = 0.3 * 60 * 1000; // 6 sec
-    const max = 0.5 * 60 * 1000; // 12 sec
+    const min = 0.1 * 60 * 1000; // 6 sec
+    const max = 0.2 * 60 * 1000; // 12 sec
     return Math.floor(Math.random() * (max - min + 1)) + min;
   },
 
@@ -56,88 +56,66 @@ export const useScreenshotStore = create((set, get) => ({
   },
 
   // ---------------- CAPTURE ----------------
-  captureScreenshot: async () => {
-    const { timeSheetId } = get();
+captureScreenshot: async () => {
+  const { timeSheetId } = get(); // ✅ CORRECT
 
-    if (!timeSheetId) {
-      console.warn("No timesheetId set, skipping screenshot");
-      return false;
-    }
+  if (!timeSheetId) {
+    console.warn("❌ No timesheetId set, skipping screenshot");
+    return;
+  }
 
-    if (!window.electronAPI?.captureScreen) {
-      console.warn("Electron API not available");
-      return false;
-    }
+  if (!window.electronAPI?.captureScreen) {
+    console.warn("❌ Electron API not available");
+    return;
+  }
 
-    const imgData = await window.electronAPI.captureScreen();
+  const imgData = await window.electronAPI.captureScreen();
 
-    // USER CLICKED CANCEL (Wayland)
-    if (!imgData || !imgData.thumbnail) {
-      console.warn("Screenshot cancelled by user");
-      return false; // IMPORTANT
-    }
+  if (!imgData?.thumbnail) return;
 
-    const fileData = imgData.thumbnail.split(",")[1];
+  const fileData = imgData.thumbnail.split(",")[1];
 
-    await get().send_screenshot({
-      file_name: imgData.screenshotTime,
-      file_data: fileData,
-      timesheet_id: timeSheetId,
-    });
+  await get().send_screenshot({
+    file_name: imgData.screenshotTime,
+    file_data: fileData,
+    timesheet_id: timeSheetId, // ✅ SAFE
+  });
 
-    get().addScreenshot(imgData.thumbnail, imgData.screenshotTime);
-
-    return true; // SUCCESS
-  },
+  get().addScreenshot(imgData.thumbnail, imgData.screenshotTime);
+},
 
 
-    // ---------------- LOOP ----------------
-  startScreenshots: (timeSheetId) => {
-    if (!timeSheetId) return;
-    if (get().isRunning) return;
+  // ---------------- LOOP ----------------
+startScreenshots: (timeSheetId) => {
+  if (!timeSheetId) {
+    console.warn("❌ startScreenshots called without timesheetId");
+    return;
+  }
 
-    set({ isRunning: true, timeSheetId });
+  if (get().isRunning) return;
 
-    const retry = async () => {
-      if (!get().isRunning) return;
+  set({ isRunning: true, timeSheetId });
 
-      console.log("Retrying screenshot now");
+  const loop = async () => {
+    if (!get().isRunning) return;
 
-      const ok = await get().captureScreenshot();
+    const delay = get().remainingDelay ?? get().getRandomDelay();
+    console.log("📸 Next screenshot in", delay / 1000, "sec");
 
-      if (!ok) {
-        console.log("Retry cancelled again, retrying in 5 sec");
-        screenshotTimeout = setTimeout(retry, 5_000);
-        return;
-      }
+    get().setSchedule(delay);
 
-      // success → resume normal loop
+    screenshotTimeout = setTimeout(async () => {
+      console.log("📸 Taking screenshot now");
+
+      get().clearSchedule();
+      await get().captureScreenshot();
       loop();
-    };
+    }, delay);
+  };
 
-    const loop = () => {
-      if (!get().isRunning) return;
+  loop();
+},
 
-      const delay = get().getRandomDelay();
-      console.log("📸 Next screenshot in", delay / 1000, "sec");
-
-      screenshotTimeout = setTimeout(async () => {
-        console.log("📸 Taking screenshot now");
-
-        const ok = await get().captureScreenshot();
-
-        if (!ok) {
-          console.log("Screenshot failed, retry in 5 sec");
-          screenshotTimeout = setTimeout(retry, 5_000);
-          return;
-        }
-
-        loop();
-      }, delay);
-    };
-
-    loop();
-  },
 
   pauseScreenshots: () => {
     if (!screenshotTimeout) return;
