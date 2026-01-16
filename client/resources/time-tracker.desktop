@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Time Tracker
+Exec=AppRun --no-sandbox %U
+Terminal=false
+Type=Application
+Icon=time-tracker
+StartupWMClass=Time Tracker
+X-AppImage-Version=1.0.0
+Categories=Utility;
