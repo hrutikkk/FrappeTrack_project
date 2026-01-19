@@ -87,7 +87,7 @@ const Tracker = () => {
     }
     // await getTimeSheetList(value)
   }
-  const handleActivity = (e)=>{
+  const handleActivity = (e) => {
     setSelectedActivity(e.target.value);
   }
 
@@ -129,7 +129,7 @@ const Tracker = () => {
       toast.error(`Please select ${missing.join(" and ")}`);
       return;
     }
-    if(descriptionStore == null || descriptionStore == ""){
+    if (descriptionStore == null || descriptionStore == "") {
       toast.error("Please write description")
       return;
     }
@@ -140,7 +140,7 @@ const Tracker = () => {
     //   time_logs: []
     // };
     // console.log(timeSheetData)
-    const res = await createTimesheet(user?.employee?.name, selectedProject, activityType,taskByProject,descriptionStore);
+    const res = await createTimesheet(user?.employee?.name, selectedProject, activityType, taskByProject, descriptionStore);
     console.log("Timesheet created:", res);
     setSelectedProject("")
     setTaskByProject("")
@@ -156,7 +156,7 @@ const Tracker = () => {
       toast.error(`Please select ${missing.join(" and ")}`);
       return;
     }
-    if(descriptionStore == null || descriptionStore == ""){
+    if (descriptionStore == null || descriptionStore == "") {
       toast.error("Please write description")
       return;
     }
@@ -323,65 +323,64 @@ const Tracker = () => {
             {!isTimeSheet ? (
               <>
                 {!isRunning ? (
-                  // start
+                  // Start button
                   <button
                     onClick={handleStart}
                     title="Start"
                     className="w-full p-2 rounded-lg bg-blue-600
-        flex items-center justify-center
-        shadow hover:bg-blue-700 active:scale-95 transition text-white cursor-pointer"
+            flex items-center justify-center
+            shadow hover:bg-blue-700 active:scale-95 transition text-white cursor-pointer"
                   >
                     <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
                       <polygon points="5,3 19,12 5,21" />
                     </svg>
-                    Start Timer
+                    <span className="ml-2">Start Timer</span>
                   </button>
                 ) : (
-                  <button
-                    onClick={handleStop}
-                    title="Stop"
-                    className="w-full p-2 rounded-lg bg-slate-600
-        flex items-center justify-center
-        shadow hover:bg-slate-700 active:scale-95 transition text-white cursor-pointer"
-                  >
-                    <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
-                      <rect x="5" y="5" width="14" height="14" />
-                    </svg>
-                    Stop Timer
-                  </button>
+                  // Stop + Pause buttons replacing Start button
+                  <div className="flex gap-4 w-full">
+                    {/* Stop Button */}
+                    <button
+                      onClick={handleStop}
+                      title="Stop"
+                      className="flex-1 p-2 rounded-lg bg-slate-600
+              flex items-center justify-center
+              shadow hover:bg-slate-700 active:scale-95 transition text-white cursor-pointer"
+                    >
+                      <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+                        <rect x="5" y="5" width="14" height="14" />
+                      </svg>
+                      <span className="ml-2">Stop</span>
+                    </button>
+
+                    {/* Pause Button */}
+                    <button
+                      onClick={handlePause}
+                      title="Pause"
+                      className="flex-1 p-2 rounded-lg bg-sky-500
+              flex items-center justify-center
+              shadow hover:bg-sky-600 active:scale-95 transition text-white cursor-pointer"
+                    >
+                      <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+                        <rect x="6" y="4" width="4" height="16" />
+                        <rect x="14" y="4" width="4" height="16" />
+                      </svg>
+                      <span className="ml-2">Pause</span>
+                    </button>
+                  </div>
                 )}
-
-                {/* Pause */}
-                {/* <button
-                                    onClick={handlePause}
-                                    title="Pause"
-                                    className="w-14 h-14 rounded-lg bg-sky-500
-        flex items-center justify-center
-        shadow hover:bg-sky-600 active:scale-95 transition"
-                                >
-                                    <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
-                                        <rect x="6" y="4" width="4" height="16" />
-                                        <rect x="14" y="4" width="4" height="16" />
-                                    </svg>
-                                </button> */}
-
-                {/* Stop */}
               </>
             ) : (
-              <>
-                <button
-                  className="bg-black
-      rounded-xl p-2 text-xl text-center font-mono text-white
-      tracking-widest shadow-inner w-full cursor-pointer"
-                  onClick={createTimeSheetHandler}
-                >
-                  Create
-                </button>
-              </>
-            )
-
-            }
+              // Create timesheet button
+              <button
+                className="bg-black rounded-xl p-2 text-xl text-center font-mono text-white tracking-widest shadow-inner w-full cursor-pointer"
+                onClick={createTimeSheetHandler}
+              >
+                Create
+              </button>
+            )}
           </div>
+
 
 
           {/* Timer */}
