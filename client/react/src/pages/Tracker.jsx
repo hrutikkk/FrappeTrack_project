@@ -221,6 +221,82 @@ const Tracker = () => {
     setIsTimeSheet(false);
   };
 
+  //dynamic buttons
+  const timerButtons = () => {
+    switch (timerState) {
+      case "stopped":
+        return [
+          {
+            label: "Start Timer",
+            onClick: () => { setTimerState("running"); handleStart(); },
+            bg: "bg-blue-600",
+            hover: "hover:bg-blue-700",
+            icon: (
+              <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+                <polygon points="5,3 19,12 5,21" />
+              </svg>
+            ),
+          },
+        ];
+
+      case "running":
+        return [
+          {
+            label: "Stop",
+            onClick: () => { setTimerState("stopped"); handleStop(); },
+            bg: "bg-slate-600",
+            hover: "hover:bg-slate-700",
+            icon: (
+              <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+                <rect x="5" y="5" width="14" height="14" />
+              </svg>
+            ),
+          },
+          {
+            label: "Pause",
+            onClick: () => { setTimerState("paused"); handlePause(); },
+            bg: "bg-sky-500",
+            hover: "hover:bg-sky-600",
+            icon: (
+              <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+                <rect x="6" y="4" width="4" height="16" />
+                <rect x="14" y="4" width="4" height="16" />
+              </svg>
+            ),
+          },
+        ];
+
+      case "paused":
+        return [
+          {
+            label: "Stop",
+            onClick: () => { setTimerState("stopped"); handleStop(); },
+            bg: "bg-slate-600",
+            hover: "hover:bg-slate-700",
+            icon: (
+              <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+                <rect x="5" y="5" width="14" height="14" />
+              </svg>
+            ),
+          },
+          {
+            label: "Resume",
+            onClick: () => { setTimerState("running"); handleStart(); },
+            bg: "bg-green-600",
+            hover: "hover:bg-green-700",
+            icon: (
+              <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+                <polygon points="5,3 19,12 5,21" />
+              </svg>
+            ),
+          },
+        ];
+
+      default:
+        return [];
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100 flex items-center justify-center px-4 py-10">
       <div className="bg-white w-full max-w-5xl rounded-2xl shadow-[0_10px_40px_rgba(59,130,246,0.15)] p-6 md:p-10">
@@ -324,77 +400,19 @@ const Tracker = () => {
           {/* Action Buttons */}
           <div className="flex justify-center gap-6 mb-8">
             {!isTimeSheet ? (
-              <>
-                {timerState === "stopped" && (
+              <div className={`flex gap-4 w-full`}>
+                {timerButtons().map((btn, idx) => (
                   <button
-                    onClick={() => setTimerState("running") || handleStart()}
-                    title="Start"
-                    className="w-full p-2 rounded-lg bg-blue-600 flex items-center justify-center shadow hover:bg-blue-700 active:scale-95 transition text-white cursor-pointer"
+                    key={idx}
+                    onClick={btn.onClick}
+                    title={btn.label}
+                    className={`flex-1 p-2 rounded-lg ${btn.bg} flex items-center justify-center shadow ${btn.hover} active:scale-95 transition text-white cursor-pointer`}
                   >
-                    <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
-                      <polygon points="5,3 19,12 5,21" />
-                    </svg>
-                    <span className="ml-2">Start Timer</span>
+                    {btn.icon}
+                    <span className="ml-2">{btn.label}</span>
                   </button>
-                )}
-
-                {timerState === "running" && (
-                  <div className="flex gap-4 w-full">
-                    {/* Stop Button */}
-                    <button
-                      onClick={() => setTimerState("stopped") || handleStop()}
-                      title="Stop"
-                      className="flex-1 p-2 rounded-lg bg-slate-600 flex items-center justify-center shadow hover:bg-slate-700 active:scale-95 transition text-white cursor-pointer"
-                    >
-                      <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
-                        <rect x="5" y="5" width="14" height="14" />
-                      </svg>
-                      <span className="ml-2">Stop</span>
-                    </button>
-
-                    {/* Pause Button */}
-                    <button
-                      onClick={() => setTimerState("paused") || handlePause()}
-                      title="Pause"
-                      className="flex-1 p-2 rounded-lg bg-sky-500 flex items-center justify-center shadow hover:bg-sky-600 active:scale-95 transition text-white cursor-pointer"
-                    >
-                      <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
-                        <rect x="6" y="4" width="4" height="16" />
-                        <rect x="14" y="4" width="4" height="16" />
-                      </svg>
-                      <span className="ml-2">Pause</span>
-                    </button>
-                  </div>
-                )}
-
-                {timerState === "paused" && (
-                  <div className="flex gap-4 w-full">
-                    {/* Stop Button */}
-                    <button
-                      onClick={() => setTimerState("stopped") || handleStop()}
-                      title="Stop"
-                      className="flex-1 p-2 rounded-lg bg-slate-600 flex items-center justify-center shadow hover:bg-slate-700 active:scale-95 transition text-white cursor-pointer"
-                    >
-                      <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
-                        <rect x="5" y="5" width="14" height="14" />
-                      </svg>
-                      <span className="ml-2">Stop</span>
-                    </button>
-
-                    {/* Resume Button */}
-                    <button
-                      onClick={() => setTimerState("running") || handleStart()}
-                      title="Resume"
-                      className="flex-1 p-2 rounded-lg bg-green-600 flex items-center justify-center shadow hover:bg-green-700 active:scale-95 transition text-white cursor-pointer"
-                    >
-                      <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
-                        <polygon points="5,3 19,12 5,21" />
-                      </svg>
-                      <span className="ml-2">Resume</span>
-                    </button>
-                  </div>
-                )}
-              </>
+                ))}
+              </div>
             ) : (
               <button
                 className="bg-black rounded-xl p-2 text-xl text-center font-mono text-white tracking-widest shadow-inner w-full cursor-pointer"
