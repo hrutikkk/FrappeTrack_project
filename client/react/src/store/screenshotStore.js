@@ -57,20 +57,18 @@ export const useScreenshotStore = create((set, get) => ({
 
   // ---------------- CAPTURE ----------------
   captureScreenshot: async () => {
-    const { timeSheetId } = get(); // ✅ CORRECT
+    const { timeSheetId, isRunning } = get();
 
-    if (!timeSheetId) {
-      console.warn("❌ No timesheetId set, skipping screenshot");
+    // 🔒 ABSOLUTE GUARD
+    if (!isRunning) {
+      console.log(" Screenshot blocked (paused)");
       return;
     }
 
-    if (!window.electronAPI?.captureScreen) {
-      console.warn("❌ Electron API not available");
-      return;
-    }
+    if (!timeSheetId) return;
+    if (!window.electronAPI?.captureScreen) return;
 
     const imgData = await window.electronAPI.captureScreen();
-
     if (!imgData?.thumbnail) return;
 
     const fileData = imgData.thumbnail.split(",")[1];
@@ -78,54 +76,73 @@ export const useScreenshotStore = create((set, get) => ({
     await get().send_screenshot({
       file_name: imgData.screenshotTime,
       file_data: fileData,
-      timesheet_id: timeSheetId, // ✅ SAFE
+      timesheet_id: timeSheetId,
     });
 
     get().addScreenshot(imgData.thumbnail, imgData.screenshotTime);
   },
 
 
+
   // ---------------- LOOP ----------------
   startScreenshots: (timeSheetId) => {
-    if (!timeSheetId) {
-      console.warn("❌ startScreenshots called without timesheetId");
-      return;
-    }
-
-    if (get().isRunning) return; // already running
+    if (!timeSheetId) return;
+    if (get().isRunning) return;
 
     set({ isRunning: true, timeSheetId });
 
-    const takeScreenshotLoop = async () => {
-      // exit if paused or stopped
+    const takeScreenshotLoop = () => {
       if (!get().isRunning) return;
 
-      const delay = get().remainingDelay ?? get().getRandomDelay();
+      // 👇 consume remainingDelay ONCE
+      const delay =
+        get().remainingDelay !== null
+          ? get().remainingDelay
+          : get().getRandomDelay();
+
+      // IMPORTANT: clear remainingDelay immediately
+      set({
+        remainingDelay: null,
+        nextShotAt: Date.now() + delay,
+      });
+
       console.log("📸 Next screenshot in", delay / 1000, "sec");
 
       screenshotTimeout = setTimeout(async () => {
-        // check again in case paused in the meantime
         if (!get().isRunning) return;
 
         await get().captureScreenshot();
-        get().clearSchedule();
 
-        // loop again
+        set({ nextShotAt: null });
         takeScreenshotLoop();
       }, delay);
     };
 
     takeScreenshotLoop();
   },
+
+
   pauseScreenshots: () => {
     if (screenshotTimeout) {
       clearTimeout(screenshotTimeout);
       screenshotTimeout = null;
     }
 
-    set({ isRunning: false });
+    const { nextShotAt } = get();
 
-    console.log("📸 Screenshots paused");
+    if (nextShotAt) {
+      const remaining = Math.max(0, nextShotAt - Date.now());
+
+      set({
+        remainingDelay: remaining,
+        nextShotAt: null,
+        isRunning: false,
+      });
+
+      console.log("⏸ Screenshot paused, remaining:", remaining / 1000, "sec");
+    } else {
+      set({ isRunning: false });
+    }
   },
 
   stopScreenshots: () => {

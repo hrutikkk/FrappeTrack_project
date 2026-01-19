@@ -18,6 +18,7 @@ const Tracker = () => {
     startScreenshots,
     pauseScreenshots,
     stopScreenshots,
+
   } = useScreenshotStore();
   const {
     selectedProject,
@@ -48,6 +49,8 @@ const Tracker = () => {
 
   const [description, setDescription] = useState(null);
   const [isTimeSheet, setIsTimeSheet] = useState(false);
+  const [timerState, setTimerState] = useState("stopped"); // "stopped" | "running" | "paused"
+
 
 
   useEffect(() => {
@@ -170,14 +173,16 @@ const Tracker = () => {
   };
 
   const handlePause = () => {
-  pause(); // pause timer
-  pauseScreenshots(); // pause screenshot loop
-  console.log("⏸ Timer paused, screenshots paused");
-};
+    pause(); // pause timer
+    pauseScreenshots(); // pause screenshot loop
+    console.log("⏸ Timer paused, screenshots paused");
+  };
 
 
   const handleStop = async () => {
     window.electronAPI.setTimerStatus(false);
+    // Pause timer first
+    if (isRunning) pause(); // ensures interval is cleared
 
     // activity type
     const taskObj = task.filter((t) => t.name == taskByProject);
@@ -320,30 +325,26 @@ const Tracker = () => {
           <div className="flex justify-center gap-6 mb-8">
             {!isTimeSheet ? (
               <>
-                {!isRunning ? (
-                  // Start button
+                {timerState === "stopped" && (
                   <button
-                    onClick={handleStart}
+                    onClick={() => setTimerState("running") || handleStart()}
                     title="Start"
-                    className="w-full p-2 rounded-lg bg-blue-600
-            flex items-center justify-center
-            shadow hover:bg-blue-700 active:scale-95 transition text-white cursor-pointer"
+                    className="w-full p-2 rounded-lg bg-blue-600 flex items-center justify-center shadow hover:bg-blue-700 active:scale-95 transition text-white cursor-pointer"
                   >
                     <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
                       <polygon points="5,3 19,12 5,21" />
                     </svg>
                     <span className="ml-2">Start Timer</span>
                   </button>
-                ) : (
-                  // Stop + Pause buttons replacing Start button
+                )}
+
+                {timerState === "running" && (
                   <div className="flex gap-4 w-full">
                     {/* Stop Button */}
                     <button
-                      onClick={handleStop}
+                      onClick={() => setTimerState("stopped") || handleStop()}
                       title="Stop"
-                      className="flex-1 p-2 rounded-lg bg-slate-600
-              flex items-center justify-center
-              shadow hover:bg-slate-700 active:scale-95 transition text-white cursor-pointer"
+                      className="flex-1 p-2 rounded-lg bg-slate-600 flex items-center justify-center shadow hover:bg-slate-700 active:scale-95 transition text-white cursor-pointer"
                     >
                       <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
                         <rect x="5" y="5" width="14" height="14" />
@@ -353,11 +354,9 @@ const Tracker = () => {
 
                     {/* Pause Button */}
                     <button
-                      onClick={handlePause}
+                      onClick={() => setTimerState("paused") || handlePause()}
                       title="Pause"
-                      className="flex-1 p-2 rounded-lg bg-sky-500
-              flex items-center justify-center
-              shadow hover:bg-sky-600 active:scale-95 transition text-white cursor-pointer"
+                      className="flex-1 p-2 rounded-lg bg-sky-500 flex items-center justify-center shadow hover:bg-sky-600 active:scale-95 transition text-white cursor-pointer"
                     >
                       <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
                         <rect x="6" y="4" width="4" height="16" />
@@ -367,9 +366,36 @@ const Tracker = () => {
                     </button>
                   </div>
                 )}
+
+                {timerState === "paused" && (
+                  <div className="flex gap-4 w-full">
+                    {/* Stop Button */}
+                    <button
+                      onClick={() => setTimerState("stopped") || handleStop()}
+                      title="Stop"
+                      className="flex-1 p-2 rounded-lg bg-slate-600 flex items-center justify-center shadow hover:bg-slate-700 active:scale-95 transition text-white cursor-pointer"
+                    >
+                      <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+                        <rect x="5" y="5" width="14" height="14" />
+                      </svg>
+                      <span className="ml-2">Stop</span>
+                    </button>
+
+                    {/* Resume Button */}
+                    <button
+                      onClick={() => setTimerState("running") || handleStart()}
+                      title="Resume"
+                      className="flex-1 p-2 rounded-lg bg-green-600 flex items-center justify-center shadow hover:bg-green-700 active:scale-95 transition text-white cursor-pointer"
+                    >
+                      <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
+                        <polygon points="5,3 19,12 5,21" />
+                      </svg>
+                      <span className="ml-2">Resume</span>
+                    </button>
+                  </div>
+                )}
               </>
             ) : (
-              // Create timesheet button
               <button
                 className="bg-black rounded-xl p-2 text-xl text-center font-mono text-white tracking-widest shadow-inner w-full cursor-pointer"
                 onClick={createTimeSheetHandler}
@@ -378,6 +404,7 @@ const Tracker = () => {
               </button>
             )}
           </div>
+
 
 
 

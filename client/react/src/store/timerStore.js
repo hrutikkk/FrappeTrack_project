@@ -65,7 +65,6 @@ export const useTimerStore = create((set, get) => ({
     console.log("pst: ", get().pauseStartTime)
     console.log("pte: ", get().pauseEndTime);
     console.log("sts: ", startTimeSec)
-    console.log("total pause time", (get().pauseEndTime.getTime() - get().startTime.getTime()) - (pauseEndTime.getTime() - pauseStartTime.getTime()))
 
   },
 
