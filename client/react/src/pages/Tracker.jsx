@@ -196,6 +196,7 @@ const Tracker = () => {
         from_time: startTime,
         to_time: endTime,
         hours: "54",
+        completed:"1",
         project: selectedProject,
         task: taskByProject,
         description: descriptionStore,

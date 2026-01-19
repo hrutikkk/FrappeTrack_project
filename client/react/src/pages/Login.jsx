@@ -10,7 +10,7 @@ const Login = () => {
 
 
     const [email, setEmail] = useState("suraj@unifyxperts.com");
-    const [password, setPassword] = useState("suraj@123");
+    const [password, setPassword] = useState("suraj@123#");
     const [showPassword, setShowPassword] = useState(false);
     const { isAuthenticated, authInitialized } = useAuthStore();
 
