@@ -150,7 +150,6 @@ const Tracker = () => {
   }
 
   const handleStart = () => {
-
     const missing = getMissingSelections();
     if (missing.length > 0) {
       toast.error(`Please select ${missing.join(" and ")}`);
@@ -160,23 +159,25 @@ const Tracker = () => {
       toast.error("Please write description")
       return;
     }
-    window.electronAPI.setTimerStatus(true);
 
-    start(); // ⏱ timer store
-    startScreenshots(timeSheetValue); // 📸 screenshot store
+    // start timer
+    start();
+
+    // start screenshots
+    startScreenshots(timeSheetValue);
+
+    console.log("⏱ Timer started, screenshots started");
   };
 
   const handlePause = () => {
-    pause();
+  // pause timer
+  pause(); 
 
-    if (nextShotAt) {
-      const remaining = Math.max(nextShotAt - Date.now(), 0);
-      setSchedule(remaining);
-    }
+  // pause screenshots
+  pauseScreenshots(); 
 
-    clearTimeout(screenshotTimeoutRef.current);
-    screenshotTimeoutRef.current = null;
-  };
+  console.log("⏸ Timer paused, screenshots paused");
+};
 
   const handleStop = async () => {
     window.electronAPI.setTimerStatus(false);
