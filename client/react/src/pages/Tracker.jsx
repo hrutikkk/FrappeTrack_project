@@ -170,14 +170,11 @@ const Tracker = () => {
   };
 
   const handlePause = () => {
-  // pause timer
-  pause(); 
-
-  // pause screenshots
-  pauseScreenshots(); 
-
+  pause(); // pause timer
+  pauseScreenshots(); // pause screenshot loop
   console.log("⏸ Timer paused, screenshots paused");
 };
+
 
   const handleStop = async () => {
     window.electronAPI.setTimerStatus(false);
