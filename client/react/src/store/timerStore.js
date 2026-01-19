@@ -1,28 +1,23 @@
-// store/timerStore.js
 import { create } from "zustand";
 
 export const useTimerStore = create((set, get) => ({
   seconds: 0,
   isRunning: false,
   intervalId: null,
-  
+
   startTime: null,
   endTime: null,
-  totalTime: null,
   startTimeSec: null,
+
   pauseFlag: false,
   pauseStartTime: null,
-  pauseEndTime: null,
-
+  totalPauseTime: 0, // in milliseconds
 
   start: () => {
     if (get().intervalId) return;
-    console.log("intervalId in start", get().intervalId)
 
-    // ✅ set startTime only once
     if (!get().startTime) {
       const now = new Date();
-
       const formattedTime = now
         .toLocaleString('en-GB', {
           year: 'numeric',
@@ -33,9 +28,10 @@ export const useTimerStore = create((set, get) => ({
           second: '2-digit',
           hourCycle: 'h23'
         })
-        .replace(/\//g, '-')                         // 06-01-2026, 03:56:36
-        .replace(/(\d{2})-(\d{2})-(\d{4})/, '$3-$2-$1') // 2026-01-06, 03:56:36
-        .replace(', ', ' ');                         // remove comma
+        .replace(/\//g, '-')
+        .replace(/(\d{2})-(\d{2})-(\d{4})/, '$3-$2-$1')
+        .replace(', ', ' ');
+
       console.log("⏱️ Session started at:", formattedTime);
       set({ startTime: formattedTime, startTimeSec: now.getTime() });
     }
@@ -48,58 +44,59 @@ export const useTimerStore = create((set, get) => ({
   },
 
   pause: () => {
-    const { pauseFlag, startTime, startTimeSec } = get()
+    const { pauseFlag } = get();
+
     if (!pauseFlag) {
-      const pst = new Date()
-      set({ pauseStartTime: pst, pauseFlag: true })
+      // Start pause
+      const pst = new Date();
+      set({ pauseStartTime: pst, pauseFlag: true });
+      console.log("⏸️ Paused at:", pst.toLocaleTimeString());
+    } else {
+      // End pause
+      const pte = new Date();
+      const pauseDuration = pte.getTime() - get().pauseStartTime.getTime();
+
+      set((state) => ({
+        pauseFlag: false,
+        totalPauseTime: state.totalPauseTime + pauseDuration,
+        pauseStartTime: null,
+      }));
+
+      console.log("▶️ Resumed at:", pte.toLocaleTimeString());
+      console.log("⏱️ Pause duration (sec):", pauseDuration / 1000);
     }
-    // console.log("intervalId in pause", get().intervalId)
-    if (pauseFlag) {
-      const pte = new Date()
-      console.log("pte", pte)
-      // console.log("pte in sec", pte.getTime(), "startTimesec: ", get().startTimeSec)
-      set({ pauseEndTime: pte, pauseFlag: false })
-    }
+
     clearInterval(get().intervalId);
     set({ intervalId: null, isRunning: false });
-    console.log("pst: ", get().pauseStartTime)
-    console.log("pte: ", get().pauseEndTime);
-    console.log("sts: ", startTimeSec)
-
   },
 
   reset: () => {
-    const { startTimeSec } = get()
-
-    console.log("intervalId in reset", get().intervalId)
-
     clearInterval(get().intervalId);
+
     const endTime = new Date();
-
-
-    const startTime = get().startTime;
+    const { startTimeSec, totalPauseTime } = get();
 
     console.log("⏹️ Session ended at:", endTime.toLocaleString());
 
-    set({ endTime: endTime })
+    const totalTime = endTime.getTime() - startTimeSec;
+    const effectiveTime = totalTime - totalPauseTime;
 
-    console.log(startTime, " ", get().endTime)
-    console.log("end: ", get().endTime.getTime())
-    console.log("start: ", get().startTimeSec)
+    console.log("Total session time (sec):", totalTime / 1000);
+    console.log("Total pause time (sec):", totalPauseTime / 1000);
+    console.log("Effective working time (sec):", effectiveTime / 1000);
+    
+    
 
-    const totalTime = get().endTime.getTime() - startTimeSec
-    console.log("Total Time take to complete the task in sec: ", totalTime / 1000)
-
-    if (startTime) {
-      const duration = Math.floor((endTime - startTime) / 1000);
-      console.log("🕒 Total session duration:", duration, "seconds");
-    }
-
+    // Reset store
     set({
       seconds: 0,
       intervalId: null,
       isRunning: false,
-      startTime: null, // ✅ reset for next session
+      startTime: null,
+      endTime: null,
+      pauseFlag: false,
+      pauseStartTime: null,
+      totalPauseTime: 0,
     });
   },
 }));
