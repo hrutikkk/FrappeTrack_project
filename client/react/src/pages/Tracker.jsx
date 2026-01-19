@@ -38,6 +38,7 @@ const Tracker = () => {
     projects,
     task,
     setActivityType,
+    
     activity,
     activityType,
     getActivityType
@@ -90,8 +91,8 @@ const Tracker = () => {
     }
     // await getTimeSheetList(value)
   }
-  const handleActivity = (e) => {
-    setSelectedActivity(e.target.value);
+  const handleActivity = (e)=>{
+    setActivityType(e.target.value);
   }
 
 
@@ -198,6 +199,7 @@ const Tracker = () => {
         from_time: startTime,
         to_time: endTime,
         hours: "54",
+        completed:"1",
         project: selectedProject,
         task: taskByProject,
         description: descriptionStore,
