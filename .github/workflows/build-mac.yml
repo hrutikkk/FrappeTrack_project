@@ -22,6 +22,15 @@ jobs:
         working-directory: client
         run: npm install
 
+
+      - name: Install React dependencies
+        working-directory: client/react
+        run: npm install
+
+      - name: Build React
+        working-directory: client/react
+        run: npm run build
+        
       - name: Build macOS DMG
         working-directory: client
         run: npx electron-builder --mac
