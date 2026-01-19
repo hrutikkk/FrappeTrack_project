@@ -157,6 +157,11 @@ const Tracker = () => {
       toast.error(`Please select ${missing.join(" and ")}`);
       return;
     }
+    if(descriptionStore == null || descriptionStore == ""){
+      toast.error("Please write description")
+      return;
+    }
+    window.electronAPI.setTimerStatus(true);
 
     start(); // ⏱ timer store
     startScreenshots(timeSheetValue); // 📸 screenshot store
@@ -175,6 +180,8 @@ const Tracker = () => {
   };
 
   const handleStop = async () => {
+    window.electronAPI.setTimerStatus(false);
+
     // activity type
     const taskObj = task.filter((t) => t.name == taskByProject);
     console.log("taskobject", taskObj, taskObj[0].subject, task[0]["subject"]);
