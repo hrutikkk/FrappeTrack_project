@@ -38,13 +38,13 @@ const Tracker = () => {
     projects,
     task,
     setActivityType,
-    
+
     activity,
     activityType,
     getActivityType
   } = useCreateStore();
 
-  const { startTime, endTime, isRunning, seconds, start, pause, reset ,totalSessionTime} =
+  const { startTime, endTime, isRunning, seconds, start, pause, reset, totalSessionTime } =
     useTimerStore();
   const { user } = useAuthStore();
 
@@ -79,8 +79,6 @@ const Tracker = () => {
     setActivityType(value);
 
   }
-
-
   async function handleTimeSheet(e) {
     const value = e.target.value;
     setTimeSheetValue(value);
@@ -91,11 +89,9 @@ const Tracker = () => {
     }
     // await getTimeSheetList(value)
   }
-  const handleActivity = (e)=>{
+  const handleActivity = (e) => {
     setActivityType(e.target.value);
   }
-
-
 
   // ---------------- TIMER ----------------
   const formatTime = (secs) => {
@@ -155,22 +151,23 @@ const Tracker = () => {
 
   const handleStart = () => {
     const missing = getMissingSelections();
+    console.log(missing)
     if (missing.length > 0) {
       toast.error(`Please select ${missing.join(" and ")}`);
-      return;
+      return false;
     }
     if (descriptionStore == null || descriptionStore == "") {
       toast.error("Please write description")
-      return;
+      return false;
     }
 
     // start timer
     start();
-
     // start screenshots
     startScreenshots(timeSheetValue);
 
     console.log("⏱ Timer started, screenshots started");
+    return true;
   };
 
   const handlePause = () => {
@@ -185,24 +182,40 @@ const Tracker = () => {
     // Pause timer first
     if (isRunning) pause(); // ensures interval is cleared
     // pause();
-    console.log("totalsessiontime before reset",totalSessionTime)
     reset(); // ✅ logs end time + duration inside store
     stopScreenshots();
-    console.log("totalsessiontime after reset",totalSessionTime)
+    const sessionTime = useTimerStore.getState().totalSessionTime;
+    console.log("session time", sessionTime)
 
+    console.log("session in hours: ", (sessionTime / (1000 * 60 * 60)).toFixed(6))
+    const hours = (sessionTime / (1000 * 60 * 60)).toFixed(6)
     // activity type
     const taskObj = task.filter((t) => t.name == taskByProject);
     console.log("taskobject", taskObj, taskObj[0].subject, task[0]["subject"]);
+
+    const now = new Date();
+
+    const formattedTime = now
+      .toLocaleString('en-GB', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hourCycle: 'h23'
+      })
+      .replace(/\//g, '-')                         // 06-01-2026, 03:56:36
+      .replace(/(\d{2})-(\d{2})-(\d{4})/, '$3-$2-$1') // 2026-01-06, 03:56:36
+      .replace(', ', ' ');                         // remov
     const data = {
       timesheet: timeSheetValue,
       employee: user.employee.name,
       time_log: {
-        // activity_type: taskObj[0].subject,
-        // "activity_type": "Coding",
         activity_type: activityType,
         from_time: startTime,
-        to_time: endTime,
-        hours: totalSessionTime,
+        to_time: formattedTime,
+        hours: hours,
         project: selectedProject,
         task: taskByProject,
         description: descriptionStore,
@@ -233,7 +246,7 @@ const Tracker = () => {
         return [
           {
             label: "Start Timer",
-            onClick: () => { setTimerState("running"); handleStart(); },
+            onClick: () => { const started = handleStart(); if (started) setTimerState("running") },
             bg: "bg-blue-600",
             hover: "hover:bg-blue-700",
             icon: (
