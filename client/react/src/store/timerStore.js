@@ -81,20 +81,8 @@ export const useTimerStore = create((set, get) => ({
       console.log("pause started time", pauseTimeStart);
       set({ pauseStartTime: pauseTimeStart, pauseFlag: true });
       console.log("⏸️ Paused at:", pauseTimeStart);
-    } else {
-      // // End pause
-      // const pte = new Date();
-      // const pauseDuration = pte.getTime() - get().pauseStartTime.getTime();
-
-      // set((state) => ({
-      //   pauseFlag: false,
-      //   totalPauseTime: state.totalPauseTime + pauseDuration,
-      //   pauseStartTime: null,
-      // }));
-
-      console.log("▶️ Resumed at:", pte.toLocaleTimeString());
-      console.log("⏱️ Pause duration (sec):", pauseDuration / 1000);
-    }
+    } 
+     
 
     clearInterval(get().intervalId);
     set({ intervalId: null, isRunning: false });

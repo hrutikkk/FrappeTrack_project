@@ -43,7 +43,7 @@ const Tracker = () => {
     getActivityType
   } = useCreateStore();
 
-  const { startTime, endTime, isRunning, seconds, start, pause, reset ,totalSessionTime} =
+  const { startTime, endTime, isRunning, seconds, start, pause, reset, totalSessionTime } =
     useTimerStore();
   const { user } = useAuthStore();
 
@@ -156,20 +156,20 @@ const Tracker = () => {
     const missing = getMissingSelections();
     if (missing.length > 0) {
       toast.error(`Please select ${missing.join(" and ")}`);
-      return;
-    }
-    if (descriptionStore == null || descriptionStore == "") {
-      toast.error("Please write description")
-      return;
+      return false;
     }
 
-    // start timer
+    if (!descriptionStore) {
+      toast.error("Please write description");
+      return false;
+    }
+
+    // ✅ validation passed
     start();
-
-    // start screenshots
     startScreenshots(timeSheetValue);
 
-    console.log("⏱ Timer started, screenshots started");
+    console.log("⏱ Timer started");
+    return true;
   };
 
   const handlePause = () => {
@@ -184,10 +184,12 @@ const Tracker = () => {
     // Pause timer first
     if (isRunning) pause(); // ensures interval is cleared
     // pause();
-    console.log("totalsessiontime before reset",totalSessionTime)
+    console.log("totalsessiontime before reset", totalSessionTime)
     reset(); // ✅ logs end time + duration inside store
     stopScreenshots();
-    console.log("totalsessiontime after reset",totalSessionTime)
+    const sessionTime = useTimerStore.getState().totalSessionTime;
+    console.log("all session time", sessionTime);
+
 
     // activity type
     const taskObj = task.filter((t) => t.name == taskByProject);
@@ -201,7 +203,7 @@ const Tracker = () => {
         activity_type: activityType,
         from_time: startTime,
         to_time: endTime,
-        hours: totalSessionTime,
+        hours: sessionTime,
         project: selectedProject,
         task: taskByProject,
         description: descriptionStore,
@@ -232,7 +234,13 @@ const Tracker = () => {
         return [
           {
             label: "Start Timer",
-            onClick: () => { setTimerState("running"); handleStart(); },
+            onClick: () => {
+              const started = handleStart();
+              if (started) {
+                setTimerState("running");
+              }
+            },
+
             bg: "bg-blue-600",
             hover: "hover:bg-blue-700",
             icon: (
