@@ -44,7 +44,7 @@ const Tracker = () => {
     getActivityType
   } = useCreateStore();
 
-  const { startTime, endTime, isRunning, seconds, start, pause, reset } =
+  const { startTime, endTime, isRunning, seconds, start, pause, reset ,totalSessionTime} =
     useTimerStore();
   const { user } = useAuthStore();
 
@@ -184,11 +184,15 @@ const Tracker = () => {
     window.electronAPI.setTimerStatus(false);
     // Pause timer first
     if (isRunning) pause(); // ensures interval is cleared
+    // pause();
+    console.log("totalsessiontime before reset",totalSessionTime)
+    reset(); // ✅ logs end time + duration inside store
+    stopScreenshots();
+    console.log("totalsessiontime after reset",totalSessionTime)
 
     // activity type
     const taskObj = task.filter((t) => t.name == taskByProject);
     console.log("taskobject", taskObj, taskObj[0].subject, task[0]["subject"]);
-
     const data = {
       timesheet: timeSheetValue,
       employee: user.employee.name,
@@ -198,8 +202,7 @@ const Tracker = () => {
         activity_type: activityType,
         from_time: startTime,
         to_time: endTime,
-        hours: "54",
-        completed:"1",
+        hours: totalSessionTime,
         project: selectedProject,
         task: taskByProject,
         description: descriptionStore,
@@ -210,9 +213,9 @@ const Tracker = () => {
     if (!res) toast.error("Unable to send the screenshots");
 
 
-    // pause();
-    reset(); // ✅ logs end time + duration inside store
-    stopScreenshots();
+    // // pause();
+    // reset(); // ✅ logs end time + duration inside store
+    // stopScreenshots();
 
     delScreenshotFolder();
     setSelectedProject("");
