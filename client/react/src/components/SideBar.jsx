@@ -21,7 +21,7 @@ const SideBar = ({ children }) => {
       {/* Hamburger button (mobile only) */}
       <button
         onClick={() => setOpen(true)}
-        className="sm:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-gray-200 shadow"
+        className="sm:hidden fixed top-1 left-4 z-50 p-2 rounded-md bg-gray-200 shadow"
       >
         <span className="sr-only">Open sidebar</span>
         <svg

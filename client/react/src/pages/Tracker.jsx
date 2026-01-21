@@ -315,7 +315,7 @@ const Tracker = () => {
         {/* Header */}
         <div className="text-center mb-10">
           <h2 className="text-3xl font-semibold text-slate-800 tracking-tight">
-            Welcome
+            Welcome {user.name}
           </h2>
           <h2 id="username" className="text-base text-slate-500 mt-1"></h2>
         </div>
