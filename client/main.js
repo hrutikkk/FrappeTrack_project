@@ -7,6 +7,7 @@ const path = require("path");
 const fs = require("fs");
 // const { takeCoverage } = require("v8");
 const express = require('express')
+require("dotenv").config()
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
 let win;
@@ -29,7 +30,7 @@ app.whenReady().then(() => {
   server.use(
     "/api",
     createProxyMiddleware({
-      target: "http://192.168.0.29:8000",
+      target: process.env.PROXY_URL,
       changeOrigin: true,
       ws: true,
     })
@@ -56,7 +57,7 @@ app.whenReady().then(() => {
       }
     });
 
-    win.loadURL("http://localhost:5173");
+    win.loadURL(process.env.CLIENT_URL);
     // Menu.setApplicationMenu(null); // ✅ removes menu completely
     win.on("close", (e) => {
       if (isTimerRunning) {

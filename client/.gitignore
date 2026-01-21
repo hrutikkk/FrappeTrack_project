@@ -3,3 +3,4 @@ screenshots/
 resources/
 assets/
 dist/
+.env
