@@ -9,8 +9,9 @@ FrappeTrack is a desktop time-tracking application built using Electron, with a 
 - Express (local proxy)
 
 ## Folder structure
+```text
 FrappeTrack/
-├─ .github/                 
+├─ .github/
 │  └─ workflows/             ← GitHub Actions workflows (CI configs for building macOS DMG, Windows EXE, etc.)
 │
 ├─ client/                   ← Main application source (Electron + frontend integration)
@@ -26,7 +27,7 @@ FrappeTrack/
 ├─ package.json              ← Root project scripts and dependencies (Electron, build tooling, etc.)
 ├─ package-lock.json         ← Locked dependency versions for reproducible builds
 └─ README.md                 ← High-level project documentation
-
+```
 
 ## How to run (dev)
 npm install
