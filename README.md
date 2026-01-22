@@ -8,12 +8,11 @@ to provide offline-friendly time tracking.
 - Electron (main + preload)
 - React (renderer)
 - Express (local proxy)
-- Python (NLP only)
 
 ## Folder structure
-- /electron       → Electron main + preload process
-- /client/react   → React UI
-- /server         → Local Express proxy
+- /FrappeTrack/client       → Electron main + preload process
+- /client/react   → React UI (static index.html)
+- /         → Local Express proxy
 - /scripts        → Build / packaging scripts
 
 ## How to run (dev)
