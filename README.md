@@ -2,60 +2,60 @@
 
 Handles **all HTTP and backend communication**.
 
-## `axiosinstance.js`
+#### `axiosinstance.js`
 - Centralized Axios configuration
 - Sets base URL (`/api`), headers, and credentials
 - Ensures consistent API usage across the app
 ---
 
-# 📁 components/
+### 📁 components/
 
 Reusable **UI and routing components**.
 
-## `ProtectedRoutes.js`
+#### `ProtectedRoutes.js`
 - Restricts access to authenticated users
 - Redirects unauthenticated users to login
 
-## `sidebar.jsx`
+#### `sidebar.jsx`
 - Main navigation sidebar
 - Provides consistent layout across protected pages
 
 ---
-# 📁 pages/
+### 📁 pages/
 
 Contains **route-level React components** (screens).
 
-### `login.jsx`
+#### `login.jsx`
 - User authentication screen
 - Handles login flow and session initialization
 
-### `profile.jsx`
+#### `profile.jsx`
 - Displays logged-in user information
 - Provides profile-related actions
 
-### `tracker.jsx`
+#### `tracker.jsx`
 - Core time tracking screen
 - Controls start, pause, resume, and stop actions
 - Integrates timer, projects, and screenshots
 
 ---
-## 📁 store/
+### 📁 store/
 
 Manages **global application state** using Zustand.
 
-### `authstore.js`
+#### `authstore.js`
 - Handles authentication state
 - Stores user and session data
 
-### `createstore.js`
+#### `createstore.js`
 - Manages project-related data
 - Fetches and stores assigned projects
 
-### `timestore.js`
+#### `timestore.js`
 - Contains all timer logic
 - Tracks session time and pause durations
 
-### `screenshotstore.js`
+#### `screenshotstore.js`
 - Captures and uploads screenshots
 - Attaches metadata like time and project
 
