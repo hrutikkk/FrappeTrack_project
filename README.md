@@ -1,13 +1,26 @@
-## /electron
+# Time Tracker Desktop App (Electron)
 
-Contains Electron main process and preload scripts.
+## What this project does
+Electron-based desktop app that wraps the Frappe backend and React frontend
+to provide offline-friendly time tracking.
 
-- main.js  
-  Creates the BrowserWindow, starts the local Express proxy,
-  and handles app lifecycle.
+## Tech stack
+- Electron (main + preload)
+- React (renderer)
+- Express (local proxy)
+- Python (NLP only)
 
-- preload.js  
-  Exposes safe APIs (IPC) to the renderer process.
+## Folder structure
+- /electron       → Electron main + preload process
+- /client/react   → React UI
+- /server         → Local Express proxy
+- /scripts        → Build / packaging scripts
 
-- ipcHandlers.js  
-  Defines IPC handlers for filesystem, auth, and app config.
+## How to run (dev)
+npm install
+npm run dev
+
+## How to build
+npm run build:linux
+npm run build:win
+npm run build:mac
