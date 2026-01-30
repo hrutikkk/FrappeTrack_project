@@ -156,17 +156,17 @@ const Tracker = () => {
       toast.error(`Please select ${missing.join(" and ")}`);
       return false;
     }
-    if (descriptionStore == null || descriptionStore == "") {
-      toast.error("Please write description")
+
+    if (!descriptionStore) {
+      toast.error("Please write description");
       return false;
     }
 
-    // start timer
+    // ✅ validation passed
     start();
-    // start screenshots
     startScreenshots(timeSheetValue);
 
-    console.log("⏱ Timer started, screenshots started");
+    console.log("⏱ Timer started");
     return true;
   };
 
@@ -182,10 +182,12 @@ const Tracker = () => {
     // Pause timer first
     if (isRunning) pause(); // ensures interval is cleared
     // pause();
+    console.log("totalsessiontime before reset", totalSessionTime)
     reset(); // ✅ logs end time + duration inside store
     stopScreenshots();
     const sessionTime = useTimerStore.getState().totalSessionTime;
-    console.log("session time", sessionTime)
+    console.log("all session time", sessionTime);
+
 
     console.log("session in hours: ", (sessionTime / (1000 * 60 * 60)).toFixed(6))
     const hours = (sessionTime / (1000 * 60 * 60)).toFixed(6)
@@ -214,8 +216,8 @@ const Tracker = () => {
       time_log: {
         activity_type: activityType,
         from_time: startTime,
-        to_time: formattedTime,
-        hours: hours,
+        to_time: endTime,
+        hours: sessionTime,
         project: selectedProject,
         task: taskByProject,
         description: descriptionStore,
@@ -246,7 +248,13 @@ const Tracker = () => {
         return [
           {
             label: "Start Timer",
-            onClick: () => { const started = handleStart(); if (started) setTimerState("running") },
+            onClick: () => {
+              const started = handleStart();
+              if (started) {
+                setTimerState("running");
+              }
+            },
+
             bg: "bg-blue-600",
             hover: "hover:bg-blue-700",
             icon: (
@@ -321,7 +329,7 @@ const Tracker = () => {
         {/* Header */}
         <div className="text-center mb-10">
           <h2 className="text-3xl font-semibold text-slate-800 tracking-tight">
-            Welcome
+            Welcome {user.name}
           </h2>
           <h2 id="username" className="text-base text-slate-500 mt-1"></h2>
         </div>

@@ -55,7 +55,8 @@ export const useTimerStore = create((set, get) => ({
         })
         .replace(/\//g, '-')                         // 06-01-2026, 03:56:36
         .replace(/(\d{2})-(\d{2})-(\d{4})/, '$3-$2-$1') // 2026-01-06, 03:56:36
-        .replace(', ', ' ');
+        .replace(', ', ' ');                         // remove comma
+
       console.log("⏱️ Session started at:", formattedTime);
       set({ startTime: formattedTime, startTimeSec: now.getTime() });
     } else {
@@ -93,20 +94,8 @@ export const useTimerStore = create((set, get) => ({
       console.log("pause started time", pauseTimeStart);
       set({ pauseStartTime: pauseTimeStart, pauseFlag: true });
       console.log("⏸️ Paused at:", pauseTimeStart);
-    } else {
-      // // End pause
-      // const pte = new Date();
-      // const pauseDuration = pte.getTime() - get().pauseStartTime.getTime();
-
-      // set((state) => ({
-      //   pauseFlag: false,
-      //   totalPauseTime: state.totalPauseTime + pauseDuration,
-      //   pauseStartTime: null,
-      // }));
-
-      console.log("▶️ Resumed at:", pte.toLocaleTimeString());
-      console.log("⏱️ Pause duration (sec):", pauseDuration / 1000);
     }
+
 
     clearInterval(get().intervalId);
     set({ intervalId: null, isRunning: false });

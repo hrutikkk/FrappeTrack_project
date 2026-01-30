@@ -1,5 +1,6 @@
 node_modules/
 screenshots/
-# resources/
-# assets/
+resources/
+assets/
 dist/
+.env
