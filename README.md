@@ -4,9 +4,9 @@
 FrappeTrack is a desktop time-tracking application built using Electron, with a focus on integrating with a Frappe backend and providing a native desktop experience for tracking activities and time. The goal of the project is to create an offline-friendly desktop interface that wraps a web UI and connects efficiently to backend services.
 
 ## Download zip for your OS
-[Mac](https://example.com)
-[Linux](https://example.com)
-[Windows](https://example.com)
+[Mac](https://github.com/suraj-ufx/FrappeTrack/actions/runs/21506932799)  
+[Linux](https://github.com/suraj-ufx/FrappeTrack/actions/runs/21506932797)  
+[Windows](https://github.com/suraj-ufx/FrappeTrack/actions/runs/21506932801)
 
 ## there might be future pushes you can checkout those
 
