@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import axiosInstance from "../api/axiosInstance";
 
-let screenshotTimeout = null; 
+let screenshotTimeout = null; // 🔥 GLOBAL (not tied to component)
 
 export const useScreenshotStore = create((set, get) => ({
   timeSheetId: null,
@@ -13,8 +13,8 @@ export const useScreenshotStore = create((set, get) => ({
 
   // ---------------- RANDOM DELAY ----------------
   getRandomDelay: () => {
-    const min = 0.3 * 60 * 1000; // 6 sec
-    const max = 0.5 * 60 * 1000; // 12 sec
+    const min = 0.1 * 60 * 1000; // 6 sec
+    const max = 0.2 * 60 * 1000; // 12 sec
     return Math.floor(Math.random() * (max - min + 1)) + min;
   },
 
@@ -43,8 +43,8 @@ export const useScreenshotStore = create((set, get) => ({
   send_screenshot: async (data) => {
     try {
       console.log("send screenshot", data)
-      const res = axiosInstance.post("/api/method/frappetrack.api.timesheet.upload_screenshot",data)
-      if(res){
+      const res = axiosInstance.post("/api/method/frappetrack.api.timesheet.upload_screenshot", data)
+      if (res) {
         console.log("send screenshot via post")
         return true;
       }
@@ -57,25 +57,19 @@ export const useScreenshotStore = create((set, get) => ({
 
   // ---------------- CAPTURE ----------------
   captureScreenshot: async () => {
-    const { timeSheetId } = get();
+    const { timeSheetId, isRunning } = get();
 
-    if (!timeSheetId) {
-      console.warn("No timesheetId set, skipping screenshot");
-      return false;
+    // 🔒 ABSOLUTE GUARD
+    if (!isRunning) {
+      console.log(" Screenshot blocked (paused)");
+      return;
     }
 
-    if (!window.electronAPI?.captureScreen) {
-      console.warn("Electron API not available");
-      return false;
-    }
+    if (!timeSheetId) return;
+    if (!window.electronAPI?.captureScreen) return;
 
     const imgData = await window.electronAPI.captureScreen();
-
-    // USER CLICKED CANCEL (Wayland)
-    if (!imgData || !imgData.thumbnail) {
-      console.warn("Screenshot cancelled by user");
-      return false; // IMPORTANT
-    }
+    if (!imgData?.thumbnail) return;
 
     const fileData = imgData.thumbnail.split(",")[1];
 
@@ -86,75 +80,73 @@ export const useScreenshotStore = create((set, get) => ({
     });
 
     get().addScreenshot(imgData.thumbnail, imgData.screenshotTime);
-
-    return true; // SUCCESS
   },
 
 
-    // ---------------- LOOP ----------------
+
+  // ---------------- LOOP ----------------
   startScreenshots: (timeSheetId) => {
     if (!timeSheetId) return;
     if (get().isRunning) return;
 
     set({ isRunning: true, timeSheetId });
 
-    const retry = async () => {
+    const takeScreenshotLoop = () => {
       if (!get().isRunning) return;
 
-      console.log("Retrying screenshot now");
+      // 👇 consume remainingDelay ONCE
+      const delay =
+        get().remainingDelay !== null
+          ? get().remainingDelay
+          : get().getRandomDelay();
 
-      const ok = await get().captureScreenshot();
+      // IMPORTANT: clear remainingDelay immediately
+      set({
+        remainingDelay: null,
+        nextShotAt: Date.now() + delay,
+      });
 
-      if (!ok) {
-        console.log("Retry cancelled again, retrying in 5 sec");
-        screenshotTimeout = setTimeout(retry, 5_000);
-        return;
-      }
-
-      // success → resume normal loop
-      loop();
-    };
-
-    const loop = () => {
-      if (!get().isRunning) return;
-
-      const delay = get().getRandomDelay();
       console.log("📸 Next screenshot in", delay / 1000, "sec");
 
       screenshotTimeout = setTimeout(async () => {
-        console.log("📸 Taking screenshot now");
+        if (!get().isRunning) return;
 
-        const ok = await get().captureScreenshot();
+        await get().captureScreenshot();
 
-        if (!ok) {
-          console.log("Screenshot failed, retry in 5 sec");
-          screenshotTimeout = setTimeout(retry, 5_000);
-          return;
-        }
-
-        loop();
+        set({ nextShotAt: null });
+        takeScreenshotLoop();
       }, delay);
     };
 
-    loop();
+    takeScreenshotLoop();
   },
 
+
   pauseScreenshots: () => {
-    if (!screenshotTimeout) return;
-
-    clearTimeout(screenshotTimeout);
-    screenshotTimeout = null;
-
-    const { nextShotAt } = get();
-    if (nextShotAt) {
-      set({ remainingDelay: Math.max(nextShotAt - Date.now(), 0) });
+    if (screenshotTimeout) {
+      clearTimeout(screenshotTimeout);
+      screenshotTimeout = null;
     }
 
-    set({ isRunning: false });
+    const { nextShotAt } = get();
+
+    if (nextShotAt) {
+      const remaining = Math.max(0, nextShotAt - Date.now());
+
+      set({
+        remainingDelay: remaining,
+        nextShotAt: null,
+        isRunning: false,
+      });
+
+      console.log("⏸ Screenshot paused, remaining:", remaining / 1000, "sec");
+    } else {
+      set({ isRunning: false });
+    }
   },
 
   stopScreenshots: () => {
-    clearTimeout(screenshotTimeout);
+    if (screenshotTimeout) clearTimeout(screenshotTimeout);
     screenshotTimeout = null;
 
     set({
@@ -163,5 +155,10 @@ export const useScreenshotStore = create((set, get) => ({
       nextShotAt: null,
       screenshots: [],
     });
+
+    console.log("📸 Screenshots stopped");
   },
+
+
+
 }));
