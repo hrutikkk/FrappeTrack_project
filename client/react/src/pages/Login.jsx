@@ -8,7 +8,6 @@ const Login = () => {
     const { fetchProfile, login } = useAuthStore();
     const navigate = useNavigate();
 
-
     const [email, setEmail] = useState("test@gmail.com");
     const [password, setPassword] = useState("xyz@123");
     const [showPassword, setShowPassword] = useState(false);
