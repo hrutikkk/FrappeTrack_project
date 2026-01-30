@@ -30,11 +30,7 @@ app.whenReady().then(() => {
   server.use(
     "/api",
     createProxyMiddleware({
-<<<<<<< HEAD
-      target: "http://192.168.0.32:8000",
-=======
       target: process.env.PROXY_URL,
->>>>>>> 0ae460a62770ed1735ad8c2f583837edbddb030f
       changeOrigin: true,
       ws: true,
     })
