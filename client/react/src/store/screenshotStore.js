@@ -13,8 +13,8 @@ export const useScreenshotStore = create((set, get) => ({
 
   // ---------------- RANDOM DELAY ----------------
   getRandomDelay: () => {
-    const min = 0.1 * 60 * 1000; // 6 sec
-    const max = 0.2 * 60 * 1000; // 12 sec
+    const min = 8 * 60 * 1000; // 6 sec
+    const max = 10 * 60 * 1000; // 12 sec
     return Math.floor(Math.random() * (max - min + 1)) + min;
   },
 
