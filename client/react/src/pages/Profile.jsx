@@ -2,9 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import fav from '../assets/favicon.webp'
 import { Link } from 'react-router-dom'
+import { FiLoader } from "react-icons/fi";
+
 
 const Profile = () => {
   const { user } = useAuthStore()
+  if (!user) {
+    return (
+     <div className="flex justify-center items-center min-h-screen"><FiLoader className="animate-spin text-3xl text-blue-600" /></div>
+    );
+  }
 
   return (
     <div className="bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 min-h-screen flex items-center justify-center">

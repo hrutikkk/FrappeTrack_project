@@ -63,5 +63,17 @@ export const useAuthStore = create((set, get) => ({
         }
     },
 
-    setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
+    logout: async () => {
+        // This function logged out user and removes cookies
+        try {
+            const res = await axiosInstance.delete("/api/method/frappetrack.api.user.logout_user",{ withCredentials: true });
+            set({ user: null, isAuthenticated: false, authInitialized: true,authLoading:false });
+            // console.log(res);
+            return true
+            
+        } catch (error) {
+            console.log("Logged out error",error)
+            
+        }
+    },
 }));
