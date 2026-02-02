@@ -34,7 +34,7 @@ const Login = () => {
     };
 
     return (
-        <div className="bg-gray-100 flex items-center justify-center h-screen">
+        <div className="bg-gradient-to-br from-blue-300 via-indigo-200 to-purple-200 flex items-center justify-center h-screen">
             <div className="bg-white shadow-lg rounded-lg w-full max-w-md p-8">
                 {/* Header */}
                 <div className="text-center mb-6">
@@ -100,19 +100,12 @@ const Login = () => {
                     <button
                         type="submit"
                         className="w-full bg-blue-500 text-white font-semibold py-2 rounded-lg
-                        hover:bg-blue-600 transition-colors"
+                        hover:bg-blue-600 transition-colors hover:cursor-pointer"
                     >
                         Login
                     </button>
                 </form>
 
-                {/* Footer */}
-                <p className="text-center text-gray-500 text-sm mt-6">
-                    Don&apos;t have an account?{" "}
-                    <Link href="#" className="text-blue-500 hover:underline">
-                        Sign Up
-                    </Link>
-                </p>
             </div>
         </div>
     );

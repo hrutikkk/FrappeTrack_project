@@ -53,7 +53,7 @@ const Profile = () => {
           <Link
             to="/time-tracker"
           >
-            <button className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2.5 rounded-xl font-medium shadow hover:scale-[1.02] hover:shadow-lg transition mb-3">
+            <button className="w-full bg-gradient-to-r hover:cursor-pointer from-blue-500 to-indigo-600 text-white py-2.5 rounded-xl font-medium shadow hover:scale-[1.02] hover:shadow-lg transition mb-3">
               Tracker
             </button>
           </Link>
