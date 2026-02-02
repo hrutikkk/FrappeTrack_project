@@ -75,7 +75,7 @@ export const useAuthStore = create((set, get) => ({
             return false;
         }
     },
-
+ 
     logout: async () => {
         // This function logged out user and removes cookies
         try {
