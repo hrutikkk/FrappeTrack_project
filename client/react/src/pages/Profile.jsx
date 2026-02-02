@@ -4,7 +4,7 @@ import fav from '../assets/favicon.webp'
 import { Link } from 'react-router-dom'
 
 const Profile = () => {
-  const { user, fetchProfile } = useAuthStore()
+  const { user } = useAuthStore()
 
   return (
     <div className="bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 min-h-screen flex items-center justify-center">
