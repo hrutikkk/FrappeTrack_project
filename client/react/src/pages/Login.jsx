@@ -5,11 +5,12 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 
 const Login = () => {
-    const { fetchProfile, login } = useAuthStore();
+    const { login } = useAuthStore();
     const navigate = useNavigate();
 
-    const [email, setEmail] = useState("test@gmail.com");
-    const [password, setPassword] = useState("xyz@123");
+
+    const [email, setEmail] = useState("suraj@unifyxperts.com");
+    const [password, setPassword] = useState("suraj@123#");
     const [showPassword, setShowPassword] = useState(false);
     const { isAuthenticated, authInitialized } = useAuthStore();
 

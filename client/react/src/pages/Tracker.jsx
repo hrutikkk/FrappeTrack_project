@@ -38,6 +38,7 @@ const Tracker = () => {
     projects,
     task,
     setActivityType,
+
     activity,
     activityType,
     getActivityType
@@ -78,8 +79,6 @@ const Tracker = () => {
     setActivityType(value);
 
   }
-
-
   async function handleTimeSheet(e) {
     const value = e.target.value;
     setTimeSheetValue(value);
@@ -91,10 +90,8 @@ const Tracker = () => {
     // await getTimeSheetList(value)
   }
   const handleActivity = (e) => {
-    setSelectedActivity(e.target.value);
+    setActivityType(e.target.value);
   }
-
-
 
   // ---------------- TIMER ----------------
   const formatTime = (secs) => {
@@ -154,6 +151,7 @@ const Tracker = () => {
 
   const handleStart = () => {
     const missing = getMissingSelections();
+    console.log(missing)
     if (missing.length > 0) {
       toast.error(`Please select ${missing.join(" and ")}`);
       return false;
@@ -191,15 +189,31 @@ const Tracker = () => {
     console.log("all session time", sessionTime);
 
 
+    console.log("session in hours: ", (sessionTime / (1000 * 60 * 60)).toFixed(6))
+    const hours = (sessionTime / (1000 * 60 * 60)).toFixed(6)
     // activity type
     const taskObj = task.filter((t) => t.name == taskByProject);
     console.log("taskobject", taskObj, taskObj[0].subject, task[0]["subject"]);
+
+    const now = new Date();
+
+    const formattedTime = now
+      .toLocaleString('en-GB', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hourCycle: 'h23'
+      })
+      .replace(/\//g, '-')                         // 06-01-2026, 03:56:36
+      .replace(/(\d{2})-(\d{2})-(\d{4})/, '$3-$2-$1') // 2026-01-06, 03:56:36
+      .replace(', ', ' ');                         // remov
     const data = {
       timesheet: timeSheetValue,
       employee: user.employee.name,
       time_log: {
-        // activity_type: taskObj[0].subject,
-        // "activity_type": "Coding",
         activity_type: activityType,
         from_time: startTime,
         to_time: endTime,

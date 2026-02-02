@@ -12,8 +12,8 @@ export const useTimerStore = create((set, get) => ({
   pauseFlag: false,
   pauseStartTime: null,
   pauseEndTime: null,
-  totalPauseTime: 0, // in milliseconds,
-  totalSessionTime: 0,
+  totalPauseTime: null, // in milliseconds,
+  totalSessionTime: null,
   parseTime: (timeStr) => {
     const [time, modifier] = timeStr.split(' ');
     let [hours, minutes, seconds] = time.split(':').map(Number);
@@ -32,6 +32,17 @@ export const useTimerStore = create((set, get) => ({
     if (!get().startTime) {
       const now = new Date();
 
+      // const formattedTime = now
+      //   .toLocaleString('en-US', { // Use en-US for AM/PM
+      //     year: 'numeric',
+      //     month: '2-digit',
+      //     day: '2-digit',
+      //     hour: '2-digit',
+      //     minute: '2-digit',
+      //     second: '2-digit',
+      //     hour12: true // Important for AM/PM
+      //   })
+      //   .replace(/(\d+)\/(\d+)\/(\d+),/, '$3-$1-$2'); // Convert MM/DD/YYYY → YYYY-MM-DD
       const formattedTime = now
         .toLocaleString('en-GB', {
           year: 'numeric',
@@ -112,8 +123,6 @@ export const useTimerStore = create((set, get) => ({
     // console.log("Total session time (sec):", totalTime / 1000);
     // console.log("Total pause time (sec):", totalPauseTime / 1000);
     // console.log("Effective working time (sec):", effectiveTime / 1000);
-
-
 
     // Reset store
     set({

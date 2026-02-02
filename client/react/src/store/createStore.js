@@ -23,16 +23,15 @@ export const useCreateStore = create((set, get) => ({
     setSelectedProject: (selectedProject) => set({ selectedProject }),
     setTaskByProject: (taskByProject) => set({ taskByProject }),
     setTimeSheetValue: (timeSheetValue) => set({ timeSheetValue }),
-
     setDescriptionStore: (descriptionStore) => {
         set({ descriptionStore })
     },
 
-    createTimesheet: async (employee, parent_project, activity_type,taskByProject,descriptionStore) => {
+    createTimesheet: async (employee, parent_project, activity_type, taskByProject, descriptionStore) => {
         try {
 
             const res = await axiosInstance.post(
-                "/api/method/frappetrack.api.timesheet.create_timesheet", { employee, parent_project, activity_type ,taskByProject,descriptionStore}
+                "/api/method/frappetrack.api.timesheet.create_timesheet", { employee, parent_project, activity_type, taskByProject, descriptionStore }
             );
 
             const data = res.data?.message;
@@ -56,7 +55,10 @@ export const useCreateStore = create((set, get) => ({
 
     getProjects: async () => {
         try {
-
+            /*
+                fetching Projects list:
+                when user gets authenticated this function gets called and store the project list
+            */
             const res = await axiosInstance.get(
                 "/api/method/frappetrack.api.project.get_projects_list"
             );
@@ -74,7 +76,12 @@ export const useCreateStore = create((set, get) => ({
             console.error("Projects fetch failed:", err);
         }
     },
+
     getTask: async (project_id) => {
+        /*
+            fetching Tasks list:
+            when projects gets fetch this function gets called and store the task list
+        */
         console.log("hitting get_task")
         try {
 
@@ -96,6 +103,10 @@ export const useCreateStore = create((set, get) => ({
         }
     },
     getActivityType: async (task_id) => {
+        /*
+            fetching Activity list:
+            when Tasks gets fetch this function gets called and store the activity list
+        */
         console.log("hitting timesheet")
         try {
 
@@ -117,6 +128,10 @@ export const useCreateStore = create((set, get) => ({
         }
     },
     getTimeSheetList: async (task_id) => {
+        /*
+            fetching Tasks list:
+            when task gets fetch this function gets called and store the timesheet list
+        */
         console.log("hitting timesheet")
         try {
 
@@ -140,7 +155,10 @@ export const useCreateStore = create((set, get) => ({
 
     stopHandler: async (data) => {
         try {
-
+            /*
+                Stopping the timer:
+                this function sends the detail of which Project, Task, Activity, Timesheet to backend
+            */
             const jsonData = JSON.parse(JSON.stringify(data));
             const now = new Date();
 
@@ -177,19 +195,4 @@ export const useCreateStore = create((set, get) => ({
             return null
         }
     },
-    getActivityData: async () => {
-        try {
-            const resposne = await axiosInstance.get("/api/method/frappetrack.api.activity_type_api.get_activity_type");
-            const data = resposne.data
-            console.log("activity data", data)
-            if (data?.message?.data) {
-                set({ activityList: data?.message?.data })
-                return true;
-            }
-
-        } catch (error) {
-            console.log("activity api error", error)
-
-        }
-    }
 }))
