@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
 import { MdArtTrack } from "react-icons/md";
+import { HiOutlineLogout } from "react-icons/hi";
 import fav from "../assets/favicon.webp";
 import { useAuthStore } from "../store/authStore";
+import { toast } from "react-hot-toast";
 
 const SideBar = ({ children }) => {
-  const { user } = useAuthStore();
+  const { user,logout } = useAuthStore();
   const [open, setOpen] = useState(false);
 
   // Helper: closes sidebar only on mobile
@@ -15,6 +17,14 @@ const SideBar = ({ children }) => {
       setOpen(false);
     }
   };
+  const handleLogout = async()=>{
+    const status = await logout()
+    if(status){
+      toast.success("Logged out successfully")
+
+    }
+    
+  }
 
   return (
     <>
@@ -57,7 +67,7 @@ const SideBar = ({ children }) => {
               alt="Profile"
               className="w-24 h-24 rounded-full border-4 border-gray-300 shadow-lg object-cover"
             />
-            <span className="mt-2 font-semibold">{user?.name}</span>
+            <span className="mt-2 font-semibold"></span>
           </div>
 
           {/* Links */}
@@ -80,6 +90,16 @@ const SideBar = ({ children }) => {
               >
                 <MdArtTrack className="w-5 h-5" />
                 <span className="ml-3">Tracker</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/time-tracker"
+                onClick={handleLogout} // close on click
+                className="flex items-center px-2 py-2 rounded hover:bg-gray-100"
+              >
+                <HiOutlineLogout className="w-5 h-5" />
+                <span className="ml-3">Logout</span>
               </Link>
             </li>
           </ul>

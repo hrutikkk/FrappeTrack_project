@@ -5,7 +5,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 
 const Login = () => {
-    const { fetchProfile, login } = useAuthStore();
+    const { login } = useAuthStore();
     const navigate = useNavigate();
 
 
