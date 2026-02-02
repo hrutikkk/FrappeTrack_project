@@ -31,18 +31,6 @@ export const useTimerStore = create((set, get) => ({
 
     if (!get().startTime) {
       const now = new Date();
-
-      // const formattedTime = now
-      //   .toLocaleString('en-US', { // Use en-US for AM/PM
-      //     year: 'numeric',
-      //     month: '2-digit',
-      //     day: '2-digit',
-      //     hour: '2-digit',
-      //     minute: '2-digit',
-      //     second: '2-digit',
-      //     hour12: true // Important for AM/PM
-      //   })
-      //   .replace(/(\d+)\/(\d+)\/(\d+),/, '$3-$1-$2'); // Convert MM/DD/YYYY → YYYY-MM-DD
       const formattedTime = now
         .toLocaleString('en-GB', {
           year: 'numeric',
@@ -66,12 +54,6 @@ export const useTimerStore = create((set, get) => ({
 
       const pauseDiff = get().parseTime(pauseEndT) - get().parseTime(get().pauseStartTime);
       console.log("diff", pauseDiff)
-      // const totalSeconds = Math.floor(pauseDiff / 1000);
-      // const hours = Math.floor(totalSeconds / 3600);
-      // const minutes = Math.floor((totalSeconds % 3600) / 60);
-      // const seconds = totalSeconds % 60;
-
-      // get().totalPauseTime += pauseDiff
 
 
       set({ totalPauseTime: get().totalPauseTime += pauseDiff, pauseFlag: false })
@@ -117,14 +99,6 @@ export const useTimerStore = create((set, get) => ({
     set({ totalSessionTime: totalSessionTime })
     console.log("updated", get().totalSessionTime)
 
-    // const totalTime = endTime.getTime() - startTimeSec;
-    // const effectiveTime = totalTime - totalPauseTime;
-
-    // console.log("Total session time (sec):", totalTime / 1000);
-    // console.log("Total pause time (sec):", totalPauseTime / 1000);
-    // console.log("Effective working time (sec):", effectiveTime / 1000);
-
-    // Reset store
     set({
       seconds: 0,
       intervalId: null,
