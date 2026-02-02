@@ -163,7 +163,7 @@ const Tracker = () => {
       toast.error("Please write description");
       return false;
     }
-
+    window.electronAPI.setTimerStatus(true); // tell main process timer started
     // ✅ validation passed
     start();
     startScreenshots(timeSheetValue);
