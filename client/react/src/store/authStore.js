@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { useTimerStore } from "./timerStore";
 
 export const useAuthStore = create((set, get) => ({
+
     user: null,
     authLoading: false,
     isAuthenticated: false,
@@ -13,6 +14,13 @@ export const useAuthStore = create((set, get) => ({
     bootstrapped: false, 
 
     login: async (email, password) => {
+        /*
+            Authenticates user:
+            takes email and password from fields sends to backend,
+            if gets success response sets the store fields to - isAuthenticated: true, authLoading: false & fetches profile
+            else Throws error
+        */ 
+        
         set({ authLoading: true })
         try {
             const res = await axiosInstance.post(
@@ -25,7 +33,7 @@ export const useAuthStore = create((set, get) => ({
             set({
                 isAuthenticated: true, authLoading: false
             })
-            await get().fetchProfile();
+            await get().initAuth();
             console.log("login res", res.data)
             toast.success("Logged in successfully")
 
@@ -37,7 +45,11 @@ export const useAuthStore = create((set, get) => ({
     },
 
     initAuth: async () => {
-
+         /*
+            Fetches user profile & authorizes user:
+            gets user detail and sets the user detail, check whether user is authorized or not
+        */ 
+        set({ authLoading: true })
         try {
             const res = await axiosInstance.get("/api/method/frappetrack.api.user.get_employee_profile");
             
@@ -50,32 +62,7 @@ export const useAuthStore = create((set, get) => ({
             set({ user: null, isAuthenticated: false, authInitialized: true });
         }
     },
-    setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
 
-    fetchProfile: async () => {
-        try {
-            const res = await axiosInstance.get(
-                "/api/method/frappetrack.api.user.get_employee_profile",
-                { withCredentials: true }
-            );
-
-            console.log("response ", res)
-            const profile = res.data?.message?.user;
-            console.log("profile", profile)
-            // Only set user if profile exists
-            if (profile) {
-                set({ user: profile, authInitialized: true });
-                return true;
-            }
-
-            //  DO NOTHING if profile not ready yet
-            return false;
-        } catch (err) {
-            console.error("Profile fetch failed:", err);
-            return false;
-        }
-    },
- 
     logout: async () => {
         // This function logged out user and removes cookies
         try {

@@ -44,7 +44,15 @@
       "resources/**/*"
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "assets/iconss/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Time Tracker"
     },
     "linux": {
       "target": [
@@ -56,7 +64,8 @@
       "desktop": null
     },
     "mac": {
-      "target": "dmg"
+      "target": "dmg",
+      "icon": "assets/mac/icon.png"
     }
   }
 }

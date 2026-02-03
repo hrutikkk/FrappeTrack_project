@@ -46,6 +46,7 @@ const Tracker = () => {
     projects,
     task,
     setActivityType,
+
     activity,
     activityType,
     getActivityType,

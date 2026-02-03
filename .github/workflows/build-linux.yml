@@ -1,0 +1,47 @@
+name: Build Linux Packages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Electron dependencies
+        working-directory: client
+        run: npm install
+
+      - name: Install React dependencies
+        working-directory: client/react
+        run: npm install
+
+      - name: Build React
+        working-directory: client/react
+        run: npm run build
+
+      - name: Build Linux (DEB + AppImage)
+        working-directory: client
+        run: npx electron-builder --linux
+
+      - name: Upload DEB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-deb
+          path: client/dist/*.deb
+
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-appimage
+          path: client/dist/*.AppImage
