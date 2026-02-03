@@ -28,22 +28,28 @@ export const useCreateStore = create((set, get) => ({
         set({ descriptionStore })
     },
 
-    createTimesheet: async (employee, parent_project, activity_type,taskByProject,descriptionStore) => {
+    createTimesheet: async (employee, parent_project, activity_type, taskByProject, descriptionStore) => {
         try {
 
             const res = await axiosInstance.post(
-                "/api/method/frappetrack.api.timesheet.create_timesheet", { employee, parent_project, activity_type ,taskByProject,descriptionStore}
+                "/api/method/frappetrack.api.timesheet.create_timesheet", { employee, parent_project, activity_type, taskByProject, descriptionStore }
             );
 
             const data = res.data?.message;
             console.log(data)
 
             if (data?.status) {
-                // set({ projects: data.message.data });
                 toast.success("TimeSheet created successfully")
-                set({ setDescriptionStore: null, setSelectedProject: null, setTaskByProject: null, setTimeSheetValue: null })
+                set({
+                    descriptionStore: null,
+                    selectedProject: null,
+                    taskByProject: null,
+                    timeSheetValue: null,
+                    activityType: null
+                })
                 return true;
             }
+
 
             toast.error("Unable create Timesheet")
             return false

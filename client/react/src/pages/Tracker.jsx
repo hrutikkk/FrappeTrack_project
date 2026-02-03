@@ -188,7 +188,8 @@ const Tracker = () => {
     reset(); // ✅ logs end time + duration inside store
     stopScreenshots();
     const sessionTime = useTimerStore.getState().totalSessionTime;
-    console.log("all session time", sessionTime);
+    const hours = (sessionTime / (1000 * 60 * 60)).toFixed(6)
+    console.log("all session time", hours);
 
 
     // activity type
@@ -203,7 +204,7 @@ const Tracker = () => {
         activity_type: activityType,
         from_time: startTime,
         to_time: endTime,
-        hours: sessionTime,
+        hours: hours,
         project: selectedProject,
         task: taskByProject,
         description: descriptionStore,
