@@ -11,7 +11,7 @@ export const useAuthStore = create((set, get) => ({
     isCheckingAuth: true,
     error: null,
     authInitialized: false,
-    bootstrapped: false, 
+    bootstrapped: false,
 
     login: async (email, password) => {
         /*
@@ -19,8 +19,8 @@ export const useAuthStore = create((set, get) => ({
             takes email and password from fields sends to backend,
             if gets success response sets the store fields to - isAuthenticated: true, authLoading: false & fetches profile
             else Throws error
-        */ 
-        
+        */
+
         set({ authLoading: true })
         try {
             const res = await axiosInstance.post(
@@ -30,29 +30,34 @@ export const useAuthStore = create((set, get) => ({
                     password
                 },
             );
-            set({
-                isAuthenticated: true, authLoading: false
-            })
-            await get().initAuth();
-            console.log("login res", res.data)
-            toast.success("Logged in successfully")
+            if (res.data.message.success) {
+                set({
+                    isAuthenticated: true, authLoading: false
+                })
+                await get().initAuth();
+                console.log("login res", res.data)
+                toast.success("Logged in successfully")
 
-            return res;
+                return res;
+            }else {
+                toast.error(res.data.message)
+            }
         } catch (error) {
             console.log("error in login: ", error)
+            toast.error("Invalid Credentials")
             set({ isAuthenticated: false, authLoading: false, authInitialized: false })
         }
     },
 
     initAuth: async () => {
-         /*
-            Fetches user profile & authorizes user:
-            gets user detail and sets the user detail, check whether user is authorized or not
-        */ 
+        /*
+           Fetches user profile & authorizes user:
+           gets user detail and sets the user detail, check whether user is authorized or not
+       */
         set({ authLoading: true })
         try {
             const res = await axiosInstance.get("/api/method/frappetrack.api.user.get_employee_profile");
-            
+
             if (res.data?.message?.user) {
                 set({ user: res.data.message.user, isAuthenticated: true, authInitialized: true });
             } else {
@@ -66,14 +71,14 @@ export const useAuthStore = create((set, get) => ({
     logout: async () => {
         // This function logged out user and removes cookies
         try {
-            const res = await axiosInstance.delete("/api/method/frappetrack.api.user.logout_user",{ withCredentials: true });
-            set({ user: null, isAuthenticated: false, authInitialized: true,authLoading:false });
+            const res = await axiosInstance.delete("/api/method/frappetrack.api.user.logout_user", { withCredentials: true });
+            set({ user: null, isAuthenticated: false, authInitialized: true, authLoading: false });
             // console.log(res);
             return true
-            
+
         } catch (error) {
-            console.log("Logged out error",error)
-            
+            console.log("Logged out error", error)
+
         }
     },
 }));
