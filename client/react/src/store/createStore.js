@@ -59,6 +59,24 @@ export const useCreateStore = create((set, get) => ({
             return false;
         }
     },
+    createTask:async(project,subject,priority)=>{
+        try {
+            const res = await axiosInstance.post("/api/method/frappetrack.api.task.create_task",{project,subject,priority})
+            if(res?.data?.message?.status){
+                toast.success("Task created successfully!");
+                set({descriptionStore:null})
+                return true;
+            }
+            toast.error("Unable to create task")
+            
+            
+        } catch (error) {
+            console.log("create task error",error)
+            toast.error("Server error while creating task");
+            
+        }
+
+    },
 
     getProjects: async () => {
         try {
