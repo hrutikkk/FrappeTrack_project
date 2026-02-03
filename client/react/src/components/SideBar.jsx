@@ -94,7 +94,7 @@ const SideBar = ({ children }) => {
             </li>
             <li>
               <Link
-                to="/time-tracker"
+                // to="/time-tracker"
                 onClick={handleLogout} // close on click
                 className="flex items-center px-2 py-2 rounded hover:bg-gray-100"
               >

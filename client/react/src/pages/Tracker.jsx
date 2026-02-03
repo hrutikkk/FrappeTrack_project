@@ -1,25 +1,33 @@
+// React hooks
 import { act, useEffect, useRef, useState } from "react";
+
+// Zustand stores
 import { useAuthStore } from "../store/authStore";
 import { useTimerStore } from "../store/timerStore";
 import { useScreenshotStore } from "../store/screenshotStore";
-import { toast } from "react-hot-toast";
 import { useCreateStore } from "../store/createStore";
 
-const Tracker = () => {
-  const {
-    remainingDelay,
-    nextShotAt,
-    setSchedule,
-    clearSchedule,
-    screenshots,
-    addScreenshot,
-    clearScreenshots,
-    send_screenshot,
-    startScreenshots,
-    pauseScreenshots,
-    stopScreenshots,
+// Toast notifications
+import { toast } from "react-hot-toast";
 
+const Tracker = () => {
+
+  /* ---------------- SCREENSHOT STORE ---------------- */
+  const {
+    remainingDelay,     // remaining time before next screenshot
+    nextShotAt,         // timestamp for next screenshot
+    setSchedule,        // schedule screenshots
+    clearSchedule,      // clear screenshot schedule
+    screenshots,        // captured screenshots array
+    addScreenshot,      // add screenshot to store
+    clearScreenshots,   // clear screenshot list
+    send_screenshot,    // send screenshot to backend
+    startScreenshots,   // start taking screenshots
+    pauseScreenshots,   // pause screenshots
+    stopScreenshots,    // stop screenshots
   } = useScreenshotStore();
+
+  /* ---------------- CREATE / TIMESHEET STORE ---------------- */
   const {
     selectedProject,
     setSelectedProject,
@@ -41,59 +49,89 @@ const Tracker = () => {
 
     activity,
     activityType,
-    getActivityType
+    getActivityType,
+    createTask
   } = useCreateStore();
 
-  const { startTime, endTime, isRunning, seconds, start, pause, reset, totalSessionTime } =
-    useTimerStore();
+  /* ---------------- TIMER STORE ---------------- */
+  const {
+    startTime,
+    endTime,
+    isRunning,
+    seconds,
+    start,
+    pause,
+    reset,
+    totalSessionTime
+  } = useTimerStore();
+
+  /* ---------------- AUTH STORE ---------------- */
   const { user } = useAuthStore();
 
-  const [description, setDescription] = useState(null);
-  const [isTimeSheet, setIsTimeSheet] = useState(false);
-  const [timerState, setTimerState] = useState("stopped"); // "stopped" | "running" | "paused"
+  /* ---------------- LOCAL UI STATES ---------------- */
+  const [isTimeSheet, setIsTimeSheet] = useState(false); // toggles timesheet creation mode
+  const [timerState, setTimerState] = useState("stopped"); // stopped | running | paused
+  const [creatingTask, setCreatingTask] = useState(false); // toggles task creation mode
+  const [taskSubject, setTaskSubject] = useState(""); // task subject text
+  const [selectedPriority, setSelectedPriority] = useState(""); // task priority
 
-
-
+  /* ---------------- INITIAL LOAD ---------------- */
   useEffect(() => {
+    // Fetch projects when component mounts
     getProjects();
   }, []);
 
+  /* ---------------- HANDLERS ---------------- */
+
+  // Handle project selection
   async function handleProjectChange(e) {
     const value = e.target.value;
     setSelectedProject(value);
-
-    await getTask(value);
+    await getTask(value); // fetch tasks for selected project
   }
+
+  // Handle task selection or create-task option
   async function handleTaskByProject(e) {
     const value = e.target.value;
+
+    if (value === "create-task") {
+      setCreatingTask(true); // switch UI to task creation mode
+      return;
+    }
+
+    setCreatingTask(false);
     setTaskByProject(value);
 
-    await getActivityType()
-    // after activity type
-    await getTimeSheetList(value);
-
+    await getActivityType();      // fetch activity types
+    await getTimeSheetList(value); // fetch timesheets for task
   }
 
+  // Handle activity type selection
   async function handleSetActivityType(e) {
-    const value = e.target.value;
-    setActivityType(value);
-
-  }
-  async function handleTimeSheet(e) {
-    const value = e.target.value;
-    setTimeSheetValue(value);
-    setIsTimeSheet(true);
-
-    if (value !== "create-timesheet") {
-      setIsTimeSheet(false);
-    }
-    // await getTimeSheetList(value)
-  }
-  const handleActivity = (e) => {
     setActivityType(e.target.value);
   }
 
-  // ---------------- TIMER ----------------
+  // Handle timesheet selection
+  async function handleTimeSheet(e) {
+    const value = e.target.value;
+    setTimeSheetValue(value);
+    setIsTimeSheet(value === "create-timesheet");
+  }
+
+  // Handle task priority selection
+  const handleSetPriority = (e) => {
+    setSelectedPriority(e.target.value);
+  };
+
+  // Handle textarea input (task subject or description)
+  const handleText = (val) => {
+    if (creatingTask) setTaskSubject(val);
+    else setDescriptionStore(val);
+  };
+
+  /* ---------------- TIMER HELPERS ---------------- */
+
+  // Convert seconds to HH:MM:SS format
   const formatTime = (secs) => {
     const h = String(Math.floor(secs / 3600)).padStart(2, "0");
     const m = String(Math.floor((secs % 3600) / 60)).padStart(2, "0");
@@ -101,58 +139,82 @@ const Tracker = () => {
     return `${h}:${m}:${s}`;
   };
 
+  // Delete screenshot folder from system
   const delScreenshotFolder = async () => {
     try {
-      const res = await window.electronAPI.deleteScreenshots();
+      await window.electronAPI.deleteScreenshots();
     } catch (error) {
       console.log("Unable to delete screenshot folder", error);
     }
   };
 
-  //missing dropdown
+  // Check for missing required dropdown selections
   const getMissingSelections = () => {
     const missing = [];
-
     if (!selectedProject) missing.push("project");
     if (!taskByProject) missing.push("task");
     if (!activityType) missing.push("activity");
     if (!timeSheetValue) missing.push("timesheet");
-
     return missing;
   };
 
-  // ------------ BUTTONS ------------------
+  /* ---------------- CREATE TIMESHEET ---------------- */
   async function createTimeSheetHandler() {
-    console.log("creating timesheet ...")
     const missing = getMissingSelections();
-    if (missing.length > 0) {
+    if (missing.length) {
       toast.error(`Please select ${missing.join(" and ")}`);
       return;
     }
-    if (descriptionStore == null || descriptionStore == "") {
-      toast.error("Please write description")
+
+    if (!descriptionStore) {
+      toast.error("Please write description");
       return;
     }
-    // const timeSheetData = {
-    //   activity_type:activityType,
-    //   employee: user?.employee?.name,
-    //   project: selectedProject,
-    //   time_logs: []
-    // };
-    // console.log(timeSheetData)
-    const res = await createTimesheet(user?.employee?.name, selectedProject, activityType, taskByProject, descriptionStore);
-    console.log("Timesheet created:", res);
-    setSelectedProject("")
-    setTaskByProject("")
-    setActivityType("")
-    setDescriptionStore("")
-    setTimeSheetValue(null)
+
+    await createTimesheet(
+      user?.employee?.name,
+      selectedProject,
+      activityType,
+      taskByProject,
+      descriptionStore
+    );
+
+    // Reset selections
+    setSelectedProject("");
+    setTaskByProject("");
+    setActivityType("");
+    setDescriptionStore("");
+    setTimeSheetValue(null);
   }
 
+  /* ---------------- CREATE TASK ---------------- */
+  const createTaskHandler = async () => {
+    const missing = [];
+    if (!selectedProject) missing.push("project");
+    if (!taskSubject) missing.push("subject");
+    if (!selectedPriority) missing.push("priority");
+
+    if (missing.length) {
+      toast.error(`Please select ${missing.join(" and ")}`);
+      return;
+    }
+
+    await createTask(selectedProject, taskSubject, selectedPriority);
+
+    // Reset task form
+    setTaskSubject("");
+    setSelectedPriority("");
+    setSelectedProject("");
+    setDescriptionStore("");
+    setCreatingTask(false);
+  };
+
+  /* ---------------- TIMER CONTROLS ---------------- */
+
+  // Start timer and screenshots
   const handleStart = () => {
     const missing = getMissingSelections();
-    console.log(missing)
-    if (missing.length > 0) {
+    if (missing.length) {
       toast.error(`Please select ${missing.join(" and ")}`);
       return false;
     }
@@ -161,55 +223,30 @@ const Tracker = () => {
       toast.error("Please write description");
       return false;
     }
-    window.electronAPI.setTimerStatus(true); // tell main process timer started
-    // ✅ validation passed
-    start();
-    startScreenshots(timeSheetValue);
 
-    console.log("⏱ Timer started");
+    window.electronAPI.setTimerStatus(true);
+    start(); // start timer
+    startScreenshots(timeSheetValue); // start screenshots
     return true;
   };
 
+  // Pause timer and screenshots
   const handlePause = () => {
-    pause(); // pause timer
-    pauseScreenshots(); // pause screenshot loop
-    console.log("⏸ Timer paused, screenshots paused");
+    pause();
+    pauseScreenshots();
   };
 
-
+  // Stop timer, send data, cleanup
   const handleStop = async () => {
     window.electronAPI.setTimerStatus(false);
-    // Pause timer first
-    if (isRunning) pause(); // ensures interval is cleared
-    // pause();
-    console.log("totalsessiontime before reset", totalSessionTime)
-    reset(); // ✅ logs end time + duration inside store
+
+    if (isRunning) pause();
+    reset(); // calculate final session time
     stopScreenshots();
+
     const sessionTime = useTimerStore.getState().totalSessionTime;
-    console.log("all session time", sessionTime);
+    const hours = (sessionTime / (1000 * 60 * 60)).toFixed(6);
 
-
-    console.log("session in hours: ", (sessionTime / (1000 * 60 * 60)).toFixed(6))
-    const hours = (sessionTime / (1000 * 60 * 60)).toFixed(6)
-    // activity type
-    const taskObj = task.filter((t) => t.name == taskByProject);
-    console.log("taskobject", taskObj, taskObj[0].subject, task[0]["subject"]);
-
-    const now = new Date();
-
-    const formattedTime = now
-      .toLocaleString('en-GB', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hourCycle: 'h23'
-      })
-      .replace(/\//g, '-')                         // 06-01-2026, 03:56:36
-      .replace(/(\d{2})-(\d{2})-(\d{4})/, '$3-$2-$1') // 2026-01-06, 03:56:36
-      .replace(', ', ' ');                         // remov
     const data = {
       timesheet: timeSheetValue,
       employee: user.employee.name,
@@ -217,22 +254,20 @@ const Tracker = () => {
         activity_type: activityType,
         from_time: startTime,
         to_time: endTime,
-        hours: sessionTime,
+        hours,
         project: selectedProject,
         task: taskByProject,
         description: descriptionStore,
-        screenshots: screenshots,
+        screenshots,
       },
     };
+
     const res = await stopHandler(data);
     if (!res) toast.error("Unable to send the screenshots");
 
-
-    // // pause();
-    // reset(); // ✅ logs end time + duration inside store
-    // stopScreenshots();
-
     delScreenshotFolder();
+
+    // Reset UI state
     setSelectedProject("");
     setTaskByProject("");
     setTimeSheetValue("");
@@ -241,29 +276,17 @@ const Tracker = () => {
     setIsTimeSheet(false);
   };
 
-  //dynamic buttons
+  /* ---------------- TIMER BUTTONS ---------------- */
   const timerButtons = () => {
     switch (timerState) {
       case "stopped":
-        return [
-          {
-            label: "Start Timer",
-            onClick: () => {
-              const started = handleStart();
-              if (started) {
-                setTimerState("running");
-              }
-            },
-
-            bg: "bg-blue-600",
-            hover: "hover:bg-blue-700",
-            icon: (
-              <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
-                <polygon points="5,3 19,12 5,21" />
-              </svg>
-            ),
-          },
-        ];
+        return [{
+          label: "Start Timer",
+          onClick: () => handleStart() && setTimerState("running"),
+          bg: "bg-blue-600",
+          hover: "hover:bg-blue-700",
+          icon: <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" /></svg>
+        }];
 
       case "running":
         return [
@@ -272,24 +295,15 @@ const Tracker = () => {
             onClick: () => { setTimerState("stopped"); handleStop(); },
             bg: "bg-slate-600",
             hover: "hover:bg-slate-700",
-            icon: (
-              <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
-                <rect x="5" y="5" width="14" height="14" />
-              </svg>
-            ),
+            icon: <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" /></svg>
           },
           {
             label: "Pause",
             onClick: () => { setTimerState("paused"); handlePause(); },
             bg: "bg-sky-500",
             hover: "hover:bg-sky-600",
-            icon: (
-              <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
-                <rect x="6" y="4" width="4" height="16" />
-                <rect x="14" y="4" width="4" height="16" />
-              </svg>
-            ),
-          },
+            icon: <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
+          }
         ];
 
       case "paused":
@@ -299,30 +313,22 @@ const Tracker = () => {
             onClick: () => { setTimerState("stopped"); handleStop(); },
             bg: "bg-slate-600",
             hover: "hover:bg-slate-700",
-            icon: (
-              <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
-                <rect x="5" y="5" width="14" height="14" />
-              </svg>
-            ),
+            icon: <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" /></svg>
           },
           {
             label: "Resume",
             onClick: () => { setTimerState("running"); handleStart(); },
             bg: "bg-green-600",
             hover: "hover:bg-green-700",
-            icon: (
-              <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
-                <polygon points="5,3 19,12 5,21" />
-              </svg>
-            ),
-          },
+            icon: <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" /></svg>
+          }
         ];
-
       default:
         return [];
     }
   };
 
+  /* ---------------- JSX ---------------- */
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100 flex items-center justify-center px-4 py-10">
       <div className="bg-white w-full max-w-5xl rounded-2xl shadow-[0_10px_40px_rgba(59,130,246,0.15)] p-6 md:p-10">
@@ -361,6 +367,9 @@ const Tracker = () => {
           hover:border-blue-400 transition"
             >
               <option value="">Select task</option>
+              {selectedProject && (
+                <option value="create-task">Create Task</option>
+              )}
               {task.map((t) => (
                 <option key={t.name} value={t.name}>
                   {t.subject}
@@ -369,63 +378,87 @@ const Tracker = () => {
             </select>
 
 
-            <select
-              value={activityType}
-              onChange={handleSetActivityType}
+            {creatingTask ? <select
+              value={selectedPriority}
+              onChange={handleSetPriority}
               className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           hover:border-blue-400 transition"
             >
-              <option value="">Select Activity</option>
-              {activity.map((t) => (
-                <option key={t.name} value={t.name}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
+              <option value="">Select Priority</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
 
-            <select
-              value={timeSheetValue}
-              onChange={handleTimeSheet}
-              className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
+            </select>
+              :
+              <select
+                value={activityType}
+                onChange={handleSetActivityType}
+                className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           hover:border-blue-400 transition"
-            >
-              <option value="">Select timesheet</option>
-              {selectedProject && taskByProject && (
-                <option value="create-timesheet">Create timesheet</option>
-              )}
-              {timeSheet.map((tsheet) => (
-                <option key={tsheet.name} value={tsheet.name}>
-                  {tsheet.name}
-                </option>
-              ))}
-            </select>
+              >
+                <option value="">Select Activity</option>
+                {activity.map((t) => (
+                  <option key={t.name} value={t.name}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            }
+
+            {/* Timesheet dropdown shows only if a normal task is selected */}
+            {!creatingTask && taskByProject && (
+              <select
+                value={timeSheetValue}
+                onChange={handleTimeSheet}
+                className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
+      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+      hover:border-blue-400 transition"
+              >
+                <option value="">Select timesheet</option>
+                {selectedProject && taskByProject && (
+                  <option value="create-timesheet">Create timesheet</option>
+                )}
+                {timeSheet.map((tsheet) => (
+                  <option key={tsheet.name} value={tsheet.name}>
+                    {tsheet.name}
+                  </option>
+                ))}
+              </select>
+            )}
+
           </div>
 
-          {/* Task Description */}
+          {/* Task / Subject Description */}
           <div className="mb-6">
             <label
               className="block text-slate-700 font-medium mb-2"
               htmlFor="taskDescription"
             >
-              Task Description
+              {creatingTask ? "Subject Description" : "Task Description"}
             </label>
             <textarea
               id="taskDescription"
-              onChange={(e) => setDescriptionStore(e.target.value)}
-              value={descriptionStore}
-              placeholder="Briefly describe what you worked on..."
+              onChange={(e) => handleText(e.target.value)}
+              value={creatingTask ? taskSubject : descriptionStore}
+              placeholder={
+                creatingTask
+                  ? "Briefly describe the task subject..."
+                  : "Briefly describe what you worked on..."
+              }
               className="w-full min-h-[110px] p-4 rounded-xl border border-slate-300
-          bg-slate-50 text-sm text-slate-700
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-          resize-none transition"
+      bg-slate-50 text-sm text-slate-700
+      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+      resize-none transition"
             />
           </div>
 
+
           {/* Action Buttons */}
           <div className="flex justify-center gap-6 mb-8">
-            {!isTimeSheet ? (
+            {!creatingTask && !isTimeSheet ? (
               <div className={`flex gap-4 w-full`}>
                 {timerButtons().map((btn, idx) => (
                   <button
@@ -439,15 +472,23 @@ const Tracker = () => {
                   </button>
                 ))}
               </div>
+            ) : creatingTask ? (
+              <button
+                className="bg-black rounded-xl p-2 text-xl text-center font-mono text-white tracking-widest shadow-inner w-full cursor-pointer"
+                onClick={createTaskHandler}
+              >
+                Create Task
+              </button>
             ) : (
               <button
                 className="bg-black rounded-xl p-2 text-xl text-center font-mono text-white tracking-widest shadow-inner w-full cursor-pointer"
                 onClick={createTimeSheetHandler}
               >
-                Create
+                Create Timesheet
               </button>
             )}
           </div>
+
 
 
 

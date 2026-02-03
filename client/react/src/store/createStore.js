@@ -38,11 +38,17 @@ export const useCreateStore = create((set, get) => ({
             console.log(data)
 
             if (data?.status) {
-                // set({ projects: data.message.data });
                 toast.success("TimeSheet created successfully")
-                set({ setDescriptionStore: null, setSelectedProject: null, setTaskByProject: null, setTimeSheetValue: null })
+                set({
+                    descriptionStore: null,
+                    selectedProject: null,
+                    taskByProject: null,
+                    timeSheetValue: null,
+                    activityType: null
+                })
                 return true;
             }
+
 
             toast.error("Unable create Timesheet")
             return false
@@ -51,6 +57,24 @@ export const useCreateStore = create((set, get) => ({
             toast.error("Server error while creating timesheet");
             return false;
         }
+    },
+    createTask:async(project,subject,priority)=>{
+        try {
+            const res = await axiosInstance.post("/api/method/frappetrack.api.task.create_task",{project,subject,priority})
+            if(res?.data?.message?.status){
+                toast.success("Task created successfully!");
+                set({descriptionStore:null})
+                return true;
+            }
+            toast.error("Unable to create task")
+            
+            
+        } catch (error) {
+            console.log("create task error",error)
+            toast.error("Server error while creating task");
+            
+        }
+
     },
 
     getProjects: async () => {
