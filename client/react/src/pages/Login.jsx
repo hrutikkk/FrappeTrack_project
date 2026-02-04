@@ -10,8 +10,8 @@ const Login = () => {
     const navigate = useNavigate();
 
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("test@gmail.com");
+    const [password, setPassword] = useState("xyz@123");
     const [showPassword, setShowPassword] = useState(false);
     const { isAuthenticated, authInitialized } = useAuthStore();
 
