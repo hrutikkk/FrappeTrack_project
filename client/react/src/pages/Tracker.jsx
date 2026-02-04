@@ -193,12 +193,14 @@ const Tracker = () => {
   const createTaskHandler = async () => {
     const missing = [];
     if (!selectedProject) missing.push("project");
-    if (!taskSubject) missing.push("subject");
     if (!selectedPriority) missing.push("priority");
-
     if (missing.length) {
       toast.error(`Please select ${missing.join(" and ")}`);
       return;
+    }
+    if (!taskSubject) {
+      toast.error("Please write subject")
+      return
     }
 
     await createTask(selectedProject, taskSubject, selectedPriority);
