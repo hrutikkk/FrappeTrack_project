@@ -95,14 +95,12 @@ const Tracker = () => {
     const value = e.target.value;
 
     if (value === "create-task") {
-      setTaskByProject(value)
       setCreatingTask(true); // switch UI to task creation mode
       return;
     }
 
     setCreatingTask(false);
     setTaskByProject(value);
-    setSelectedPriority("")
 
     await getActivityType();      // fetch activity types
     await getTimeSheetList(value); // fetch timesheets for task
