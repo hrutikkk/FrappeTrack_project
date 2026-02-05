@@ -117,7 +117,7 @@ app.whenReady().then(() => {
 
   server.post(
     "/api/method/frappetrack.api.user.login_with_email",
-    (req, res) => {
+    (req, res, next) => {
       const oldUrl = store.get("backendUrl");
       const { backend_url } = req.body;
 
@@ -125,18 +125,24 @@ app.whenReady().then(() => {
         return res.status(400).json({ error: "backend_url required" });
       }
 
-      if (oldUrl !== backend_url) {
-        store.set("backendUrl", backend_url);
-        console.log("🔁 Backend changed → restarting app");
+      // if (oldUrl !== backend_url) {
+      //   store.set("backendUrl", backend_url);
+      //   console.log("🔁 Backend changed → restarting app");
 
-        // tell renderer to restart OR do it directly
-        setTimeout(() => {
-          app.relaunch();
-          app.exit(0);
-        }, 100);
-      }
+      //   // tell renderer to restart OR do it directly
+      //   setTimeout(() => {
+      //     app.relaunch();
+      //     app.exit(0);
+      //   }, 100);
+      // }
 
-      res.json({ ok: true });
+      // res.json({ ok: true });
+       store.set("backendUrl", backend_url);
+
+    // ⚠️ IMPORTANT
+    // delete req.body.backend_url; // backend doesn't expect this
+
+    next(); // forward to proxy
     }
   );
 
