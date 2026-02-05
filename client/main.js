@@ -23,70 +23,180 @@ let isTimerRunning = false; // Tracks whether the timer is active
 app.whenReady().then(() => {
   const server = express();
 
+
+
   const isDev = !app.isPackaged;
   const distPath = isDev
     ? path.join(__dirname, "react/dist")      // dev uses this
     : path.join(app.getAppPath(), "react/dist"); // prod uses this
   const indexHtml = path.join(distPath, "index.html");
 
-  // const iconPath = isDev
-  //   ? path.join(__dirname, "assets", "unify.png")
-  //   : path.join(process.resourcesPath, "assets", "unify.png"); // inside AppImage
+  server.use(express.json());
+  server.use(express.urlencoded({ extended: true }));
+
+  // 🔍 debug
+  server.use((req, res, next) => {
+    console.log("🌐", req.method, req.url);
+    next();
+  });
+
+  // server.post(
+  //   "/api/method/frappetrack.api.user.login_with_email",
+  //   (req, res, next) => {
+  //     const storedBackend = store.get("backendUrl");
+
+  //     const backend_url =
+  //       req.body?.backend_url ||
+  //       req.headers["x-backend-url"];
+
+  //     console.log("stored:", storedBackend);
+  //     console.log("incoming:", backend_url);
+  //     console.log("headers:", req.headers);
+  //     console.log("body:", req.body);
+
+  //     if (!backend_url) {
+  //       return res.status(400).json({
+  //         error: "backend_url missing",
+  //       });
+  //     }
+
+  //     if (!storedBackend || storedBackend !== backend_url) {
+  //       store.set("backendUrl", backend_url);
+  //       console.log("🔁 Backend URL replaced:", store.get("backendUrl"));
+  //     }
+
+  //     next(); // MUST reach proxy
+  //   }
+  // );
+
+  // console.log(store.get('backendUrl'))
+  // store.set('backendURL')
+  // console.log(store.get('backendUrl'))
+
+  //   server.use("/api", (req, res, next) => {
+  //     const backendUrl = store.get("backendUrl");
+
+  //     if (!backendUrl) {
+  //       console.log("⛔ API blocked, backend not configured:", req.url);
+  //       return res.status(400).json({
+  //         error: "Backend URL not configured",
+  //       });
+  //     }
+
+  //     next(); // only now allow proxy
+  //   });
+
+
+  // server.use(
+  //   "/api",
+  //   createProxyMiddleware({
+  //     target: "http://192.168.0.32:8000",
+  //     changeOrigin: true,
+  //     ws: true,
+  //     router: () => store.get("backendUrl"),
+  //     // proxyTimeout: 10000,
+  //     // timeout: 10000,
+  //   })
+  // );
+  // server.use(
+  //   "/api",
+  //   createProxyMiddleware({
+  //     target: store.get('backendUrl'), // required but overridden
+  //     changeOrigin: true,
+  //     ws: true,
+  //     // router: () => {
+  //     //   const url = store.get("backendUrl");
+  //     //   console.log("url in proxy", url)
+  //     //   if (!url) {
+  //     //     throw new Error("Backend URL not configured");
+  //     //   }
+  //     //   return url;
+  //     // },
+  //   })
+  // );
 
   server.post(
-    "*/api/method/frappetrack.api.user.login_with_email",
-    express.json(),
-    (req, res, next) => {
-      let backendUrl = store.get("backendUrl");
-      console.log("something went wrong :::: fksdjdfkjk", backendUrl)
-      // If backend not configured yet, take it from request
-      let { backend_url } = req.body;
-      console.log("backend",backendUrl, backend_url)
+    "/api/method/frappetrack.api.user.login_with_email",
+    (req, res) => {
+      const oldUrl = store.get("backendUrl");
+      const { backend_url } = req.body;
 
-      if (!backendUrl || backendUrl !== backend_url) {
-        console.log(req.body)
-
-        console.log(backendUrl)
-        if (!backend_url) {
-          return res.status(400).json({
-            error: "backend_url required on first login",
-          });
-        }
-
-        if (!backend_url.startsWith("https://")) {
-          return res.status(400).json({
-            error: "Invalid backend URL",
-          });
-        }
-
-        store.set("backendUrl", backend_url);
-        backendUrl = backend_url;
-
-        console.log("✅ Backend configured:", backendUrl);
+      if (!backend_url) {
+        return res.status(400).json({ error: "backend_url required" });
       }
 
-      next();
+      if (oldUrl !== backend_url) {
+        store.set("backendUrl", backend_url);
+        console.log("🔁 Backend changed → restarting app");
+
+        // tell renderer to restart OR do it directly
+        setTimeout(() => {
+          app.relaunch();
+          app.exit(0);
+        }, 100);
+      }
+
+      res.json({ ok: true });
     }
   );
 
+  function setupProxy(server) {
+    const backendUrl = store.get("backendUrl");
 
-  // if (proxy_url) return
+    if (!backendUrl) {
+      console.log("⚠️ Backend URL not configured yet");
+      return;
+    }
 
-  server.use(
-    "/api",
-    createProxyMiddleware({
-      target: "http://dummy", // required but overridden
-      changeOrigin: true,
-      ws: true,
-      router: () => {
-        const url = store.get("backendUrl");
-        if (!url) {
-          throw new Error("Backend URL not configured");
-        }
-        return url;
-      },
-    })
-  );
+    server.use(
+      "/api",
+      createProxyMiddleware({
+        target: backendUrl,
+        changeOrigin: true,
+        ws: true,
+        logLevel: "debug",
+
+        onProxyReq(proxyReq, req) {
+          console.log("➡️ PROXY", backendUrl, req.method, req.originalUrl);
+        },
+
+        onProxyRes(proxyRes, req) {
+          console.log("⬅️", proxyRes.statusCode, req.originalUrl);
+        },
+      })
+    );
+
+    console.log("✅ Proxy attached to", backendUrl);
+  }
+  setupProxy(server)
+  // server.use(
+  //   "/api",
+  //   createProxyMiddleware({
+  //     target: "http://dummy",
+  //     changeOrigin: true,
+  //     ws: true,
+  //     router: () => store.get("backendUrl"),
+
+  //     onProxyReq(proxyReq, req, res) {
+  //       console.log(
+  //         "➡️ PROXYING:",
+  //         req.method,
+  //         req.originalUrl,
+  //         "→",
+  //         store.get("backendUrl")
+  //       );
+  //     },
+
+  //     onProxyRes(proxyRes, req, res) {
+  //       console.log(
+  //         "⬅️ RESPONSE:",
+  //         proxyRes.statusCode,
+  //         req.originalUrl
+  //       );
+  //     },
+  //   })
+  // );
+
 
   server.use(express.static(distPath));
 
