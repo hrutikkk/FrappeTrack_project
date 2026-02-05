@@ -13,7 +13,7 @@ export const useAuthStore = create((set, get) => ({
     authInitialized: false,
     bootstrapped: false,
 
-    login: async (email, password) => {
+    login: async (email, password, backend_url) => {
         /*
             Authenticates user:
             takes email and password from fields sends to backend,
@@ -27,9 +27,11 @@ export const useAuthStore = create((set, get) => ({
                 "/api/method/frappetrack.api.user.login_with_email",
                 {
                     email,
-                    password
+                    password,
+                    backend_url
                 },
             );
+            console.log(res)
             if (res.data.message.success) {
                 set({
                     isAuthenticated: true, authLoading: false
@@ -40,7 +42,7 @@ export const useAuthStore = create((set, get) => ({
 
                 return res;
             } else {
-                toast.error("Invalid Credentials")
+            toast.error("Invalid Credentials")
             }
         } catch (error) {
             console.log("error in login: ", error)

@@ -1,6 +1,11 @@
-const { app, BrowserWindow, ipcMain, desktopCapturer} = require("electron");
+const { app, BrowserWindow, ipcMain, desktopCapturer } = require("electron");
 app.commandLine.appendSwitch("ozone-platform", "x11");
 app.commandLine.appendSwitch("disable-features", "WaylandWindowDecorations");
+
+const Store = require("electron-store");
+const store = new Store();
+
+
 
 
 const path = require("path");
@@ -27,12 +32,56 @@ app.whenReady().then(() => {
   //   ? path.join(__dirname, "assets", "unify.png")
   //   : path.join(process.resourcesPath, "assets", "unify.png"); // inside AppImage
 
+  server.post(
+    "*/api/method/frappetrack.api.user.login_with_email",
+    express.json(),
+    (req, res, next) => {
+      let backendUrl = store.get("backendUrl");
+      console.log("something went wrong ;:::: fksdjdfkjk", backendUrl)
+      // If backend not configured yet, take it from request
+      if (!backendUrl) {
+        const { backend_url } = req.body;
+        console.log(req.body)
+
+        console.log(backendUrl)
+        if (!backend_url) {
+          return res.status(400).json({
+            error: "backend_url required on first login",
+          });
+        }
+
+        if (!backend_url.startsWith("https://")) {
+          return res.status(400).json({
+            error: "Invalid backend URL",
+          });
+        }
+
+        store.set("backendUrl", backend_url);
+        backendUrl = backend_url;
+
+        console.log("✅ Backend configured:", backendUrl);
+      }
+
+      next();
+    }
+  );
+
+
+  // if (proxy_url) return
+
   server.use(
     "/api",
     createProxyMiddleware({
-      target: process.env.PROXY_URL,
+      target: "http://dummy", // required but overridden
       changeOrigin: true,
       ws: true,
+      router: () => {
+        const url = store.get("backendUrl");
+        if (!url) {
+          throw new Error("Backend URL not configured");
+        }
+        return url;
+      },
     })
   );
 

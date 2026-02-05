@@ -10,10 +10,12 @@ const Login = () => {
     const navigate = useNavigate();
 
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("suraj@unifyxperts.com");
+    const [password, setPassword] = useState("suraj@123#");
     const [showPassword, setShowPassword] = useState(false);
     const { isAuthenticated, authInitialized } = useAuthStore();
+    const [backendURL,setBackendURL] = useState("")
+    const [showLogin,setShowLogin] = useState(false);
 
     if (authInitialized && isAuthenticated) {
         return <Navigate to="/user-profile" replace />;
@@ -31,7 +33,7 @@ const Login = () => {
                 return
             }
             console.log("test running")
-            const res = await login(email, password);
+            const res = await login(email, password,backendURL);
             console.log("response:", res.data);
 
             if (res.data.message?.success) {
@@ -62,7 +64,23 @@ const Login = () => {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Email */}
+                    {/* Backend URL */}
+                    <div>
+                        <label className="block text-gray-700 font-medium mb-2">
+                            Backend URl
+                        </label>
+                        <div className="relative">
+                            <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Enter your backend url"
+                                value={backendURL}
+                                onChange={(e) => setBackendURL(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
+                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder:text-gray-400"
+                            />
+                        </div>
+                    </div>
                     <div>
                         <label className="block text-gray-700 font-medium mb-2">
                             Email
@@ -106,13 +124,13 @@ const Login = () => {
                     </div>
 
                     {/* Submit */}
-                    <button
+                    {<button
                         type="submit"
                         className="w-full bg-blue-500 text-white font-semibold py-2 rounded-lg
                         hover:bg-blue-600 transition-colors hover:cursor-pointer"
                     >
                         Login
-                    </button>
+                    </button>}
                 </form>
 
             </div>
