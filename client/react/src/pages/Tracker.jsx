@@ -101,6 +101,7 @@ const Tracker = () => {
     if (value === "create-task") {
       setCreatingTask(true); // switch UI to task creation mode
       setTaskByProject(value)
+      setSelectedPriority(null)
       return;
     }
 

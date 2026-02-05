@@ -39,12 +39,12 @@ export const useAuthStore = create((set, get) => ({
                 toast.success("Logged in successfully")
 
                 return res;
-            }else {
-                toast.error(res.data.message)
+            } else {
+                toast.error("Invalid Credentials")
             }
         } catch (error) {
             console.log("error in login: ", error)
-            toast.error("Invalid Credentials")
+            toast.error("Internal server error")
             set({ isAuthenticated: false, authLoading: false, authInitialized: false })
         }
     },
