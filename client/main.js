@@ -5,7 +5,8 @@ app.commandLine.appendSwitch("disable-features", "WaylandWindowDecorations");
 const Store = require("electron-store");
 const store = new Store();
 
-
+store.set("react_url", "http://localhost:5172")
+store.set("port", 5172)
 
 
 const path = require("path");
@@ -37,10 +38,12 @@ app.whenReady().then(() => {
     express.json(),
     (req, res, next) => {
       let backendUrl = store.get("backendUrl");
-      console.log("something went wrong ;:::: fksdjdfkjk", backendUrl)
+      console.log("something went wrong :::: fksdjdfkjk", backendUrl)
       // If backend not configured yet, take it from request
-      if (!backendUrl) {
-        const { backend_url } = req.body;
+      let { backend_url } = req.body;
+      console.log("backend",backendUrl, backend_url)
+
+      if (!backendUrl || backendUrl !== backend_url) {
         console.log(req.body)
 
         console.log(backendUrl)
@@ -94,7 +97,7 @@ app.whenReady().then(() => {
   // 0️⃣ Debug (optional)
 
 
-  server.listen(5173, () => {
+  server.listen(store.get('port'), () => {
     win = new BrowserWindow({
       width: 1200,
       height: 1100,
@@ -106,7 +109,8 @@ app.whenReady().then(() => {
       }
     });
 
-    win.loadURL(process.env.CLIENT_URL);
+
+    win.loadURL(store.get('react_url'));
     // Menu.setApplicationMenu(null); // ✅ removes menu completely
     win.on("close", (e) => {
       if (isTimerRunning) {
