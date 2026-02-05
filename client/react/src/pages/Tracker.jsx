@@ -88,6 +88,10 @@ const Tracker = () => {
     const value = e.target.value;
     setSelectedProject(value);
     await getTask(value); // fetch tasks for selected project
+    setActivityType("")
+    setTimeSheetValue("")
+    setTaskByProject("")
+    setSelectedPriority("")
   }
 
   // Handle task selection or create-task option
@@ -96,6 +100,7 @@ const Tracker = () => {
 
     if (value === "create-task") {
       setCreatingTask(true); // switch UI to task creation mode
+      setTaskByProject(value)
       return;
     }
 
@@ -191,12 +196,14 @@ const Tracker = () => {
   const createTaskHandler = async () => {
     const missing = [];
     if (!selectedProject) missing.push("project");
-    if (!taskSubject) missing.push("subject");
     if (!selectedPriority) missing.push("priority");
-
     if (missing.length) {
       toast.error(`Please select ${missing.join(" and ")}`);
       return;
+    }
+    if (!taskSubject) {
+      toast.error("Please write subject")
+      return
     }
 
     await createTask(selectedProject, taskSubject, selectedPriority);

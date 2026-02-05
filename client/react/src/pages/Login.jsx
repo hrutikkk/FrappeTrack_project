@@ -3,14 +3,15 @@ import { useAuthStore } from "../store/authStore";
 import fav from "../assets/favicon.webp";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
+import toast from "react-hot-toast";
 
 const Login = () => {
     const { login } = useAuthStore();
     const navigate = useNavigate();
 
 
-    const [email, setEmail] = useState("user@example.com");
-    const [password, setPassword] = useState("••••••••••");
+    const [email, setEmail] = useState("test@gmail.com");
+    const [password, setPassword] = useState("xyz@123");
     const [showPassword, setShowPassword] = useState(false);
     const { isAuthenticated, authInitialized } = useAuthStore();
 
@@ -22,6 +23,13 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            if(email === "" && password === ""){
+                toast.error("Email and Password are missing")
+                return
+            }else if(email === "" || password === ""){
+                toast.error(`${email === "" ? "email" : ""} ${password === "" ? "password" : ""} is Missing`)
+                return
+            }
             console.log("test running")
             const res = await login(email, password);
             console.log("response:", res.data);
@@ -67,7 +75,7 @@ const Login = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
-                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder:text-gray-400"
                             />
                         </div>
                     </div>
@@ -85,7 +93,7 @@ const Login = () => {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg
-                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder:text-gray-400"
                             />
                             <button
                                 type="button"
