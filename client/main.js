@@ -25,7 +25,6 @@ app.whenReady().then(() => {
 
   // const iconPath = isDev
   //   ? path.join(__dirname, "assets", "unify.png")
-  //   : path.join(process.resourcesPath, "assets", "unify.png"); 
 
   server.use(
     "/api",
