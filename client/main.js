@@ -2,23 +2,18 @@ const { app, BrowserWindow, ipcMain, desktopCapturer } = require("electron");
 app.commandLine.appendSwitch("ozone-platform", "x11");
 app.commandLine.appendSwitch("disable-features", "WaylandWindowDecorations");
 
-const Store = require("electron-store");
-const store = new Store();
-
-store.set("react_url", "http://localhost:5172")
-store.set("port", 5172)
-
-
+const Store = require('electron-store')
+const store = new Store()
 const path = require("path");
-const fs = require("fs");
 // const { takeCoverage } = require("v8");
 const express = require('express')
 require("dotenv").config()
 const { createProxyMiddleware } = require("http-proxy-middleware");
+const fs = require('fs')
 
 let win;
 let isTimerRunning = false; // Tracks whether the timer is active
-
+let Backend = null
 
 app.whenReady().then(() => {
   const server = express();
@@ -31,177 +26,26 @@ app.whenReady().then(() => {
     : path.join(app.getAppPath(), "react/dist"); // prod uses this
   const indexHtml = path.join(distPath, "index.html");
 
-  server.use(express.json());
+  // const iconPath = isDev
+  //   ? path.join(__dirname, "assets", "unify.png")
+
+  // server.use(express.json())
   server.use(express.urlencoded({ extended: true }));
 
-  // 🔍 debug
-  server.use((req, res, next) => {
-    console.log("🌐", req.method, req.url);
-    next();
-  });
 
-  // server.post(
-  //   "/api/method/frappetrack.api.user.login_with_email",
-  //   (req, res, next) => {
-  //     const storedBackend = store.get("backendUrl");
+  server.use(
+    "/api",
 
-  //     const backend_url =
-  //       req.body?.backend_url ||
-  //       req.headers["x-backend-url"];
-
-  //     console.log("stored:", storedBackend);
-  //     console.log("incoming:", backend_url);
-  //     console.log("headers:", req.headers);
-  //     console.log("body:", req.body);
-
-  //     if (!backend_url) {
-  //       return res.status(400).json({
-  //         error: "backend_url missing",
-  //       });
-  //     }
-
-  //     if (!storedBackend || storedBackend !== backend_url) {
-  //       store.set("backendUrl", backend_url);
-  //       console.log("🔁 Backend URL replaced:", store.get("backendUrl"));
-  //     }
-
-  //     next(); // MUST reach proxy
-  //   }
-  // );
-
-  // console.log(store.get('backendUrl'))
-  // store.set('backendURL')
-  // console.log(store.get('backendUrl'))
-
-  //   server.use("/api", (req, res, next) => {
-  //     const backendUrl = store.get("backendUrl");
-
-  //     if (!backendUrl) {
-  //       console.log("⛔ API blocked, backend not configured:", req.url);
-  //       return res.status(400).json({
-  //         error: "Backend URL not configured",
-  //       });
-  //     }
-
-  //     next(); // only now allow proxy
-  //   });
-
-
-  // server.use(
-  //   "/api",
-  //   createProxyMiddleware({
-  //     target: "http://192.168.0.32:8000",
-  //     changeOrigin: true,
-  //     ws: true,
-  //     router: () => store.get("backendUrl"),
-  //     // proxyTimeout: 10000,
-  //     // timeout: 10000,
-  //   })
-  // );
-  // server.use(
-  //   "/api",
-  //   createProxyMiddleware({
-  //     target: store.get('backendUrl'), // required but overridden
-  //     changeOrigin: true,
-  //     ws: true,
-  //     // router: () => {
-  //     //   const url = store.get("backendUrl");
-  //     //   console.log("url in proxy", url)
-  //     //   if (!url) {
-  //     //     throw new Error("Backend URL not configured");
-  //     //   }
-  //     //   return url;
-  //     // },
-  //   })
-  // );
-
-  server.post(
-    "/api/method/frappetrack.api.user.login_with_email",
-    (req, res, next) => {
-      const oldUrl = store.get("backendUrl");
-      const { backend_url } = req.body;
-
-      if (!backend_url) {
-        return res.status(400).json({ error: "backend_url required" });
+    createProxyMiddleware({
+      target: "http://dummy.com",
+      changeOrigin: true,
+      ws: true,
+      // pathRewrite: {}
+      router:()=>{
+        return store.get('backendUrl')
       }
-
-      // if (oldUrl !== backend_url) {
-      //   store.set("backendUrl", backend_url);
-      //   console.log("🔁 Backend changed → restarting app");
-
-      //   // tell renderer to restart OR do it directly
-      //   setTimeout(() => {
-      //     app.relaunch();
-      //     app.exit(0);
-      //   }, 100);
-      // }
-
-      // res.json({ ok: true });
-       store.set("backendUrl", backend_url);
-
-    // ⚠️ IMPORTANT
-    // delete req.body.backend_url; // backend doesn't expect this
-
-    next(); // forward to proxy
-    }
+    })
   );
-
-  function setupProxy(server) {
-    const backendUrl = store.get("backendUrl");
-
-    if (!backendUrl) {
-      console.log("⚠️ Backend URL not configured yet");
-      return;
-    }
-
-    server.use(
-      "/api",
-      createProxyMiddleware({
-        target: backendUrl,
-        changeOrigin: true,
-        ws: true,
-        logLevel: "debug",
-
-        onProxyReq(proxyReq, req) {
-          console.log("➡️ PROXY", backendUrl, req.method, req.originalUrl);
-        },
-
-        onProxyRes(proxyRes, req) {
-          console.log("⬅️", proxyRes.statusCode, req.originalUrl);
-        },
-      })
-    );
-
-    console.log("✅ Proxy attached to", backendUrl);
-  }
-  setupProxy(server)
-  // server.use(
-  //   "/api",
-  //   createProxyMiddleware({
-  //     target: "http://dummy",
-  //     changeOrigin: true,
-  //     ws: true,
-  //     router: () => store.get("backendUrl"),
-
-  //     onProxyReq(proxyReq, req, res) {
-  //       console.log(
-  //         "➡️ PROXYING:",
-  //         req.method,
-  //         req.originalUrl,
-  //         "→",
-  //         store.get("backendUrl")
-  //       );
-  //     },
-
-  //     onProxyRes(proxyRes, req, res) {
-  //       console.log(
-  //         "⬅️ RESPONSE:",
-  //         proxyRes.statusCode,
-  //         req.originalUrl
-  //       );
-  //     },
-  //   })
-  // );
 
 
   server.use(express.static(distPath));
@@ -261,6 +105,11 @@ app.on("window-all-closed", () => {
 
 
 
+ipcMain.handle('backend-domain',async(__event, data)=>{
+  Backend = data
+  store.set("backendUrl", data)
+  return true
+})
 ipcMain.handle("capture-screen", async () => {
   try {
     const sources = await desktopCapturer.getSources({

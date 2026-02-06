@@ -33,6 +33,10 @@ const Login = () => {
                 return
             }
             console.log("test running")
+<<<<<<< HEAD
+=======
+            await window.electronAPI.storeBackendDomain(backendURL)
+>>>>>>> 654ecbf6e6cc1cbafefb18984a7b4e3850a1f22e
             const res = await login(email, password,backendURL);
             console.log("response:", res.data);
 
