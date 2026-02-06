@@ -13,7 +13,7 @@ export const useAuthStore = create((set, get) => ({
     authInitialized: false,
     bootstrapped: false,
 
-    login: async (email, password) => {
+    login: async (email, password, backend_url) => {
         /*
             Authenticates user:
             takes email and password from fields sends to backend,
@@ -24,10 +24,11 @@ export const useAuthStore = create((set, get) => ({
         set({ authLoading: true })
         try {
             const res = await axiosInstance.post(
-                "/api/method/frappetrack.api.user.login_with_email",
+                "/method/frappetrack.api.user.login_with_email",
                 {
                     email,
-                    password
+                    password,
+                    backend_url
                 },
             );
             if (res.data.message.success) {
@@ -56,7 +57,7 @@ export const useAuthStore = create((set, get) => ({
        */
         set({ authLoading: true })
         try {
-            const res = await axiosInstance.get("/api/method/frappetrack.api.user.get_employee_profile");
+            const res = await axiosInstance.get("/method/frappetrack.api.user.get_employee_profile");
 
             if (res.data?.message?.user) {
                 set({ user: res.data.message.user, isAuthenticated: true, authInitialized: true });

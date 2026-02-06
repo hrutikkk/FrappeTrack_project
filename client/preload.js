@@ -16,5 +16,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return ipcRenderer.invoke("delete-screenshot");
   },
   setTimerStatus: (status) => ipcRenderer.send("timer-status", status),
-  
+  storeBackendDomain :(data) => ipcRenderer.invoke("backend-domain",data)
 });

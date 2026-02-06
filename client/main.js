@@ -1,18 +1,19 @@
-const { app, BrowserWindow, ipcMain, desktopCapturer} = require("electron");
+const { app, BrowserWindow, ipcMain, desktopCapturer } = require("electron");
 app.commandLine.appendSwitch("ozone-platform", "x11");
 app.commandLine.appendSwitch("disable-features", "WaylandWindowDecorations");
 
-
+const Store = require('electron-store')
+const store = new Store()
 const path = require("path");
-const fs = require("fs");
 // const { takeCoverage } = require("v8");
 const express = require('express')
 require("dotenv").config()
 const { createProxyMiddleware } = require("http-proxy-middleware");
+const fs = require('fs')
 
 let win;
 let isTimerRunning = false; // Tracks whether the timer is active
-
+let Backend = null
 
 app.whenReady().then(() => {
   const server = express();
@@ -26,14 +27,58 @@ app.whenReady().then(() => {
   // const iconPath = isDev
   //   ? path.join(__dirname, "assets", "unify.png")
 
+  // server.use(express.json())
+  server.use(express.urlencoded({ extended: true }));
+
+  // server.post("/api/method/frappetrack.api.user.login_with_email", (req, res, next) => {
+  //   try {
+  //     const { backend_url } = req.body;
+  //     console.log("backend url at req", req.body, "backend url", backend_url);
+
+  //     const data = {
+  //       "backendDomain": backend_url
+  //     }
+  //     fs.writeFile('data.json', JSON.stringify(data, null, 2), 'utf8', (err) => {
+  //       if (err) throw err;
+  //       console.log('JSON file created!');
+  //     });
+
+  //     fs.readFile('data.json', 'utf8', (err, fileData) => {
+  //       if (err) throw err;
+
+  //       let jsonData = JSON.parse(fileData);
+  //       console.log("jsonData accessing the backendDomain", jsonData.backendDomain)
+  //       // jsonData.city = "New York"; // Append new field
+  //       // jsonData.age = 31;         // Update existing field
+
+  //       // fs.writeFile('data.json', JSON.stringify(jsonData, null, 2), 'utf8', (err) => {
+  //       //   if (err) throw err;
+  //       //   console.log('JSON file updated!');
+  //       // });
+  //     });
+  //     next()
+  //   } catch (error) {
+  //     console.log("Error while storing the backend_domain", error);
+  //     throw new Error("Backend domain setup");
+
+  //   }
+  // })
+
+
   server.use(
     "/api",
+
     createProxyMiddleware({
-      target: process.env.PROXY_URL,
+      target: "http://dummy.com",
       changeOrigin: true,
       ws: true,
+      // pathRewrite: {}
+      router:()=>{
+        return store.get('backendUrl')
+      }
     })
   );
+
 
   server.use(express.static(distPath));
 
@@ -91,6 +136,11 @@ app.on("window-all-closed", () => {
 
 
 
+ipcMain.handle('backend-domain',async(__event, data)=>{
+  Backend = data
+  store.set("backendUrl", data)
+  return true
+})
 ipcMain.handle("capture-screen", async () => {
   try {
     const sources = await desktopCapturer.getSources({
