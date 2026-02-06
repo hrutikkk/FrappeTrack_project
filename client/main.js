@@ -36,20 +36,18 @@ app.whenReady().then(() => {
 
   server.use(
     "/api",
+
     createProxyMiddleware({
-      target: (req) => {
-        const backendUrl = store.get("backend_url");
-
-        if (!backendUrl) {
-          throw new Error("Backend URL not configured");
-        }
-
-        return backendUrl;
-      },
+      target: "http:192.168.0.43:8000/",
       changeOrigin: true,
       ws: true,
-      router: () => store.get("backend_url"),
-      logLevel: "debug",
+      pathRewrite: (path, req) => {
+        if (path.startsWith("/api/")) return path;
+        return `/api${path}`;
+      },
+      router: () => {
+        return store.get('backendUrl')
+      }
     })
   );
 
@@ -152,7 +150,6 @@ ipcMain.handle("capture-screen", async () => {
 
 
 ipcMain.handle("set-backend-url", async (event, url) => {
-  console.log("💾 Saving backend URL to electron-store:", url);
   store.set("backend_url", url);
   return { success: true };
 });

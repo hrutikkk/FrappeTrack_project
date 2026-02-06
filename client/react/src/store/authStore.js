@@ -13,7 +13,7 @@ export const useAuthStore = create((set, get) => ({
     authInitialized: false,
     bootstrapped: false,
 
-    login: async (email, password,backendUrl) => {
+    login: async (email, password) => {
         /*
             Authenticates user:
             takes email and password from fields sends to backend,
@@ -24,11 +24,10 @@ export const useAuthStore = create((set, get) => ({
         set({ authLoading: true })
         try {
             const res = await axiosInstance.post(
-                "/api/method/frappetrack.api.user.login_with_email",
+                "method/frappetrack.api.user.login_with_email",
                 {
                     email,
                     password,
-                    backendUrl
                 },
             );
             if (res.data.message.success) {
@@ -57,7 +56,7 @@ export const useAuthStore = create((set, get) => ({
        */
         set({ authLoading: true })
         try {
-            const res = await axiosInstance.get("/api/method/frappetrack.api.user.get_employee_profile");
+            const res = await axiosInstance.get("method/frappetrack.api.user.get_employee_profile");
 
             if (res.data?.message?.user) {
                 set({ user: res.data.message.user, isAuthenticated: true, authInitialized: true });
@@ -72,7 +71,7 @@ export const useAuthStore = create((set, get) => ({
     logout: async () => {
         // This function logged out user and removes cookies
         try {
-            const res = await axiosInstance.delete("/api/method/frappetrack.api.user.logout_user", { withCredentials: true });
+            const res = await axiosInstance.delete("method/frappetrack.api.user.logout_user", { withCredentials: true });
             set({ user: null, isAuthenticated: false, authInitialized: true, authLoading: false });
             // console.log(res);
             return true

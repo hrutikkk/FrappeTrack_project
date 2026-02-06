@@ -43,7 +43,7 @@ export const useScreenshotStore = create((set, get) => ({
   send_screenshot: async (data) => {
     try {
       console.log("send screenshot", data)
-      const res = axiosInstance.post("/api/method/frappetrack.api.timesheet.upload_screenshot", data)
+      const res = axiosInstance.post("method/frappetrack.api.timesheet.upload_screenshot", data)
       if (res) {
         console.log("send screenshot via post")
         return true;

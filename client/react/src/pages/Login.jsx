@@ -33,7 +33,7 @@ const Login = () => {
             }
             console.log("test running")
             await window.electronAPI.setBackendUrl(backendURL);
-            const res = await login(email, password, backendURL);
+            const res = await login(email, password);
             console.log("response:", res.data);
 
             if (res.data.message?.success) {

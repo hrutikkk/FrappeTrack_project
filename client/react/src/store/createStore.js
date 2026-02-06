@@ -31,7 +31,7 @@ export const useCreateStore = create((set, get) => ({
         try {
 
             const res = await axiosInstance.post(
-                "/api/method/frappetrack.api.timesheet.create_timesheet", { employee, parent_project, activity_type, taskByProject, descriptionStore }
+                "method/frappetrack.api.timesheet.create_timesheet", { employee, parent_project, activity_type, taskByProject, descriptionStore }
             );
 
             const data = res.data?.message;
@@ -60,7 +60,7 @@ export const useCreateStore = create((set, get) => ({
     },
     createTask:async(project,subject,priority)=>{
         try {
-            const res = await axiosInstance.post("/api/method/frappetrack.api.task.create_task",{project,subject,priority})
+            const res = await axiosInstance.post("method/frappetrack.api.task.create_task",{project,subject,priority})
             if(res?.data?.message?.status){
                 toast.success("Task created successfully!");
                 set({descriptionStore:null})
@@ -84,7 +84,7 @@ export const useCreateStore = create((set, get) => ({
                 when user gets authenticated this function gets called and store the project list
             */
             const res = await axiosInstance.get(
-                "/api/method/frappetrack.api.project.get_projects_list"
+                "method/frappetrack.api.project.get_projects_list"
             );
 
             const data = res.data;
@@ -110,7 +110,7 @@ export const useCreateStore = create((set, get) => ({
         try {
 
             const res = await axiosInstance.get(
-                `api/method/frappetrack.api.task.get_task_by_project?project_id=${project_id}`,
+                `method/frappetrack.api.task.get_task_by_project?project_id=${project_id}`,
             );
 
             const data = res.data;
@@ -135,7 +135,7 @@ export const useCreateStore = create((set, get) => ({
         try {
 
             const res = await axiosInstance.get(
-                `api/method/frappetrack.api.activity_type_api.get_activity_type`
+                `method/frappetrack.api.activity_type_api.get_activity_type`
             );
 
             const data = res.data;
@@ -160,7 +160,7 @@ export const useCreateStore = create((set, get) => ({
         try {
 
             const res = await axiosInstance.get(
-                `api/method/frappetrack.api.timesheet.get_timesheet_by_task?task_id=${task_id}`
+                `method/frappetrack.api.timesheet.get_timesheet_by_task?task_id=${task_id}`
             );
 
             const data = res.data;
@@ -205,7 +205,7 @@ export const useCreateStore = create((set, get) => ({
             console.log("timesheet data", jsonData)
 
 
-            const res = await axiosInstance.post("/api/method/frappetrack.api.timesheet.add_time_log", jsonData
+            const res = await axiosInstance.post("method/frappetrack.api.timesheet.add_time_log", jsonData
             )
             console.log("response from timesheet", res)
             set({ descriptionStore: null, selectedProject: null, taskByProject: null, timeSheetValue: null })
