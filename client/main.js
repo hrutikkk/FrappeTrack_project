@@ -9,6 +9,9 @@ const fs = require("fs");
 const express = require('express')
 require("dotenv").config()
 const { createProxyMiddleware } = require("http-proxy-middleware");
+const Store = require("electron-store");
+const store = new Store();
+
 
 let win;
 let isTimerRunning = false; // Tracks whether the timer is active
