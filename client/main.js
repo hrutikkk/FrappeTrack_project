@@ -38,7 +38,7 @@ app.whenReady().then(() => {
     "/api",
 
     createProxyMiddleware({
-      target: "http:192.168.0.43:8000/",
+      target: "http://dummy.com",
       changeOrigin: true,
       ws: true,
       pathRewrite: (path, req) => {
