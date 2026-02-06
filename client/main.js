@@ -55,7 +55,7 @@ app.whenReady().then(() => {
   // 0️⃣ Debug (optional)
 
 
-  server.listen(store.get('port'), () => {
+  server.listen(5173, () => {
     win = new BrowserWindow({
       width: 1200,
       height: 1100,
@@ -67,7 +67,7 @@ app.whenReady().then(() => {
     });
 
 
-    win.loadURL(store.get('react_url'));
+    win.loadURL("http://localhost:5173");
     // Menu.setApplicationMenu(null); // ✅ removes menu completely
     win.on("close", (e) => {
       if (isTimerRunning) {
