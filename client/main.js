@@ -40,8 +40,11 @@ app.whenReady().then(() => {
       target: "http://dummy.com",
       changeOrigin: true,
       ws: true,
-      // pathRewrite: {}
-      router:()=>{
+      pathRewrite: (path, req) => {
+        if (path.startsWith("/api/")) return path;
+        return `/api${path}`;
+      },
+      router: () => {
         return store.get('backendUrl')
       }
     })
@@ -105,7 +108,7 @@ app.on("window-all-closed", () => {
 
 
 
-ipcMain.handle('backend-domain',async(__event, data)=>{
+ipcMain.handle('backend-domain', async (__event, data) => {
   Backend = data
   store.set("backendUrl", data)
   return true
