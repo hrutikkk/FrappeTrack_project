@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, desktopCapturer} = require("electron");
+const { app, BrowserWindow, ipcMain, desktopCapturer } = require("electron");
 app.commandLine.appendSwitch("ozone-platform", "x11");
 app.commandLine.appendSwitch("disable-features", "WaylandWindowDecorations");
 
@@ -12,62 +12,113 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 const Store = require("electron-store");
 const store = new Store();
 
+// store.set("client_url","http://localhost:5173")
+
 
 let win;
 let isTimerRunning = false; // Tracks whether the timer is active
 
 
+
+
+// let dynamicTarget = "http://192.168.0.32:8000/"; // Default fallback backend
+
 app.whenReady().then(() => {
   const server = express();
+  const rawBodySaver = (req, res, buf) => {
+    if (buf && buf.length) req.rawBody = buf;
+  };
+  server.use(express.json({ verify: rawBodySaver }));
+  // -------------------------
+  // Parse JSON bodies automatically
+  // -------------------------
+  // server.use("/api", express.json());
 
-  const isDev = !app.isPackaged;
-  const distPath = isDev
-    ? path.join(__dirname, "react/dist")      // dev uses this
-    : path.join(app.getAppPath(), "react/dist"); // prod uses this
-  const indexHtml = path.join(distPath, "index.html");
+  // -------------------------
+  // Log API requests (optional, useful for debugging)
+  // -------------------------
+  server.use("/api", (req, res, next) => {
+    console.log("[API REQUEST]", req.method, req.url, req.body);
+    next();
+  });
 
-  // const iconPath = isDev
-  //   ? path.join(__dirname, "assets", "unify.png")
-  //   : path.join(process.resourcesPath, "assets", "unify.png"); // inside AppImage
+  // -------------------------
+  // Proxy /api requests to backend
+  // -------------------------
+  // let dynamicTarget = "http://192.168.0.32:8000/"; // default backend
 
   server.use(
     "/api",
     createProxyMiddleware({
-      target: process.env.PROXY_URL,
+      target: "http://192.168.0.43:8000", // default backend
       changeOrigin: true,
-      ws: true,
+      selfHandleResponse: false,
+      pathRewrite: { "^/api": "/api" },
+      router: (req) => {
+        // Parse backendUrl from raw body (not req.body)
+        try {
+          const body = JSON.parse(req.rawBody?.toString() || "{}");
+          if (body.backendUrl) {
+            console.log("Redirecting to dynamic backend:", body.backendUrl);
+            return body.backendUrl;
+          }
+        } catch (e) { }
+        return "http://192.168.0.43:8000";
+      },
+      onProxyReq: (proxyReq, req) => {
+        if (req.rawBody) {
+          proxyReq.setHeader("Content-Type", "application/json");
+          proxyReq.setHeader("Content-Length", req.rawBody.length);
+          proxyReq.write(req.rawBody);
+        }
+      },
+      onError: (err, req, res) => {
+        console.error("Proxy error:", err.message);
+        res.status(500).json({ error: err.message });
+      },
     })
   );
 
-  server.use(express.static(distPath));
 
-  server.get("*", (req, res, next) => {
-    if (req.path.startsWith("/api")) return
+  // -------------------------
+  // Serve frontend
+  // -------------------------
+  const isDev = !app.isPackaged;
+  const distPath = isDev
+    ? path.join(__dirname, "react/dist")
+    : path.join(app.getAppPath(), "react/dist");
+  const indexHtml = path.join(distPath, "index.html");
+
+  server.use(express.static(distPath));
+  server.get("*", (req, res) => {
+    if (req.path.startsWith("/api")) return; // skip API
     res.sendFile(indexHtml);
   });
-  // 0️⃣ Debug (optional)
 
+  // -------------------------
+  // Start server
+  // -------------------------
+  const PORT = 5173;
+  server.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
 
-  server.listen(5173, () => {
     win = new BrowserWindow({
       width: 1200,
       height: 1100,
-      title: "Time Tracker",  // <- set your app name here
-      // icon: iconPath,
+      title: "Time Tracker",
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),
-        contextIsolation: true
-      }
+        contextIsolation: true,
+      },
     });
 
-    win.loadURL(process.env.CLIENT_URL);
-    // Menu.setApplicationMenu(null); // ✅ removes menu completely
+    win.loadURL(`http://localhost:5173`);
+    win.webContents.openDevTools();
+
+    // Confirm close if timer is running
     win.on("close", (e) => {
       if (isTimerRunning) {
-        e.preventDefault(); // Stop the window from closing immediately
-
-        const { dialog } = require("electron");
-
+        e.preventDefault();
         const choice = dialog.showMessageBoxSync(win, {
           type: "warning",
           buttons: ["Yes, close", "Cancel"],
@@ -76,17 +127,18 @@ app.whenReady().then(() => {
           title: "Confirm Exit",
           message: "The timer is running. Are you sure you want to exit?",
         });
-
         if (choice === 0) {
-          // User confirmed exit
-          isTimerRunning = false; // optional: stop timer logic here
-          win.destroy(); // Force close the window
+          isTimerRunning = false;
+          win.destroy();
         }
       }
     });
-
   });
 });
+
+
+
+// -------------------------
 
 
 app.on("window-all-closed", () => {
@@ -164,4 +216,3 @@ ipcMain.handle("delete-screenshot", async () => {
 ipcMain.on("timer-status", (event, status) => {
   isTimerRunning = status; // true if running, false if stopped
 });
-

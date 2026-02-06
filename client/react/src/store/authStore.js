@@ -13,7 +13,7 @@ export const useAuthStore = create((set, get) => ({
     authInitialized: false,
     bootstrapped: false,
 
-    login: async (email, password) => {
+    login: async (email, password,backendUrl) => {
         /*
             Authenticates user:
             takes email and password from fields sends to backend,
@@ -27,7 +27,8 @@ export const useAuthStore = create((set, get) => ({
                 "/api/method/frappetrack.api.user.login_with_email",
                 {
                     email,
-                    password
+                    password,
+                    backendUrl
                 },
             );
             if (res.data.message.success) {
