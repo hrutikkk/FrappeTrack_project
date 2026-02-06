@@ -14,7 +14,7 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const { isAuthenticated, authInitialized } = useAuthStore();
-    const [backendURL,setBackendURL] = useState("")
+    const [backendURL, setBackendURL] = useState("")
 
     if (authInitialized && isAuthenticated) {
         return <Navigate to="/user-profile" replace />;
@@ -24,15 +24,16 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            if(email === "" && password === "" && backendURL ==""){
+            if (email === "" && password === "" && backendURL == "") {
                 toast.error("Email and Password and Backend URL are missing")
                 return
-            }else if(email === "" || password === "" || backendURL === ""){
+            } else if (email === "" || password === "" || backendURL === "") {
                 toast.error(`${email === "" ? "email" : ""} ${password === "" ? "password" : ""} ${backendURL === "" ? "Backend URL" : ""} is Missing`)
                 return
             }
             console.log("test running")
-            const res = await login(email, password,backendURL);
+            await window.electronAPI.setBackendUrl(backendURL);
+            const res = await login(email, password, backendURL);
             console.log("response:", res.data);
 
             if (res.data.message?.success) {
