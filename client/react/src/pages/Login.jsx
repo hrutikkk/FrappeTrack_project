@@ -14,6 +14,7 @@ const Login = () => {
     const [password, setPassword] = useState("xyz@123");
     const [showPassword, setShowPassword] = useState(false);
     const { isAuthenticated, authInitialized } = useAuthStore();
+    const [backendURL,setBackendURL] = useState("")
 
     if (authInitialized && isAuthenticated) {
         return <Navigate to="/user-profile" replace />;
@@ -23,11 +24,11 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            if(email === "" && password === ""){
-                toast.error("Email and Password are missing")
+            if(email === "" && password === "" && backendURL ==""){
+                toast.error("Email and Password and Backend URL are missing")
                 return
-            }else if(email === "" || password === ""){
-                toast.error(`${email === "" ? "email" : ""} ${password === "" ? "password" : ""} is Missing`)
+            }else if(email === "" || password === "" || backendURL === ""){
+                toast.error(`${email === "" ? "email" : ""} ${password === "" ? "password" : ""} ${backendURL === "" ? "Backend URL" : ""} is Missing`)
                 return
             }
             console.log("test running")
@@ -62,7 +63,23 @@ const Login = () => {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Email */}
+                    {/* Backend URL */}
+                    <div>
+                        <label className="block text-gray-700 font-medium mb-2">
+                            Backend URl
+                        </label>
+                        <div className="relative">
+                            <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Enter your backend url"
+                                value={backendURL}
+                                onChange={(e) => setBackendURL(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
+                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder:text-gray-400"
+                            />
+                        </div>
+                    </div>
                     <div>
                         <label className="block text-gray-700 font-medium mb-2">
                             Email
