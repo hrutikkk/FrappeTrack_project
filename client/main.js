@@ -9,7 +9,6 @@ const path = require("path");
 const express = require('express')
 require("dotenv").config()
 const { createProxyMiddleware } = require("http-proxy-middleware");
-const fs = require('fs')
 
 let win;
 let isTimerRunning = false; // Tracks whether the timer is active
@@ -24,45 +23,7 @@ app.whenReady().then(() => {
     : path.join(app.getAppPath(), "react/dist"); // prod uses this
   const indexHtml = path.join(distPath, "index.html");
 
-  // const iconPath = isDev
-  //   ? path.join(__dirname, "assets", "unify.png")
-
-  // server.use(express.json())
   server.use(express.urlencoded({ extended: true }));
-
-  // server.post("/api/method/frappetrack.api.user.login_with_email", (req, res, next) => {
-  //   try {
-  //     const { backend_url } = req.body;
-  //     console.log("backend url at req", req.body, "backend url", backend_url);
-
-  //     const data = {
-  //       "backendDomain": backend_url
-  //     }
-  //     fs.writeFile('data.json', JSON.stringify(data, null, 2), 'utf8', (err) => {
-  //       if (err) throw err;
-  //       console.log('JSON file created!');
-  //     });
-
-  //     fs.readFile('data.json', 'utf8', (err, fileData) => {
-  //       if (err) throw err;
-
-  //       let jsonData = JSON.parse(fileData);
-  //       console.log("jsonData accessing the backendDomain", jsonData.backendDomain)
-  //       // jsonData.city = "New York"; // Append new field
-  //       // jsonData.age = 31;         // Update existing field
-
-  //       // fs.writeFile('data.json', JSON.stringify(jsonData, null, 2), 'utf8', (err) => {
-  //       //   if (err) throw err;
-  //       //   console.log('JSON file updated!');
-  //       // });
-  //     });
-  //     next()
-  //   } catch (error) {
-  //     console.log("Error while storing the backend_domain", error);
-  //     throw new Error("Backend domain setup");
-
-  //   }
-  // })
 
 
   server.use(
@@ -72,8 +33,11 @@ app.whenReady().then(() => {
       target: "http://dummy.com",
       changeOrigin: true,
       ws: true,
-      // pathRewrite: {}
-      router:()=>{
+      pathRewrite: (path, req) => {
+        if (path.startsWith("/api/")) return path;
+        return `/api${path}`;
+      },
+      router: () => {
         return store.get('backendUrl')
       }
     })
@@ -93,8 +57,7 @@ app.whenReady().then(() => {
     win = new BrowserWindow({
       width: 1200,
       height: 1100,
-      title: "Time Tracker",  // <- set your app name here
-      // icon: iconPath,
+      title: "Time Tracker",
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),
         contextIsolation: true
@@ -136,7 +99,7 @@ app.on("window-all-closed", () => {
 
 
 
-ipcMain.handle('backend-domain',async(__event, data)=>{
+ipcMain.handle('backend-domain', async (__event, data) => {
   Backend = data
   store.set("backendUrl", data)
   return true
