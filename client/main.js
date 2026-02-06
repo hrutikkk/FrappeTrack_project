@@ -9,10 +9,15 @@ const fs = require("fs");
 const express = require('express')
 require("dotenv").config()
 const { createProxyMiddleware } = require("http-proxy-middleware");
+const Store = require("electron-store");
+
+const store = new Store({
+  name: "config",   // creates config.json
+});
 
 let win;
 let isTimerRunning = false; // Tracks whether the timer is active
-let BACKEND_URL = null;   // dynamic backend url
+// let BACKEND_URL = null;   // dynamic backend url
 
 
 
@@ -33,17 +38,21 @@ app.whenReady().then(() => {
     "/api",
     createProxyMiddleware({
       target: (req) => {
-        if (!BACKEND_URL) {
-          throw new Error("Backend URL not set yet");
+        const backendUrl = store.get("backend_url");
+
+        if (!backendUrl) {
+          throw new Error("Backend URL not configured");
         }
-        return BACKEND_URL;
+
+        return backendUrl;
       },
       changeOrigin: true,
       ws: true,
-      router: () => BACKEND_URL,   // dynamic routing
+      router: () => store.get("backend_url"),
       logLevel: "debug",
     })
   );
+
 
   server.use(express.static(distPath));
 
@@ -143,10 +152,11 @@ ipcMain.handle("capture-screen", async () => {
 
 
 ipcMain.handle("set-backend-url", async (event, url) => {
-  console.log("✅ Backend URL received from frontend:", url);
-  BACKEND_URL = url;
+  console.log("💾 Saving backend URL to electron-store:", url);
+  store.set("backend_url", url);
   return { success: true };
 });
+
 
 
 //delete screenshot
