@@ -9,7 +9,6 @@ const path = require("path");
 const express = require('express')
 require("dotenv").config()
 const { createProxyMiddleware } = require("http-proxy-middleware");
-const fs = require('fs')
 
 let win;
 let isTimerRunning = false; // Tracks whether the timer is active
@@ -26,10 +25,6 @@ app.whenReady().then(() => {
     : path.join(app.getAppPath(), "react/dist"); // prod uses this
   const indexHtml = path.join(distPath, "index.html");
 
-  // const iconPath = isDev
-  //   ? path.join(__dirname, "assets", "unify.png")
-
-  // server.use(express.json())
   server.use(express.urlencoded({ extended: true }));
 
 
@@ -64,8 +59,7 @@ app.whenReady().then(() => {
     win = new BrowserWindow({
       width: 1200,
       height: 1100,
-      title: "Time Tracker",  // <- set your app name here
-      // icon: iconPath,
+      title: "Time Tracker",
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),
         contextIsolation: true
