@@ -31,13 +31,13 @@ export const useAuthStore = create((set, get) => ({
                     backend_url
                 },
             );
-            console.log(res)
+
             if (res.data.message.success) {
                 set({
                     isAuthenticated: true, authLoading: false
                 })
                 await get().initAuth();
-                console.log("login res", res.data)
+
                 toast.success("Logged in successfully")
 
                 return res;
@@ -46,7 +46,7 @@ export const useAuthStore = create((set, get) => ({
             }
         } catch (error) {
             console.log("error in login: ", error)
-            toast.error("Internal server error")
+
             set({ isAuthenticated: false, authLoading: false, authInitialized: false })
         }
     },

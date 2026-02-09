@@ -15,12 +15,10 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const { isAuthenticated, authInitialized } = useAuthStore();
     const [backendURL,setBackendURL] = useState("")
-    const [showLogin,setShowLogin] = useState(false);
 
     if (authInitialized && isAuthenticated) {
         return <Navigate to="/user-profile" replace />;
     }
-    console.log("LOGIN PAGE:", { authInitialized, isAuthenticated });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -35,7 +33,7 @@ const Login = () => {
             console.log("test running")
             await window.electronAPI.storeBackendDomain(backendURL)
             const res = await login(email, password,backendURL);
-            console.log("response:", res.data);
+
 
             if (res.data.message?.success) {
                 navigate("/user-profile");

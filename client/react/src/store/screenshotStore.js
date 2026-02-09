@@ -42,10 +42,10 @@ export const useScreenshotStore = create((set, get) => ({
   // ---------------- SEND ----------------
   send_screenshot: async (data) => {
     try {
-      console.log("send screenshot", data)
-      const res = axiosInstance.post("/method/frappetrack.api.timesheet.upload_screenshot", data)
+
+      const res = axiosInstance.post("method/frappetrack.api.timesheet.upload_screenshot", data)
       if (res) {
-        console.log("send screenshot via post")
+
         return true;
       }
 
@@ -61,7 +61,6 @@ export const useScreenshotStore = create((set, get) => ({
 
     // 🔒 ABSOLUTE GUARD
     if (!isRunning) {
-      console.log(" Screenshot blocked (paused)");
       return;
     }
 
@@ -139,7 +138,7 @@ export const useScreenshotStore = create((set, get) => ({
         isRunning: false,
       });
 
-      console.log("⏸ Screenshot paused, remaining:", remaining / 1000, "sec");
+
     } else {
       set({ isRunning: false });
     }
@@ -156,7 +155,7 @@ export const useScreenshotStore = create((set, get) => ({
       screenshots: [],
     });
 
-    console.log("📸 Screenshots stopped");
+
   },
 
 

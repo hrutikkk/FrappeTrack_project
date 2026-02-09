@@ -14,14 +14,9 @@ const Tracker = () => {
 
   /* ---------------- SCREENSHOT STORE ---------------- */
   const {
-    remainingDelay,     // remaining time before next screenshot
-    nextShotAt,         // timestamp for next screenshot
-    setSchedule,        // schedule screenshots
-    clearSchedule,      // clear screenshot schedule
+    // clear screenshot schedule
     screenshots,        // captured screenshots array
-    addScreenshot,      // add screenshot to store
-    clearScreenshots,   // clear screenshot list
-    send_screenshot,    // send screenshot to backend
+    // send screenshot to backend
     startScreenshots,   // start taking screenshots
     pauseScreenshots,   // pause screenshots
     stopScreenshots,    // stop screenshots

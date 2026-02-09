@@ -45,19 +45,19 @@ export const useTimerStore = create((set, get) => ({
         .replace(/(\d{2})-(\d{2})-(\d{4})/, '$3-$2-$1') // 2026-01-06, 03:56:36
         .replace(', ', ' ');                         // remove comma
 
-      console.log("⏱️ Session started at:", formattedTime);
+
       set({ startTime: formattedTime, startTimeSec: now.getTime() });
     } else {
       const pauseEndT = new Date().toLocaleTimeString()
-      console.log("Paused end time is", pauseEndT)
+
 
 
       const pauseDiff = get().parseTime(pauseEndT) - get().parseTime(get().pauseStartTime);
-      console.log("diff", pauseDiff)
+
 
 
       set({ totalPauseTime: get().totalPauseTime += pauseDiff, pauseFlag: false })
-      console.log("total", get().totalPauseTime)
+
     }
 
     const id = setInterval(() => {
@@ -73,9 +73,8 @@ export const useTimerStore = create((set, get) => ({
     if (!pauseFlag) {
       // Start pause
       const pauseTimeStart = new Date().toLocaleTimeString();
-      console.log("pause started time", pauseTimeStart);
       set({ pauseStartTime: pauseTimeStart, pauseFlag: true });
-      console.log("⏸️ Paused at:", pauseTimeStart);
+   
     }
 
 
@@ -89,15 +88,14 @@ export const useTimerStore = create((set, get) => ({
     const endTime = new Date().toLocaleTimeString();
     const { startTime, totalPauseTime } = get();
     const extract_start_time = startTime.substring(11, 22);
-    console.log("⏹️ Session ended at:", extract_start_time);
-    console.log("⏹️ Session ended end:", endTime);
+
 
     const totalTimeDiff = get().parseTime(endTime) - get().parseTime(extract_start_time);
-    console.log("totalDiffTIme", totalTimeDiff)
+
     const totalSessionTime = totalTimeDiff - totalPauseTime;
-    console.log(totalSessionTime)
+
     set({ totalSessionTime: totalSessionTime })
-    console.log("updated", get().totalSessionTime)
+
 
     set({
       seconds: 0,
