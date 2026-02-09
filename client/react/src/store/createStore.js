@@ -106,7 +106,7 @@ export const useCreateStore = create((set, get) => ({
             fetching Tasks list:
             when projects gets fetch this function gets called and store the task list
         */
-        console.log("hitting get_task")
+
         try {
 
             const res = await axiosInstance.get(
@@ -131,7 +131,7 @@ export const useCreateStore = create((set, get) => ({
             fetching Activity list:
             when Tasks gets fetch this function gets called and store the activity list
         */
-        console.log("hitting timesheet")
+
         try {
 
             const res = await axiosInstance.get(

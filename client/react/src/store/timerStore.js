@@ -61,8 +61,17 @@ export const useTimerStore = create((set, get) => ({
     }
 
     const id = setInterval(() => {
-      set((state) => ({ seconds: state.seconds + 1 }));
+      const now = Date.now();
+
+      const start = get().startTimeSec || now;
+      const totalPause = get().totalPauseTime || 0;
+
+      const elapsedMs = now - start - totalPause;
+      const elapsedSeconds = Math.floor(elapsedMs / 1000);
+
+      set({ seconds: elapsedSeconds });
     }, 1000);
+
 
     set({ intervalId: id, isRunning: true });
   },
@@ -74,7 +83,7 @@ export const useTimerStore = create((set, get) => ({
       // Start pause
       const pauseTimeStart = new Date().toLocaleTimeString();
       set({ pauseStartTime: pauseTimeStart, pauseFlag: true });
-   
+
     }
 
 
