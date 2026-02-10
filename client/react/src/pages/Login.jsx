@@ -30,7 +30,6 @@ const Login = () => {
                 toast.error(`${email === "" ? "email" : ""} ${password === "" ? "password" : ""} is Missing`)
                 return
             }
-            console.log("test running")
             await window.electronAPI.storeBackendDomain(backendURL)
             const res = await login(email, password,backendURL);
 

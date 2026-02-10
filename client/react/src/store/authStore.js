@@ -75,7 +75,6 @@ export const useAuthStore = create((set, get) => ({
         try {
             const res = await axiosInstance.delete("/method/frappetrack.api.user.logout_user", { withCredentials: true });
             set({ user: null, isAuthenticated: false, authInitialized: true, authLoading: false });
-            // console.log(res);
             return true
 
         } catch (error) {

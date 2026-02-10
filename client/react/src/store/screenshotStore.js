@@ -105,8 +105,6 @@ export const useScreenshotStore = create((set, get) => ({
         nextShotAt: Date.now() + delay,
       });
 
-      console.log("📸 Next screenshot in", delay / 1000, "sec");
-
       screenshotTimeout = setTimeout(async () => {
         if (!get().isRunning) return;
 
