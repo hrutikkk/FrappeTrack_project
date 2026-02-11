@@ -3,7 +3,7 @@ import { useAuthStore } from "../store/authStore";
 import fav from "../assets/favicon.webp";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
-import toast from "react-hot-toast";
+import { IoIosLink } from "react-icons/io";
 
 const Login = () => {
     const { login } = useAuthStore();
@@ -65,13 +65,13 @@ const Login = () => {
                     {/* Backend URL */}
                     <div>
                         <label className="block text-gray-700 font-medium mb-2">
-                            Backend URl
+                            Backend URL
                         </label>
                         <div className="relative">
-                            <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <IoIosLink className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Enter your backend url"
+                                placeholder="Enter your backend URL"
                                 value={backendURL}
                                 onChange={(e) => setBackendURL(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg
