@@ -5,6 +5,7 @@ app.commandLine.appendSwitch("disable-features", "WaylandWindowDecorations");
 const Store = require('electron-store')
 const store = new Store()
 const path = require("path");
+const fs = require('fs')
 // const { takeCoverage } = require("v8");
 const express = require('express')
 require("dotenv").config()
@@ -55,7 +56,7 @@ app.whenReady().then(() => {
   // 0️⃣ Debug (optional)
 
 
-  server.listen(store.get('port'), () => {
+  server.listen(5172, () => {
     win = new BrowserWindow({
       width: 1200,
       height: 1100,
@@ -67,7 +68,7 @@ app.whenReady().then(() => {
     });
 
 
-    win.loadURL(store.get('react_url'));
+    win.loadURL("http://localhost:5172");
     // Menu.setApplicationMenu(null); // ✅ removes menu completely
     win.on("close", (e) => {
       if (isTimerRunning) {
@@ -135,6 +136,7 @@ ipcMain.handle("capture-screen", async () => {
 
     const filePath = path.join(imgDir, `${timeString}.png`);
     fs.writeFileSync(filePath, image);
+
 
     return {
       thumbnail: thumbnail.toDataURL(),
