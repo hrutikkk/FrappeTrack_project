@@ -5,7 +5,6 @@ app.commandLine.appendSwitch("disable-features", "WaylandWindowDecorations");
 const Store = require('electron-store')
 const store = new Store()
 const path = require("path");
-const fs = require('fs')
 // const { takeCoverage } = require("v8");
 const express = require('express')
 require("dotenv").config()
