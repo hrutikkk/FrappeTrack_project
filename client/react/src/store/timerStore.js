@@ -17,7 +17,6 @@ export const useTimerStore = create((set, get) => ({
   parseTime: (timeStr) => {
     const [time, modifier] = timeStr.split(' ');
     let [hours, minutes, seconds] = time.split(':').map(Number);
-    console.log(hours)
 
     if (modifier === 'PM' && hours !== 12) hours += 12;
     if (modifier === 'AM' && hours === 12) hours = 0;

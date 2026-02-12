@@ -3,24 +3,23 @@ import { useAuthStore } from "../store/authStore";
 import fav from "../assets/favicon.webp";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
-import toast from "react-hot-toast";
+import { IoIosLink } from "react-icons/io";
+import toast from 'react-hot-toast'
 
 const Login = () => {
     const { login } = useAuthStore();
     const navigate = useNavigate();
 
 
-    const [email, setEmail] = useState("suraj@unifyxperts.com");
-    const [password, setPassword] = useState("suraj@123#");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const { isAuthenticated, authInitialized } = useAuthStore();
     const [backendURL,setBackendURL] = useState("")
-    const [showLogin,setShowLogin] = useState(false);
 
     if (authInitialized && isAuthenticated) {
         return <Navigate to="/user-profile" replace />;
     }
-    console.log("LOGIN PAGE:", { authInitialized, isAuthenticated });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -32,10 +31,9 @@ const Login = () => {
                 toast.error(`${email === "" ? "email" : ""} ${password === "" ? "password" : ""} is Missing`)
                 return
             }
-            console.log("test running")
             await window.electronAPI.storeBackendDomain(backendURL)
             const res = await login(email, password,backendURL);
-            console.log("response:", res.data);
+
 
             if (res.data.message?.success) {
                 navigate("/user-profile");
@@ -68,13 +66,13 @@ const Login = () => {
                     {/* Backend URL */}
                     <div>
                         <label className="block text-gray-700 font-medium mb-2">
-                            Backend URl
+                            Backend URL
                         </label>
                         <div className="relative">
-                            <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <IoIosLink className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Enter your backend url"
+                                placeholder="Enter your backend URL"
                                 value={backendURL}
                                 onChange={(e) => setBackendURL(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg

@@ -31,22 +31,26 @@ export const useAuthStore = create((set, get) => ({
                     backend_url
                 },
             );
-            console.log(res)
+
             if (res.data.message.success) {
                 set({
                     isAuthenticated: true, authLoading: false
                 })
                 await get().initAuth();
-                console.log("login res", res.data)
+
                 toast.success("Logged in successfully")
 
                 return res;
-            } else {
-            toast.error("Invalid Credentials")
             }
         } catch (error) {
-            console.log("error in login: ", error)
-            toast.error("Internal server error")
+
+            if (error.response.status == 401 || error.response.status == 403) {
+                toast.error("Invalid credentials")
+            }
+            else {
+                toast.error("Internal server error")
+            }
+
             set({ isAuthenticated: false, authLoading: false, authInitialized: false })
         }
     },
@@ -75,7 +79,6 @@ export const useAuthStore = create((set, get) => ({
         try {
             const res = await axiosInstance.delete("/method/frappetrack.api.user.logout_user", { withCredentials: true });
             set({ user: null, isAuthenticated: false, authInitialized: true, authLoading: false });
-            // console.log(res);
             return true
 
         } catch (error) {

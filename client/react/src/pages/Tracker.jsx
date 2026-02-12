@@ -14,14 +14,9 @@ const Tracker = () => {
 
   /* ---------------- SCREENSHOT STORE ---------------- */
   const {
-    remainingDelay,     // remaining time before next screenshot
-    nextShotAt,         // timestamp for next screenshot
-    setSchedule,        // schedule screenshots
-    clearSchedule,      // clear screenshot schedule
+    // clear screenshot schedule
     screenshots,        // captured screenshots array
-    addScreenshot,      // add screenshot to store
-    clearScreenshots,   // clear screenshot list
-    send_screenshot,    // send screenshot to backend
+    // send screenshot to backend
     startScreenshots,   // start taking screenshots
     pauseScreenshots,   // pause screenshots
     stopScreenshots,    // stop screenshots
@@ -359,7 +354,7 @@ const Tracker = () => {
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           hover:border-blue-400 transition"
             >
-              <option value="">Select project</option>
+              <option value="">Select Project</option>
               {projects.map((project) => (
                 <option key={project.name} value={project.name}>
                   {project.project_name}
@@ -374,7 +369,7 @@ const Tracker = () => {
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           hover:border-blue-400 transition"
             >
-              <option value="">Select task</option>
+              <option value="">Select Task</option>
               {selectedProject && (
                 <option value="create-task">Create Task</option>
               )}
@@ -425,9 +420,9 @@ const Tracker = () => {
       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
       hover:border-blue-400 transition"
               >
-                <option value="">Select timesheet</option>
+                <option value="">Select Timesheet</option>
                 {selectedProject && taskByProject && (
-                  <option value="create-timesheet">Create timesheet</option>
+                  <option value="create-timesheet">Create Timesheet</option>
                 )}
                 {timeSheet.map((tsheet) => (
                   <option key={tsheet.name} value={tsheet.name}>
