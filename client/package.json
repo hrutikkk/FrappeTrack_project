@@ -1,7 +1,7 @@
 {
   "name": "time-tracker",
   "productName": "Time Tracker",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -47,8 +47,8 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "rajbhar-suraj",
-        "repo": "frappeTrack"
+        "owner": "hrutikkk",
+        "repo": "FrappeTrack_project"
       }
     ],
     "win": {

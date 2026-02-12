@@ -31,6 +31,7 @@ export const useAuthStore = create((set, get) => ({
                     backend_url
                 },
             );
+            console.log("wir",res)
 
             if (res.data.message.success) {
                 set({
