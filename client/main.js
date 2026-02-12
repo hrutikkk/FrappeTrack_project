@@ -57,11 +57,7 @@ app.whenReady().then(() => {
   // 0️⃣ Debug (optional)
 
 
-<<<<<<< HEAD
-  server.listen(5172, () => {
-=======
   server.listen(5173, () => {
->>>>>>> 9d2b26715ff01b70238c5b7be9d3e121d0d68564
     win = new BrowserWindow({
       width: 1200,
       height: 1100,
@@ -73,11 +69,7 @@ app.whenReady().then(() => {
     });
 
 
-<<<<<<< HEAD
-    win.loadURL("http://localhost:5172");
-=======
     win.loadURL("http://localhost:5173");
->>>>>>> 9d2b26715ff01b70238c5b7be9d3e121d0d68564
     // Menu.setApplicationMenu(null); // ✅ removes menu completely
     win.on("close", (e) => {
       if (isTimerRunning) {
