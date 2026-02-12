@@ -35,7 +35,7 @@ export const useCreateStore = create((set, get) => ({
             );
 
             const data = res.data?.message;
-            console.log(data)
+
 
             if (data?.status) {
                 toast.success("TimeSheet created successfully")
@@ -88,7 +88,7 @@ export const useCreateStore = create((set, get) => ({
             );
 
             const data = res.data;
-            console.log("Project response:", data);
+
 
             if (data?.message?.status) {
                 set({ projects: data.message.data });
@@ -106,7 +106,7 @@ export const useCreateStore = create((set, get) => ({
             fetching Tasks list:
             when projects gets fetch this function gets called and store the task list
         */
-        console.log("hitting get_task")
+
         try {
 
             const res = await axiosInstance.get(
@@ -114,7 +114,7 @@ export const useCreateStore = create((set, get) => ({
             );
 
             const data = res.data;
-            console.log("Task response:", data);
+
 
             if (data?.message?.status) {
                 set({ task: data.message.data });
@@ -131,7 +131,7 @@ export const useCreateStore = create((set, get) => ({
             fetching Activity list:
             when Tasks gets fetch this function gets called and store the activity list
         */
-        console.log("hitting timesheet")
+
         try {
 
             const res = await axiosInstance.get(
@@ -139,7 +139,7 @@ export const useCreateStore = create((set, get) => ({
             );
 
             const data = res.data;
-            console.log("Activity response:", data);
+
 
             if (data?.message?.status) {
                 set({ activity: data.message.data });
@@ -156,7 +156,7 @@ export const useCreateStore = create((set, get) => ({
             fetching Tasks list:
             when task gets fetch this function gets called and store the timesheet list
         */
-        console.log("hitting timesheet")
+
         try {
 
             const res = await axiosInstance.get(
@@ -164,7 +164,7 @@ export const useCreateStore = create((set, get) => ({
             );
 
             const data = res.data;
-            console.log("Timesheet response:", data);
+
 
             if (data?.message?.status) {
                 set({ timeSheet: data.message.data });
@@ -202,12 +202,12 @@ export const useCreateStore = create((set, get) => ({
             useTimerStore.setState({ endTime: formattedTime })
             jsonData.time_log.to_time = formattedTime
 
-            console.log("timesheet data", jsonData)
+
 
 
             const res = await axiosInstance.post("/method/frappetrack.api.timesheet.add_time_log", jsonData
             )
-            console.log("response from timesheet", res)
+
             set({ descriptionStore: null, selectedProject: null, taskByProject: null, timeSheetValue: null })
             toast.success("Log added sucessfully")
             return true;

@@ -11,7 +11,6 @@ function App() {
 
   const initAuth = useAuthStore((s) => s.initAuth);
   useEffect(() => {
-    console.log("running init auth")
     initAuth(); // 🔥 THIS WAS MISSING
   }, []);
   return (

@@ -5,9 +5,11 @@ app.commandLine.appendSwitch("disable-features", "WaylandWindowDecorations");
 const Store = require('electron-store')
 const store = new Store()
 const path = require("path");
+const fs = require('fs')
 // const { takeCoverage } = require("v8");
 const express = require('express')
 require("dotenv").config()
+const fs = require("fs")
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
 let win;
@@ -55,7 +57,11 @@ app.whenReady().then(() => {
   // 0️⃣ Debug (optional)
 
 
-  server.listen(store.get('port'), () => {
+<<<<<<< HEAD
+  server.listen(5172, () => {
+=======
+  server.listen(5173, () => {
+>>>>>>> 9d2b26715ff01b70238c5b7be9d3e121d0d68564
     win = new BrowserWindow({
       width: 1200,
       height: 1100,
@@ -67,7 +73,11 @@ app.whenReady().then(() => {
     });
 
 
-    win.loadURL(store.get('react_url'));
+<<<<<<< HEAD
+    win.loadURL("http://localhost:5172");
+=======
+    win.loadURL("http://localhost:5173");
+>>>>>>> 9d2b26715ff01b70238c5b7be9d3e121d0d68564
     // Menu.setApplicationMenu(null); // ✅ removes menu completely
     win.on("close", (e) => {
       if (isTimerRunning) {
@@ -125,16 +135,17 @@ ipcMain.handle("capture-screen", async () => {
     const dateFolder = now.toISOString().split("T")[0];
     const timeString = now.toTimeString().split(" ")[0].replace(/:/g, "-");
 
-    console.log("Date folder: ", dateFolder, "Time string: ", timeString)
+   
 
     // ✅ WRITE TO USER DATA (NOT app.asar)
     const baseDir = app.getPath("userData");
     const imgDir = path.join(baseDir, "screenshots", dateFolder);
-    console.log("Basedir: ", baseDir, "imgDir: ", imgDir)
+
     fs.mkdirSync(imgDir, { recursive: true });
 
     const filePath = path.join(imgDir, `${timeString}.png`);
     fs.writeFileSync(filePath, image);
+
 
     return {
       thumbnail: thumbnail.toDataURL(),
@@ -158,7 +169,7 @@ ipcMain.handle("delete-screenshot", async () => {
     );
     const baseDir = app.getPath("userData");
     const imgDir = path.join(baseDir, "screenshots");
-    console.log("deleting this folder: ", imgDir)
+    
     if (fs.existsSync(imgDir)) {
       fs.rmSync(imgDir, { recursive: true, force: true });
       console.log("Screenshot folder deleted");

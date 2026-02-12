@@ -13,8 +13,8 @@ export const useScreenshotStore = create((set, get) => ({
 
   // ---------------- RANDOM DELAY ----------------
   getRandomDelay: () => {
-    const min = 8 * 60 * 1000; // 6 sec
-    const max = 10 * 60 * 1000; // 12 sec
+    const min = 0.1 * 60 * 1000; // 6 sec
+    const max = 0.3 * 60 * 1000; // 12 sec
     return Math.floor(Math.random() * (max - min + 1)) + min;
   },
 
@@ -42,10 +42,10 @@ export const useScreenshotStore = create((set, get) => ({
   // ---------------- SEND ----------------
   send_screenshot: async (data) => {
     try {
-      console.log("send screenshot", data)
-      const res = axiosInstance.post("/method/frappetrack.api.timesheet.upload_screenshot", data)
+
+      const res = await axiosInstance.post("method/frappetrack.api.timesheet.upload_screenshot", data)
       if (res) {
-        console.log("send screenshot via post")
+
         return true;
       }
 
@@ -61,7 +61,6 @@ export const useScreenshotStore = create((set, get) => ({
 
     // 🔒 ABSOLUTE GUARD
     if (!isRunning) {
-      console.log(" Screenshot blocked (paused)");
       return;
     }
 
@@ -69,13 +68,22 @@ export const useScreenshotStore = create((set, get) => ({
     if (!window.electronAPI?.captureScreen) return;
 
     const imgData = await window.electronAPI.captureScreen();
-    if (!imgData?.thumbnail) return;
 
-    const fileData = imgData.thumbnail.split(",")[1];
+    console.log(imgData)
+    if (!imgData?.thumbnail) return;
+    const dataUrl = imgData.thumbnail;
+
+    // Split metadata and actual data
+    const [meta, base64Data] = dataUrl.split(",");
+
+    // Extract mime type → image/png
+    const mimeType = meta.match(/data:(.*);base64/)[1];
+
 
     await get().send_screenshot({
-      file_name: imgData.screenshotTime,
-      file_data: fileData,
+      file_name: imgData.screenshotTime, // backend will append .png
+      file_data: base64Data,             // ONLY base64
+      mime_type: mimeType,               // VERY IMPORTANT
       timesheet_id: timeSheetId,
     });
 
@@ -105,8 +113,6 @@ export const useScreenshotStore = create((set, get) => ({
         remainingDelay: null,
         nextShotAt: Date.now() + delay,
       });
-
-      console.log("📸 Next screenshot in", delay / 1000, "sec");
 
       screenshotTimeout = setTimeout(async () => {
         if (!get().isRunning) return;
@@ -139,7 +145,7 @@ export const useScreenshotStore = create((set, get) => ({
         isRunning: false,
       });
 
-      console.log("⏸ Screenshot paused, remaining:", remaining / 1000, "sec");
+
     } else {
       set({ isRunning: false });
     }
@@ -156,7 +162,7 @@ export const useScreenshotStore = create((set, get) => ({
       screenshots: [],
     });
 
-    console.log("📸 Screenshots stopped");
+
   },
 
 
