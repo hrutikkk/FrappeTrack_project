@@ -4,6 +4,7 @@ import fav from "../assets/favicon.webp";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { IoIosLink } from "react-icons/io";
+import toast from 'react-hot-toast'
 
 const Login = () => {
     const { login } = useAuthStore();

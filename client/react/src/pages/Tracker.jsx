@@ -350,6 +350,7 @@ const Tracker = () => {
             <select
               value={selectedProject}
               onChange={handleProjectChange}
+              disabled={timerState === "running" || timerState === "paused"}
               className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           hover:border-blue-400 transition"
@@ -365,6 +366,7 @@ const Tracker = () => {
             <select
               value={taskByProject}
               onChange={handleTaskByProject}
+              disabled={timerState === "running" || timerState === "paused"}
               className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           hover:border-blue-400 transition"
@@ -384,6 +386,7 @@ const Tracker = () => {
             {creatingTask ? <select
               value={selectedPriority}
               onChange={handleSetPriority}
+              disabled={timerState === "running" || timerState === "paused"}
               className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           hover:border-blue-400 transition"
@@ -398,6 +401,7 @@ const Tracker = () => {
               <select
                 value={activityType}
                 onChange={handleSetActivityType}
+                disabled={timerState === "running" || timerState === "paused"}
                 className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           hover:border-blue-400 transition"
@@ -416,6 +420,7 @@ const Tracker = () => {
               <select
                 value={timeSheetValue}
                 onChange={handleTimeSheet}
+                disabled={timerState === "running" || timerState === "paused"}
                 className="h-11 rounded-lg border border-slate-300 px-4 text-sm bg-white
       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
       hover:border-blue-400 transition"
@@ -446,6 +451,7 @@ const Tracker = () => {
               id="taskDescription"
               onChange={(e) => handleText(e.target.value)}
               value={creatingTask ? taskSubject : descriptionStore}
+              disabled={timerState === "running" || timerState === "paused"}
               placeholder={
                 creatingTask
                   ? "Briefly describe the task subject..."

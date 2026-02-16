@@ -13,8 +13,8 @@ export const useScreenshotStore = create((set, get) => ({
 
   // ---------------- RANDOM DELAY ----------------
   getRandomDelay: () => {
-    const min = 7 * 60 * 1000; // 6 sec
-    const max = 10 * 60 * 1000; // 12 sec
+    const min = 0.1 * 60 * 1000; // 6 sec
+    const max = 0.3 * 60 * 1000; // 12 sec
     return Math.floor(Math.random() * (max - min + 1)) + min;
   },
 
@@ -68,6 +68,8 @@ export const useScreenshotStore = create((set, get) => ({
     if (!window.electronAPI?.captureScreen) return;
 
     const imgData = await window.electronAPI.captureScreen();
+
+    console.log(imgData)
     if (!imgData?.thumbnail) return;
     const dataUrl = imgData.thumbnail;
 
