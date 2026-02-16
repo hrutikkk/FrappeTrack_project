@@ -1,0 +1,37 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-win:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Electron dependencies
+        working-directory: client
+        run: npm install
+
+      - name: Install React dependencies
+        working-directory: client/react
+        run: npm install
+
+      - name: Build React
+        working-directory: client/react
+        run: npm run build
+
+      - name: Build and Publish Windows
+        working-directory: client
+        run: npx electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
