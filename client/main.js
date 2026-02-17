@@ -1,4 +1,6 @@
 const { app, BrowserWindow, ipcMain, desktopCapturer } = require("electron");
+const { autoUpdater } = require("electron-updater");
+
 app.commandLine.appendSwitch("ozone-platform", "x11");
 app.commandLine.appendSwitch("disable-features", "WaylandWindowDecorations");
 
@@ -13,9 +15,11 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 
 let win;
 let isTimerRunning = false; // Tracks whether the timer is active
-let Backend = null
+// let Backend = null
 
 app.whenReady().then(() => {
+  autoUpdater.checkForUpdatesAndNotify();
+
   const server = express();
 
 
@@ -126,7 +130,7 @@ ipcMain.handle("capture-screen", async () => {
     const dateFolder = now.toISOString().split("T")[0];
     const timeString = now.toTimeString().split(" ")[0].replace(/:/g, "-");
 
-   
+
 
     // ✅ WRITE TO USER DATA (NOT app.asar)
     const baseDir = app.getPath("userData");
@@ -136,6 +140,7 @@ ipcMain.handle("capture-screen", async () => {
 
     const filePath = path.join(imgDir, `${timeString}.png`);
     fs.writeFileSync(filePath, image);
+
 
     return {
       thumbnail: thumbnail.toDataURL(),
@@ -159,7 +164,7 @@ ipcMain.handle("delete-screenshot", async () => {
     );
     const baseDir = app.getPath("userData");
     const imgDir = path.join(baseDir, "screenshots");
-    
+
     if (fs.existsSync(imgDir)) {
       fs.rmSync(imgDir, { recursive: true, force: true });
       console.log("Screenshot folder deleted");

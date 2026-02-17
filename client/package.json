@@ -18,11 +18,12 @@
   "description": "",
   "devDependencies": {
     "electron": "^25.1.0",
-    "electron-builder": "^26.4.0"
+    "electron-builder": "^26.7.0"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
     "electron-store": "^8.2.0",
+    "electron-updater": "^6.7.3",
     "express": "^4.22.1",
     "http-proxy-middleware": "^3.0.5",
     "jwt-decode": "^4.0.0",
@@ -42,6 +43,13 @@
       "package.json",
       "assets/**/*",
       "resources/**/*"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "rajbhar-suraj",
+        "repo": "frappeTrack"
+      }
     ],
     "win": {
       "target": "nsis",
