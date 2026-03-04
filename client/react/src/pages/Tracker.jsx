@@ -311,6 +311,11 @@ const Tracker = () => {
     setActivityType("");
     setIsTimeSheet(false);
     set({ descriptionStore: null })
+    useCreateStore.setState({
+      task: [],
+      activity: [],
+      timeSheet: []
+    });
   };
 
   /* ---------------- TIMER BUTTONS ---------------- */
@@ -409,7 +414,7 @@ const Tracker = () => {
               {selectedProject && (
                 <option value="create-task">Create Task</option>
               )}
-              {task.map((t) => (
+              {selectedProject && task.map((t) => (
                 <option key={t.name} value={t.name}>
                   {t.subject}
                 </option>
@@ -441,7 +446,7 @@ const Tracker = () => {
           hover:border-blue-400 transition"
               >
                 <option value="">Select Activity</option>
-                {activity.map((t) => (
+                {selectedProject && taskByProject && activity.map((t) => (
                   <option key={t.name} value={t.name}>
                     {t.name}
                   </option>
