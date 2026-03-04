@@ -27,54 +27,66 @@ export const useCreateStore = create((set, get) => ({
         set({ descriptionStore })
     },
 
+    // 
     createTimesheet: async (employee, parent_project, activity_type, taskByProject, descriptionStore) => {
         try {
-
             const res = await axiosInstance.post(
-                "/method/frappetrack.api.timesheet.create_timesheet", { employee, parent_project, activity_type, taskByProject, descriptionStore }
+                "/method/frappetrack.api.timesheet.create_timesheet",
+                { employee, parent_project, activity_type, taskByProject, descriptionStore }
             );
 
             const data = res.data?.message;
 
+            if (data?.status === "success") {
+                toast.success("TimeSheet created successfully");
 
-            if (data?.status) {
-                toast.success("TimeSheet created successfully")
-                set({
-                    descriptionStore: null,
-                    selectedProject: null,
-                    taskByProject: null,
-                    timeSheetValue: null,
-                    activityType: null
-                })
-                return true;
+                // Reset only descriptionStore
+                set({ descriptionStore: null });
+
+                // Return the newly created timesheet object
+                return data.data; // <-- important for Tracker.jsx
             }
 
-
-            toast.error("Unable create Timesheet")
-            return false
+            toast.error("Unable to create Timesheet");
+            return null;
         } catch (err) {
             console.error("Timesheet creation failed:", err);
             toast.error("Server error while creating timesheet");
-            return false;
+            return null;
         }
     },
-    createTask:async(project,subject,priority)=>{
+    createTask: async (project, subject, priority) => {
         try {
-            const res = await axiosInstance.post("/method/frappetrack.api.task.create_task",{project,subject,priority})
-            if(res?.data?.message?.status){
-                toast.success("Task created successfully!");
-                set({descriptionStore:null})
-                return true;
-            }
-            toast.error("Unable to create task")
-            
-            
-        } catch (error) {
-            console.log("create task error",error)
-            toast.error("Server error while creating task");
-            
-        }
+            const res = await axiosInstance.post(
+                "/method/frappetrack.api.task.create_task",
+                { project, subject, priority }
+            );
 
+            const data = res.data?.message;
+
+            if (data?.status === "success") {
+                toast.success("Task created successfully!");
+
+                const newTask = data.data;
+
+                // ✅ Add task to existing list immediately
+                set((state) => ({
+                    task: [...state.task, newTask],
+                    taskByProject: newTask.name,   // auto select
+                    descriptionStore: null
+                }));
+
+                return newTask;
+            }
+
+            toast.error("Unable to create task");
+            return null;
+
+        } catch (error) {
+            console.log("create task error", error);
+            toast.error("Server error while creating task");
+            return null;
+        }
     },
 
     getProjects: async () => {

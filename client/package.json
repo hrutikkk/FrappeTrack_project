@@ -23,7 +23,7 @@
   "dependencies": {
     "dotenv": "^17.2.3",
     "electron-store": "^8.2.0",
-    "electron-updater": "^6.7.3",
+    "electron-updater": "^6.8.3",
     "express": "^4.22.1",
     "http-proxy-middleware": "^3.0.5",
     "jwt-decode": "^4.0.0",
@@ -50,7 +50,6 @@
         "owner": "hrutikkk",
         "repo": "FrappeTrack_project",
         "releaseType": "release"
-      
       }
     ],
     "win": {

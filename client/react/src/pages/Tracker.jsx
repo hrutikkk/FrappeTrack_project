@@ -159,7 +159,7 @@ const Tracker = () => {
     return missing;
   };
 
-  /* ---------------- CREATE TIMESHEET ---------------- */
+
   async function createTimeSheetHandler() {
     const missing = getMissingSelections();
     if (missing.length) {
@@ -172,7 +172,8 @@ const Tracker = () => {
       return;
     }
 
-    await createTimesheet(
+    // This now returns the actual new timesheet object
+    const newTimeSheet = await createTimesheet(
       user?.employee?.name,
       selectedProject,
       activityType,
@@ -180,13 +181,30 @@ const Tracker = () => {
       descriptionStore
     );
 
-    // Reset selections
-    setSelectedProject("");
-    setTaskByProject("");
-    setActivityType("");
-    setDescriptionStore("");
-    setTimeSheetValue(null);
+    if (!newTimeSheet) return; // exit if creation failed
+
+    // ✅ Add to timesheet dropdown immediately
+    useCreateStore.setState((state) => ({
+      timeSheet: [
+        ...state.timeSheet,
+        {
+          name: newTimeSheet.name,
+          title: newTimeSheet.title,
+          project: newTimeSheet.project,
+          task: newTimeSheet.task,
+          activity_type: newTimeSheet.activity_type
+        }
+      ]
+    }));
+
+    // ✅ Auto-select the new timesheet
+    setTimeSheetValue(newTimeSheet.name);
+
+    // Reset only description
+    setDescriptionStore(descriptionStore);
+    setIsTimeSheet(false);
   }
+
 
   /* ---------------- CREATE TASK ---------------- */
   const createTaskHandler = async () => {
@@ -198,18 +216,33 @@ const Tracker = () => {
       return;
     }
     if (!taskSubject) {
-      toast.error("Please write subject")
-      return
+      toast.error("Please write subject");
+      return;
     }
 
-    await createTask(selectedProject, taskSubject, selectedPriority);
+    const newTask = await createTask(selectedProject, taskSubject, selectedPriority);
 
-    // Reset task form
+    if (!newTask) return;
+
+    // Update task list and select new task
+    setTaskByProject(newTask.name);
+
+    // Add to local task list so dropdown shows it immediately and it is preventing to add dublicate task
+    useCreateStore.setState((state) => ({
+      task: [
+        ...state.task.filter((t) => t.name !== newTask.name), // remove if exists
+        newTask
+      ]
+    }));
+
+    // ✅ Load activities for new task automatically
+    await getActivityType(newTask.name);
+
+    // Reset only task-specific fields
     setTaskSubject("");
-    setSelectedPriority("");
-    setSelectedProject("");
     setDescriptionStore("");
     setCreatingTask(false);
+    // keep project and priority as-is
   };
 
   /* ---------------- TIMER CONTROLS ---------------- */
@@ -277,6 +310,7 @@ const Tracker = () => {
     setDescriptionStore("");
     setActivityType("");
     setIsTimeSheet(false);
+    set({ descriptionStore: null })
   };
 
   /* ---------------- TIMER BUTTONS ---------------- */
