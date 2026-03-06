@@ -76,6 +76,22 @@ const Tracker = () => {
     getProjects();
   }, []);
 
+  useEffect(() => {
+
+    const stopTimerListener = async () => {
+      if (isRunning) {
+        await handleStop();
+      }
+    };
+
+    window.electronAPI.onStopTimerSave(stopTimerListener);
+
+    return () => {
+      window.electronAPI.removeStopTimerSave(stopTimerListener);
+    };
+
+  }, [isRunning]);
+
   /* ---------------- HANDLERS ---------------- */
 
   // Handle project selection

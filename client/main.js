@@ -74,9 +74,9 @@ app.whenReady().then(() => {
 
     win.loadURL("http://localhost:5173");
     // Menu.setApplicationMenu(null); // ✅ removes menu completely
-    win.on("close", (e) => {
+    win.on("close", async (e) => {
       if (isTimerRunning) {
-        e.preventDefault(); // Stop the window from closing immediately
+        e.preventDefault();
 
         const { dialog } = require("electron");
 
@@ -90,9 +90,16 @@ app.whenReady().then(() => {
         });
 
         if (choice === 0) {
-          // User confirmed exit
-          isTimerRunning = false; // optional: stop timer logic here
-          win.destroy(); // Force close the window
+
+          // Tell React to stop timer
+          win.webContents.send("stop-timer-save");
+
+          // wait for API to complete
+          setTimeout(() => {
+            isTimerRunning = false;
+            win.destroy();
+          }, 2000);
+
         }
       }
     });
@@ -183,3 +190,13 @@ ipcMain.on("timer-status", (event, status) => {
   isTimerRunning = status; // true if running, false if stopped
 });
 
+ipcMain.handle('save-running-timer', async () => {
+  // Inform the frontend to stop the timer and save
+  if (win) {
+    // send a message to React to stop timer
+    win.webContents.send('stop-timer-save');
+    // wait a bit for it to finish saving
+    await new Promise(res => setTimeout(res, 2000));
+  }
+  return true;
+});
