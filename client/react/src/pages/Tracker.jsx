@@ -69,6 +69,7 @@ const Tracker = () => {
   const [creatingTask, setCreatingTask] = useState(false); // toggles task creation mode
   const [taskSubject, setTaskSubject] = useState(""); // task subject text
   const [selectedPriority, setSelectedPriority] = useState(""); // task priority
+  const [isCreating, setIsCreating] = useState(false);  //spinner
 
   /* ---------------- INITIAL LOAD ---------------- */
   useEffect(() => {
@@ -161,6 +162,9 @@ const Tracker = () => {
 
 
   async function createTimeSheetHandler() {
+
+    if (isCreating) return; // prevent double click
+
     const missing = getMissingSelections();
     if (missing.length) {
       toast.error(`Please select ${missing.join(" and ")}`);
@@ -172,37 +176,46 @@ const Tracker = () => {
       return;
     }
 
-    // This now returns the actual new timesheet object
-    const newTimeSheet = await createTimesheet(
-      user?.employee?.name,
-      selectedProject,
-      activityType,
-      taskByProject,
-      descriptionStore
-    );
+    setIsCreating(true); // start spinner
 
-    if (!newTimeSheet) return; // exit if creation failed
+    try {
 
-    // ✅ Add to timesheet dropdown immediately
-    useCreateStore.setState((state) => ({
-      timeSheet: [
-        ...state.timeSheet,
-        {
-          name: newTimeSheet.name,
-          title: newTimeSheet.title,
-          project: newTimeSheet.project,
-          task: newTimeSheet.task,
-          activity_type: newTimeSheet.activity_type
-        }
-      ]
-    }));
+      const newTimeSheet = await createTimesheet(
+        user?.employee?.name,
+        selectedProject,
+        activityType,
+        taskByProject,
+        descriptionStore
+      );
 
-    // ✅ Auto-select the new timesheet
-    setTimeSheetValue(newTimeSheet.name);
+      if (!newTimeSheet) return;
 
-    // Reset only description
-    setDescriptionStore(descriptionStore);
-    setIsTimeSheet(false);
+      useCreateStore.setState((state) => ({
+        timeSheet: [
+          ...state.timeSheet,
+          {
+            name: newTimeSheet.name,
+            title: newTimeSheet.title,
+            project: newTimeSheet.project,
+            task: newTimeSheet.task,
+            activity_type: newTimeSheet.activity_type
+          }
+        ]
+      }));
+
+      setTimeSheetValue(newTimeSheet.name);
+
+      // keep description for timer
+      setDescriptionStore(descriptionStore)
+
+      setIsTimeSheet(false);
+
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to create timesheet");
+    } finally {
+      setIsCreating(false); // stop spinner
+    }
   }
 
 
@@ -219,30 +232,41 @@ const Tracker = () => {
       toast.error("Please write subject");
       return;
     }
+    setIsCreating(true);
 
-    const newTask = await createTask(selectedProject, taskSubject, selectedPriority);
+    try {
+      const newTask = await createTask(selectedProject, taskSubject, selectedPriority);
 
-    if (!newTask) return;
+      if (!newTask) return;
 
-    // Update task list and select new task
-    setTaskByProject(newTask.name);
+      // Update task list and select new task
+      setTaskByProject(newTask.name);
 
-    // Add to local task list so dropdown shows it immediately and it is preventing to add dublicate task
-    useCreateStore.setState((state) => ({
-      task: [
-        ...state.task.filter((t) => t.name !== newTask.name), // remove if exists
-        newTask
-      ]
-    }));
+      // Add to local task list so dropdown shows it immediately and it is preventing to add dublicate task
+      useCreateStore.setState((state) => ({
+        task: [
+          ...state.task.filter((t) => t.name !== newTask.name), // remove if exists
+          newTask
+        ]
+      }));
 
-    // ✅ Load activities for new task automatically
-    await getActivityType(newTask.name);
+      // ✅ Load activities for new task automatically
+      await getActivityType(newTask.name);
 
-    // Reset only task-specific fields
-    setTaskSubject("");
-    setDescriptionStore("");
-    setCreatingTask(false);
-    // keep project and priority as-is
+      // Reset only task-specific fields
+      setTaskSubject("");
+      setDescriptionStore(taskSubject);
+      setCreatingTask(false);
+      // keep project and priority as-is
+
+    } catch (error) {
+      console.log("Erro while creating task", error)
+      toast.error("Failed to create task!!")
+
+    }
+    finally {
+      setIsCreating(false)
+    }
   };
 
   /* ---------------- TIMER CONTROLS ---------------- */
@@ -522,17 +546,47 @@ const Tracker = () => {
               </div>
             ) : creatingTask ? (
               <button
-                className="bg-black rounded-xl p-2 text-xl text-center font-mono text-white tracking-widest shadow-inner w-full cursor-pointer"
+                className="bg-black rounded-xl p-2 text-xl text-white flex items-center justify-center gap-2 w-full"
                 onClick={createTaskHandler}
+                disabled={isCreating}  // disables button while creating
               >
-                Create Task
+                {isCreating && (
+                  <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  </svg>
+                )}
+                {isCreating ? "Creating..." : "Create Task"}
               </button>
             ) : (
               <button
-                className="bg-black rounded-xl p-2 text-xl text-center font-mono text-white tracking-widest shadow-inner w-full cursor-pointer"
+                className="bg-black rounded-xl p-2 text-xl text-center font-mono text-white tracking-widest shadow-inner w-full flex items-center justify-center gap-2 cursor-pointer"
                 onClick={createTimeSheetHandler}
+                disabled={isCreating} // disables button during API call
               >
-                Create Timesheet
+                {isCreating && (
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    ></path>
+                  </svg>
+                )}
+                {isCreating ? "Creating..." : "Create Timesheet"}
               </button>
             )}
           </div>
