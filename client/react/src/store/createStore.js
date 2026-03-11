@@ -38,10 +38,10 @@ export const useCreateStore = create((set, get) => ({
             const data = res.data?.message;
 
             if (data?.status === "success") {
-                toast.success("TimeSheet created successfully");
+                // toast.success("TimeSheet created successfully");
 
                 // Reset only descriptionStore
-                set({ descriptionStore: null });
+                // set({ descriptionStore: null });
 
                 // Return the newly created timesheet object
                 return data.data; // <-- important for Tracker.jsx

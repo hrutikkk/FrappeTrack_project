@@ -189,6 +189,7 @@ const Tracker = () => {
       );
 
       if (!newTimeSheet) return;
+      toast.success("TimeSheet created successfully");
 
       useCreateStore.setState((state) => ({
         timeSheet: [
@@ -328,11 +329,13 @@ const Tracker = () => {
     delScreenshotFolder();
 
     // Reset UI state
-    setSelectedProject("");
-    setTaskByProject("");
-    setTimeSheetValue("");
-    setDescriptionStore("");
-    setActivityType("");
+    useCreateStore.setState({
+      selectedProject: "",
+      taskByProject: "",
+      timeSheetValue: "",
+      descriptionStore: "",
+      activityType: ""
+    });
     setIsTimeSheet(false);
     set({ descriptionStore: null })
     useCreateStore.setState({
